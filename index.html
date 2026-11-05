@@ -144,8 +144,8 @@
                 </div>
                 <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <!-- ACCESO LIBRE PARA TI (ADMIN) - OCULTO POR DEFECTO PARA CLIENTES -->
-            <div id="adminMasterBox" class="hidden bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
+            <!-- ACCESO LIBRE PARA TI (ADMIN) -->
+            <div class="bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
                 <div>
                     <div class="font-bold text-xs text-purple-900">Acceso Maestro de Administrador</div>
                     <div class="text-[10px] text-purple-700">Actívate de forma libre sin pasar por Yape.</div>
@@ -360,27 +360,28 @@
         let currentParsedLyrics = [];
         let currentActiveLyricIndex = -1;
         let customLyricsMap = JSON.parse(localStorage.getItem('at_custom_lyrics') || '{}');
-        let listaClientes = [];
+        let listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
         const audioElement = document.getElementById('audioEngine');
 
         function checkSubscription() {
+            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             let activeUser = JSON.parse(localStorage.getItem('at_active_session') || 'null');
             const now = new Date().getTime();
             if (!activeUser) {
                 document.getElementById('paywallModal').classList.remove('hidden');
-                if(!audioEngine.paused) audioEngine.pause();
+                if(!audioEngine.paused) audioElement.pause();
                 return;
             }
             document.getElementById('navUserName').innerText = activeUser.cliente || "Admin";
             if (!activeUser.paid || !activeUser.startTime) {
                 document.getElementById('paywallModal').classList.remove('hidden');
-                if(!audioEngine.paused) audioEngine.pause();
+                if(!audioEngine.paused) audioElement.pause();
                 return;
             }
             const elapsedTime = now - activeUser.startTime;
             if (elapsedTime > activeUser.durationMs) {
                 document.getElementById('paywallModal').classList.remove('hidden');
-                if(!audioEngine.paused) audioEngine.pause();
+                if(!audioEngine.paused) audioElement.pause();
             } else {
                 document.getElementById('paywallModal').classList.add('hidden');
             }
@@ -516,7 +517,7 @@
             const tbody = document.getElementById('clientesTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            listaClientes.forEach((c) => {
+            listaClientes.forEach((c, index) => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50">
                         <td class="p-2 font-semibold">${c.cliente || 'Sin nombre'}</td>
@@ -595,16 +596,6 @@
         }
 
         function abrirModalUsuario() {
-            let activeUser = JSON.parse(localStorage.getItem('at_active_session') || 'null');
-            const adminBox = document.getElementById('adminMasterBox');
-            
-            // Solo muestra el acceso maestro si el usuario activo es el administrador
-            if (activeUser && (activeUser.dni === "00000000" || (activeUser.cliente && activeUser.cliente.includes("Administrador")))) {
-                adminBox.classList.remove('hidden');
-            } else {
-                adminBox.classList.add('hidden');
-            }
-
             renderClientesTable();
             document.getElementById('userModal').classList.remove('hidden');
         }
@@ -640,6 +631,7 @@
                 song.title.toLowerCase().includes(q) || song.artist.toLowerCase().includes(q)
             );
 
+            // Mostrar resultados en el menú desplegable flotante
             resultsContainer.innerHTML = '';
             if (filtered.length > 0) {
                 filtered.forEach((song) => {
@@ -658,6 +650,7 @@
                 resultsContainer.innerHTML = `<div class="p-2 text-slate-400 text-xs text-center">No se encontraron canciones</div>`;
             }
 
+            // Actualizar también la tabla principal del catálogo con el filtro
             renderAllSongs(filtered);
             document.getElementById('catalogTitle').innerText = `Resultados de búsqueda: "${query}"`;
         }
@@ -670,6 +663,7 @@
             document.getElementById('catalogTitle').innerText = "Catálogo";
         }
 
+        // Ocultar buscador al hacer clic fuera
         document.addEventListener('click', (e) => {
             const searchContainer = document.getElementById('searchInput').parentElement.parentElement;
             const dropdown = document.getElementById('searchDropdown');
@@ -678,6 +672,7 @@
             }
         });
 
+        // Renderizado del catálogo y funciones iniciales al cargar
         window.addEventListener('DOMContentLoaded', () => {
             checkSubscription();
             cargarClientesDesdeFirestore();
@@ -689,6 +684,7 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             songsToRender.forEach((song, idx) => {
+                // Encontrar el índice real en la base de datos principal
                 const realIdx = database.findIndex(s => s.id === song.id);
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-800/40 cursor-pointer" onclick="playSongIndex(${realIdx})">
