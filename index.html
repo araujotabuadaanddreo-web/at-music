@@ -102,7 +102,7 @@
     <div id="paywallModal" class="hidden fixed inset-0 bg-[#0b0f19]/98 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-2xl overflow-y-auto">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 max-w-xl w-full text-center shadow-2xl relative my-auto">
             <h2 class="text-xl sm:text-2xl font-black text-white mb-1">¡Membresía Requerida!</h2>
-            <p class="text-[11px] sm:text-xs text-slate-400 mb-4">Escanea el QR para pagar con Yape, registra tus datos y envía tu solicitud.</p>
+            <p class="text-[11px] sm:text-xs text-slate-400 mb-4">Escanea el QR para pagar con Yape, registra tus datos y envíalos.</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                 <!-- QR YAPE -->
@@ -116,36 +116,36 @@
                     <div class="text-[10px] text-slate-300">Yape: <span class="text-cyan-400 font-bold">920484815</span></div>
                 </div>
 
-                <!-- REGISTRO Y REGISTRO EN PANEL -->
+                <!-- REGISTRO Y ACCESO -->
                 <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 text-left flex flex-col justify-between space-y-3">
                     <div>
-                        <h3 class="text-[11px] font-bold text-white mb-1.5 uppercase">PASO 1: REGISTRA TUS DATOS</h3>
+                        <h3 class="text-[11px] font-bold text-white mb-1.5 uppercase">Paso 1: Registra tus datos</h3>
                         <div class="space-y-2">
                             <div>
                                 <label class="text-[10px] text-slate-400 block mb-0.5">Nombres y Apellidos</label>
-                                <input type="text" id="clientRegName" placeholder="Ej. Andreo Araujo" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none">
+                                <input type="text" id="clientRegName" placeholder="Ej. Juan Pérez" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none">
                             </div>
                             <div>
                                 <label class="text-[10px] text-slate-400 block mb-0.5">DNI / Código</label>
-                                <input type="text" id="clientRegDni" placeholder="Ej. 61014229" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none">
+                                <input type="text" id="clientRegDni" placeholder="Ej. 70259930" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none">
                             </div>
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <!-- BOTÓN PEDIDO: REGISTRAR CON EL ADMINISTRADOR -->
-                        <button onclick="registrarClienteEnAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-user-plus"></i> Registrar con el Administrador
-                        </button>
+                    <div class="space-y-2.5">
                         <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
                             <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante
                         </button>
-                        <button onclick="intentarIngresar()" class="w-full at-btn-primary text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-right-to-bracket"></i> Ingresar a la Plataforma
+
+                        <!-- NUEVO BOTÓN CON SEPARACIÓN ADECUADA -->
+                        <button onclick="registrarConAdministrador()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2 mt-1">
+                            <i class="fa-solid fa-user-gear text-sm"></i> Registrarse con el Administrador
+                        </button>
+
+                        <button onclick="intentarIngresar()" class="w-full at-btn-primary text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2 mt-1">
+                            <i class="fa-solid fa-right-to-bracket"></i> Ingresar
                         </button>
                     </div>
-
-                    <div id="statusNotice" class="text-[10px] text-cyan-400 font-semibold text-center hidden"></div>
                 </div>
             </div>
         </div>
@@ -157,16 +157,16 @@
             <div class="flex justify-between items-center pb-2 mb-3 border-b">
                 <div>
                     <h2 class="text-base sm:text-lg font-black text-slate-900">Panel Privado de Administración</h2>
-                    <p class="text-[10px] sm:text-xs text-slate-500">Los clientes registrados aparecen aquí para que los actives si quieres</p>
+                    <p class="text-[10px] sm:text-xs text-slate-500">Los clientes que se registren aparecerán aquí para que los actives</p>
                 </div>
                 <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- ACCESO LIBRE ADMIN -->
+            <!-- BOTÓN DE ACCESO LIBRE PARA TI (ADMIN) -->
             <div class="bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
                 <div>
                     <div class="font-bold text-xs text-purple-900">Acceso Maestro de Administrador</div>
-                    <div class="text-[10px] text-purple-700">Entra de forma libre como dueño del sistema.</div>
+                    <div class="text-[10px] text-purple-700">Actívate de forma libre sin pasar por Yape.</div>
                 </div>
                 <button onclick="activarAdminLibre()" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1.5 flex-shrink-0">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Ingresar Libre
@@ -363,6 +363,8 @@
         let currentTrackIndex = 0;
         let currentSongObject = null;
         let currentActiveView = 'home';
+        let currentParsedLyrics = [];
+        let currentActiveLyricIndex = -1;
         let customLyricsMap = JSON.parse(localStorage.getItem('at_custom_lyrics') || '{}');
         let listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
         const audioElement = document.getElementById('audioEngine');
@@ -395,33 +397,7 @@
             }
         }
 
-        // FUNCIÓN CLAVE: EL CLIENTE HACE CLIC EN "REGISTRAR CON EL ADMINISTRADOR"
-        function registrarClienteEnAdmin() {
-            const nombre = document.getElementById('clientRegName').value.trim();
-            const dni = document.getElementById('clientRegDni').value.trim();
-
-            if (!nombre || !dni) {
-                alert("Por favor ingresa tu Nombre y DNI antes de registrarte.");
-                return;
-            }
-
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
-
-            let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
-            if (!existente) {
-                existente = { cliente: nombre, dni: dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false };
-                listaClientes.push(existente);
-                localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-            }
-
-            localStorage.setItem('at_active_session', JSON.stringify(existente));
-
-            const notice = document.getElementById('statusNotice');
-            notice.classList.remove('hidden');
-            notice.innerText = "✅ ¡Te has registrado con éxito! El administrador ya te tiene en su panel para activarte.";
-            alert("¡Registro enviado al Administrador! Tus datos ya aparecen en el panel privado.");
-        }
-
+        // ACCESO LIBRE PARA TI (ADMINISTRADOR)
         function activarAdminLibre() {
             const adminUser = { 
                 cliente: "Andreo (Administrador)", 
@@ -433,10 +409,11 @@
             localStorage.setItem('at_active_session', JSON.stringify(adminUser));
             document.getElementById('paywallModal').classList.add('hidden');
             cerrarModalUsuario();
-            alert("¡Modo Administrador activado!");
+            alert("¡Modo Administrador activado con éxito!");
             checkSubscription();
         }
 
+        // BOTÓN: ENVIAR COMPROBANTE POR WHATSAPP
         function enviarComprobanteWhatsApp() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
@@ -446,12 +423,45 @@
                 return;
             }
 
-            registrarClienteEnAdmin();
+            let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
+            if (!existente) {
+                existente = { cliente: nombre, dni: dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false };
+                listaClientes.push(existente);
+                localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
+            }
 
+            localStorage.setItem('at_active_session', JSON.stringify(existente));
             const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}`);
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
         }
 
+        // NUEVO BOTÓN: REGISTRARSE CON EL ADMINISTRADOR (AUTOMÁTICO EN EL PANEL)
+        function registrarConAdministrador() {
+            const nombre = document.getElementById('clientRegName').value.trim();
+            const dni = document.getElementById('clientRegDni').value.trim();
+
+            if (!nombre || !dni) {
+                alert("Por favor ingresa tu Nombre y DNI para registrarte.");
+                return;
+            }
+
+            // Verificar si ya existe en la lista
+            let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
+            if (!existente) {
+                existente = { cliente: nombre, dni: dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false };
+                listaClientes.push(existente);
+            } else {
+                existente.cliente = nombre; // Actualizar por si cambió el nombre
+            }
+
+            localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
+            localStorage.setItem('at_active_session', JSON.stringify(existente));
+
+            alert("¡Te has registrado correctamente con el administrador! Ahora espera a que active tu cuenta desde su panel.");
+            checkSubscription();
+        }
+
+        // BOTÓN: INTENTAR INGRESAR
         function intentarIngresar() {
             listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             const nombre = document.getElementById('clientRegName').value.trim();
@@ -468,12 +478,12 @@
             );
 
             if (!clienteEncontrado) {
-                alert("No estás registrado. Haz clic primero en 'Registrar con el Administrador'.");
+                alert("No estás registrado. Haz clic en 'Registrarse con el Administrador'.");
                 return;
             }
 
             if (!clienteEncontrado.paid || !clienteEncontrado.startTime) {
-                alert("Tu cuenta aún no ha sido activada por el administrador. Espera a que lo revise.");
+                alert("Tu cuenta aún no ha sido activada por el administrador. Espera la confirmación.");
                 return;
             }
 
@@ -492,33 +502,23 @@
             document.getElementById('userModal').classList.add('hidden');
         }
 
-        // EL ADMINISTRADOR ACTIVA AL CLIENTE DESDE SU PANEL
+        // TÚ ACTIVAS MANUALMENTE AL CLIENTE DESDE TU PANEL PRIVADO
         function activarMembresiaManual(index) {
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             const c = listaClientes[index];
             const now = new Date();
             c.startTime = now.getTime();
-            c.durationMs = 30 * 24 * 3600 * 1000;
+            c.durationMs = 30 * 24 * 3600 * 1000; // 30 días
             c.paid = true;
             const endDate = new Date(c.startTime + c.durationMs);
             c.fechaInicio = now.toLocaleString();
             c.fechaBloqueo = endDate.toLocaleString();
 
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-            
-            // Si el cliente que acabas de activar está en la pantalla en este momento, desbloquearle
-            let activeUser = JSON.parse(localStorage.getItem('at_active_session') || '{}');
-            if (activeUser.dni && activeUser.dni.toString().trim() === c.dni.toString().trim()) {
-                localStorage.setItem('at_active_session', JSON.stringify(c));
-            }
-
             alert(`¡Membresía activada con éxito para ${c.cliente} por 30 días!`);
             renderClientesTable();
-            checkSubscription();
         }
 
         function eliminarCliente(index) {
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             listaClientes.splice(index, 1);
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
             renderClientesTable();
@@ -529,20 +529,19 @@
             const tbody = document.getElementById('clientesTableBody');
             tbody.innerHTML = '';
             if (listaClientes.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400">No hay solicitudes registradas aún</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400">No hay clientes registrados aún</td></tr>`;
                 return;
             }
             listaClientes.forEach((c, idx) => {
-                const estadoTexto = c.paid ? `<span class="text-emerald-600 font-bold">Activado</span>` : `<span class="text-amber-600 font-bold">Pendiente</span>`;
                 tbody.innerHTML += `
                     <tr class="border-b">
                         <td class="p-2 font-medium">${c.cliente}</td>
                         <td class="p-2">${c.dni}</td>
-                        <td class="p-2">${c.fechaInicio || estadoTexto}</td>
+                        <td class="p-2">${c.fechaInicio || '-'}</td>
                         <td class="p-2">${c.fechaBloqueo || '-'}</td>
                         <td class="p-2 text-center">
-                            <button onclick="activarMembresiaManual(${idx})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] font-bold">Activar 30 Días</button>
-                            <button onclick="eliminarCliente(${idx})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold ml-1">Eliminar</button>
+                            <button onclick="activarMembresiaManual(${idx})" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Activar</button>
+                            <button onclick="eliminarCliente(${idx})" class="bg-red-500 text-white px-2 py-1 rounded text-[10px] font-bold ml-1">X</button>
                         </td>
                     </tr>`;
             });
@@ -613,7 +612,7 @@
 
         audioEngine.ontimeupdate = () => {
             if (audioEngine.duration) {
-                document.getElementById('progressBar').value = (audioEngine.currentTime / audioElement.duration) * 100;
+                document.getElementById('progressBar').value = (audioEngine.currentTime / audioEngine.duration) * 100;
                 let m = Math.floor(audioEngine.currentTime / 60), s = Math.floor(audioEngine.currentTime % 60);
                 document.getElementById('currentTime').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
                 let dm = Math.floor(audioEngine.duration / 60), ds = Math.floor(audioEngine.duration % 60);
