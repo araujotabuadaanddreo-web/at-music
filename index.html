@@ -145,7 +145,6 @@
                         <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
                             <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante por WhatsApp
                         </button>
-                        <!-- NUEVO BOTÓN INGRESAR DIRECTO -->
                         <button onclick="intentarIngresar()" class="w-full at-btn-primary text-white font-bold py-2.5 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-right-to-bracket"></i> Ingresar a la Plataforma
                         </button>
@@ -454,8 +453,6 @@
     <audio id="audioEngine"></audio>
 
     <script>
-       
-        // ==================== DATABASE DE CANCIONES COMPLETA ====================
         const database = [
             // PAULO LONDRA (50 CANCIONES)
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
@@ -668,9 +665,9 @@
                 localStorage.setItem('at_active_session', JSON.stringify(activeUser));
             }
 
-            // Sincronizar estado actual con la lista de clientes registrados en el panel
+            // Sincronizar automáticamente con la lista de clientes si el DNI coincide
             if (activeUser.dni && activeUser.dni !== "00000000") {
-                const clienteEncontrado = listaClientes.find(c => c.dni === activeUser.dni);
+                const clienteEncontrado = listaClientes.find(c => c.dni.trim() === activeUser.dni.trim());
                 if (clienteEncontrado) {
                     activeUser = { ...clienteEncontrado };
                     localStorage.setItem('at_active_session', JSON.stringify(activeUser));
@@ -706,7 +703,7 @@
                 return;
             }
 
-            let existente = listaClientes.find(c => c.dni === dni);
+            let existente = listaClientes.find(c => c.dni.trim() === dni.trim());
             if (!existente) {
                 existente = { cliente: nombre, dni: dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false };
                 listaClientes.push(existente);
@@ -719,9 +716,9 @@
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
         }
 
-        // BOTÓN INGRESAR DESDE EL BLOQUEO (VERIFICA SI YA ESTÁS ACTIVADO)
+        // BOTÓN INGRESAR DESDE EL BLOQUEO (VERIFICACIÓN EXACTA POR DNI)
         function intentarIngresar() {
-            const nombre = document.getElementById('clientRegName').value.trim();
+            const nombre = document.getElementById('clientRegName').value.trim().toLowerCase();
             const dni = document.getElementById('clientRegDni').value.trim();
 
             if (!nombre || !dni) {
@@ -729,10 +726,11 @@
                 return;
             }
 
-            const clienteEncontrado = listaClientes.find(c => c.dni === dni || c.cliente.toLowerCase() === nombre.toLowerCase());
+            // Buscar por DNI exacto
+            const clienteEncontrado = listaClientes.find(c => c.dni.trim() === dni);
             
             if (!clienteEncontrado) {
-                alert("Aún no estás registrado en el sistema. Escribe tus datos y envía tu comprobante por WhatsApp primero.");
+                alert("No se encontró un registro con este DNI. Verifica tus datos.");
                 return;
             }
 
@@ -741,8 +739,11 @@
                 return;
             }
 
+            // Guardar sesión exacta
             localStorage.setItem('at_active_session', JSON.stringify(clienteEncontrado));
+            document.getElementById('paywallModal').classList.add('hidden');
             checkSubscription();
+            window.location.reload();
         }
 
         // VERIFICAR VENCIMIENTOS DE HOY EN EL PANEL DE ADMINISTRACIÓN
@@ -801,9 +802,9 @@
 
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
             
-            // Actualizar sesión activa si es el usuario actual
+            // Actualizar sesión activa si coincide el DNI
             let activeUser = JSON.parse(localStorage.getItem('at_active_session') || '{}');
-            if (activeUser.dni === c.dni || activeUser.cliente.toLowerCase() === c.cliente.toLowerCase()) {
+            if (activeUser.dni && activeUser.dni.trim() === c.dni.trim()) {
                 localStorage.setItem('at_active_session', JSON.stringify(c));
             }
 
