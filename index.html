@@ -156,7 +156,7 @@
             <div class="flex justify-between items-center pb-2 mb-3 border-b">
                 <div>
                     <h2 class="text-base sm:text-lg font-black text-slate-900">Panel Privado de Administración</h2>
-                    <p class="text-[10px] sm:text-xs text-slate-500">Pega aquí el enlace recibido por WhatsApp o activa a tus clientes</p>
+                    <p class="text-[10px] sm:text-xs text-slate-500">Pega aquí el mensaje recibido por WhatsApp para registrar y activar</p>
                 </div>
                 <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -172,11 +172,11 @@
                 </button>
             </div>
 
-            <!-- CAMPO PARA PEGAR LA DIRECCIÓN QUE TE ENVIARON POR WHATSAPP -->
+            <!-- CAMPO PARA PEGAR EL MENSAJE DE WHATSAPP -->
             <div class="bg-slate-100 border border-slate-300 p-3 rounded-xl mb-3 space-y-2">
-                <div class="font-bold text-xs text-slate-800">📥 Registrar mediante enlace de WhatsApp</div>
+                <div class="font-bold text-xs text-slate-800">📥 Registrar mediante mensaje de WhatsApp</div>
                 <div class="flex gap-2">
-                    <input type="text" id="whatsappLinkInput" placeholder="Pega aquí el enlace recibido (ej. ?cliente=Juan&dni=123)" class="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                    <input type="text" id="whatsappLinkInput" placeholder="Pega aquí todo el texto recibido por WhatsApp..." class="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
                     <button onclick="procesarEnlaceWhatsApp()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-1.5 rounded-lg text-xs shadow transition">Procesar y Agregar</button>
                 </div>
             </div>
@@ -188,8 +188,8 @@
                         <tr>
                             <th class="p-2">Cliente</th>
                             <th class="p-2">DNI</th>
-                            <th class="p-2">Inicio</th>
-                            <th class="p-2">Bloqueo</th>
+                            <th class="p-2">Código</th>
+                            <th class="p-2">Inicio / Estado</th>
                             <th class="p-2 text-center">Acción</th>
                         </tr>
                     </thead>
@@ -410,6 +410,7 @@
             const adminUser = { 
                 cliente: "Andreo (Administrador)", 
                 dni: "00000000", 
+                codigo: "ADMIN01",
                 startTime: new Date().getTime(), 
                 durationMs: 365 * 24 * 3600 * 1000, 
                 paid: true 
@@ -421,7 +422,12 @@
             checkSubscription();
         }
 
-        // ENVIAR COMPROBANTE POR WHATSAPP CON DIRECCIÓN AUTOMÁTICA
+        // GENERAR CÓDIGO AUTOMÁTICO DE SEGURIDAD
+        function generarCodigoAleatorio() {
+            return Math.floor(10000 + Math.random() * 90000).toString();
+        }
+
+        // ENVIAR COMPROBANTE POR WHATSAPP CON DIRECCIÓN Y CÓDIGO AUTOMÁTICO
         function enviarComprobanteWhatsApp() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
@@ -431,12 +437,13 @@
                 return;
             }
 
-            const linkCliente = `?cliente=${encodeURIComponent(nombre)}&dni=${encodeURIComponent(dni)}`;
-            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n\nMi enlace de registro:\n${linkCliente}`);
+            const codigoUnico = generarCodigoAleatorio();
+            const plataformaUrl = window.location.href.split('?')[0];
+            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}\n- Plataforma: ${plataformaUrl}`);
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
         }
 
-        // BOTÓN: REGISTRARSE CON EL ADMINISTRADOR (GENERA ENLACE AUTOMÁTICO)
+        // BOTÓN: REGISTRARSE CON EL ADMINISTRADOR (GENERA CÓDIGO Y DIRECCIÓN)
         function registrarConAdministrador() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
@@ -446,56 +453,53 @@
                 return;
             }
 
-            const linkCliente = `?cliente=${encodeURIComponent(nombre)}&dni=${encodeURIComponent(dni)}`;
-            const mensaje = encodeURIComponent(`Hola Andreo, me he registrado en AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n\nCopia este texto y pégalo en tu panel de administración:\n${linkCliente}`);
+            const codigoUnico = generarCodigoAleatorio();
+            const plataformaUrl = window.location.href.split('?')[0];
+            const mensaje = encodeURIComponent(`Hola Andreo, me he registrado en AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}\n- Plataforma: ${plataformaUrl}`);
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
-            alert("¡Se abrió WhatsApp para enviar tu registro al Administrador!");
+            alert("¡Se abrió WhatsApp con tu registro automático y código único!");
         }
 
-        // PROCESAR EL ENLACE PEGADO EN TU PANEL PRIVADO
+        // PROCESAR EL TEXTO PEGADO EN TU PANEL PRIVADO
         function procesarEnlaceWhatsApp() {
             const texto = document.getElementById('whatsappLinkInput').value.trim();
             if (!texto) {
-                alert("Pega el enlace o texto recibido.");
+                alert("Pega el mensaje recibido de WhatsApp.");
                 return;
             }
 
             try {
                 let nombre = "";
                 let dni = "";
+                let codigo = "S/C";
 
-                if (texto.includes("cliente=")) {
-                    const urlParams = new URLSearchParams(texto.includes('?') ? texto.split('?')[1] : texto);
-                    nombre = decodeURIComponent(urlParams.get('cliente') || '');
-                    dni = decodeURIComponent(urlParams.get('dni') || '');
-                } else {
-                    // Si te mandaron el texto plano con Nombre y DNI
-                    const lineas = texto.split('\n');
-                    lineas.forEach(l => {
-                        if (l.toLowerCase().includes('nombre:')) nombre = l.split(':')[1].trim();
-                        if (l.toLowerCase().includes('dni:')) dni = l.split(':')[1].trim();
-                    });
-                }
+                const lineas = texto.split('\n');
+                lineas.forEach(l => {
+                    let lineaLower = l.toLowerCase();
+                    if (lineaLower.includes('nombre:')) nombre = l.split(':')[1].trim();
+                    if (lineaLower.includes('dni:')) dni = l.split(':')[1].trim();
+                    if (lineaLower.includes('código de seguridad:') || lineaLower.includes('codigo:')) codigo = l.split(':')[1].trim();
+                });
 
                 if (!nombre || !dni) {
-                    alert("No se pudo extraer el Nombre y DNI del texto. Asegúrate de copiarlo bien.");
+                    alert("No se pudo extraer el Nombre y DNI. Asegúrate de copiar todo el mensaje de WhatsApp.");
                     return;
                 }
 
                 listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
                 let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
                 if (!existente) {
-                    listaClientes.push({ cliente: nombre, dni: dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false });
+                    listaClientes.push({ cliente: nombre, dni: dni, codigo: codigo, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false });
                     localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-                    alert(`¡Cliente ${nombre} agregado con éxito al panel! Ya puedes activarlo.`);
+                    alert(`¡Cliente ${nombre} (Código: ${codigo}) agregado al panel con éxito!`);
                 } else {
-                    alert("Este cliente ya se encontraba registrado.");
+                    alert("Este cliente ya se encuentra registrado en el panel.");
                 }
 
                 document.getElementById('whatsappLinkInput').value = '';
                 renderClientesTable();
             } catch (e) {
-                alert("Formato no válido.");
+                alert("No se pudo procesar el texto.");
             }
         }
 
@@ -578,8 +582,8 @@
                     <tr class="border-b">
                         <td class="p-2 font-medium">${c.cliente}</td>
                         <td class="p-2">${c.dni}</td>
+                        <td class="p-2 font-mono text-cyan-700 font-bold">${c.codigo || 'S/C'}</td>
                         <td class="p-2">${c.fechaInicio || badgeEstado}</td>
-                        <td class="p-2">${c.fechaBloqueo || '-'}</td>
                         <td class="p-2 text-center">
                             <button onclick="activarMembresiaManual(${idx})" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Activar</button>
                             <button onclick="eliminarCliente(${idx})" class="bg-red-500 text-white px-2 py-1 rounded text-[10px] font-bold ml-1">X</button>
