@@ -98,7 +98,7 @@
                 <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 flex flex-col items-center justify-center space-y-2">
                     <span class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Escanea para pagar S/ 20.00</span>
                     <div class="bg-white p-2 rounded-xl w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center border shadow-md">
-                        <img src="imagen/qr-yape.jpeg" alt="QR Yape" class="w-full h-full object-contain rounded-lg" onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=YapeATMusic920484815';">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=920484815" alt="QR Yape" class="w-full h-full object-contain rounded-lg">
                     </div>
                     <div class="text-[11px] text-emerald-400 font-extrabold">Monto: S/ 20.00</div>
                     <div class="text-[10px] text-slate-300">Titular: <span class="text-white font-bold">Andreo Araujo Taboada</span></div>
@@ -512,7 +512,7 @@
             });
         }
 
-        // RENDERIZAR TABLA DE CLIENTES EN EL PANEL ADMIN
+        // RENDERIZAR TABLA DE CLIENTES EN EL PANEL ADMIN (Con botón Desactivar)
         function renderClientesTable() {
             const tbody = document.getElementById('clientesTableBody');
             if(!tbody) return;
@@ -526,6 +526,7 @@
                         <td class="p-2 text-[11px]">${c.paid ? '<span class="text-emerald-600 font-bold">Activo hasta:<br>'+c.fechaBloqueo+'</span>' : '<span class="text-amber-600">Pendiente de pago</span>'}</td>
                         <td class="p-2 text-center flex gap-1 justify-center">
                             <button onclick="activarMembresiaFirestore('${c.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] font-bold">Activar</button>
+                            <button onclick="desactivarMembresiaFirestore('${c.id}')" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded text-[10px] font-bold">Desactivar</button>
                             <button onclick="eliminarClienteFirestore('${c.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded text-[10px]"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
@@ -548,6 +549,19 @@
                 fechaBloqueo: endDate.toLocaleString()
             }).then(() => {
                 alert("¡Membresía activada por 30 días exitosamente!");
+            });
+        }
+
+        // DESACTIVAR MEMBRESÍA EN FIRESTORE
+        function desactivarMembresiaFirestore(id) {
+            db.collection("clientes").doc(id).update({
+                paid: false,
+                startTime: null,
+                durationMs: 0,
+                fechaInicio: "",
+                fechaBloqueo: ""
+            }).then(() => {
+                alert("¡Membresía desactivada correctamente!");
             });
         }
 
@@ -631,7 +645,6 @@
                 song.title.toLowerCase().includes(q) || song.artist.toLowerCase().includes(q)
             );
 
-            // Mostrar resultados en el menú desplegable flotante
             resultsContainer.innerHTML = '';
             if (filtered.length > 0) {
                 filtered.forEach((song) => {
@@ -650,7 +663,6 @@
                 resultsContainer.innerHTML = `<div class="p-2 text-slate-400 text-xs text-center">No se encontraron canciones</div>`;
             }
 
-            // Actualizar también la tabla principal del catálogo con el filtro
             renderAllSongs(filtered);
             document.getElementById('catalogTitle').innerText = `Resultados de búsqueda: "${query}"`;
         }
@@ -663,7 +675,6 @@
             document.getElementById('catalogTitle').innerText = "Catálogo";
         }
 
-        // Ocultar buscador al hacer clic fuera
         document.addEventListener('click', (e) => {
             const searchContainer = document.getElementById('searchInput').parentElement.parentElement;
             const dropdown = document.getElementById('searchDropdown');
@@ -684,7 +695,6 @@
             if(!tbody) return;
             tbody.innerHTML = '';
             songsToRender.forEach((song, idx) => {
-                // Encontrar el índice real en la base de datos principal
                 const realIdx = database.findIndex(s => s.id === song.id);
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-800/40 cursor-pointer" onclick="playSongIndex(${realIdx})">
