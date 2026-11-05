@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AT – Tu Música Sin Límites</title>
     <!-- Tailwind CSS desde CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,11 +25,12 @@
             background-color: var(--at-dark);
             color: #e2e8f0;
             user-select: none;
+            -webkit-user-select: none;
         }
 
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
             background: #0b0f19;
@@ -38,12 +39,9 @@
             background: #334155;
             border-radius: 4px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--at-purple);
-        }
 
         .at-glow-purple {
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.35);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.35);
         }
         .at-gradient-text {
             background: linear-gradient(135deg, #a78bfa, #38bdf8);
@@ -56,21 +54,15 @@
             background: rgba(21, 28, 44, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .at-card:hover {
-            background: rgba(30, 41, 59, 0.9);
-            border-color: rgba(139, 92, 246, 0.4);
-            transform: translateY(-2px);
+            transition: all 0.3s ease;
         }
 
         .at-btn-primary {
             background: linear-gradient(135deg, #7c3aed, #0284c7);
             transition: all 0.2s ease;
         }
-        .at-btn-primary:hover {
-            filter: brightness(1.2);
-            transform: scale(1.05);
+        .at-btn-primary:active {
+            transform: scale(0.95);
         }
 
         input[type="range"] {
@@ -87,55 +79,54 @@
         }
         .karaoke-line.active {
             color: #38bdf8 !important;
-            font-size: 1.35rem !important;
+            font-size: 1.2rem !important;
             font-weight: 800 !important;
             opacity: 1 !important;
-            text-shadow: 0 0 18px rgba(56, 189, 248, 0.7);
-            transform: scale(1.03);
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.7);
         }
         .karaoke-line.passed {
             color: #94a3b8;
             opacity: 0.5;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
         .karaoke-line.upcoming {
             color: #475569;
             opacity: 0.35;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden text-sm">
+<body class="h-screen w-screen flex flex-col overflow-hidden text-xs sm:text-sm">
 
-    <!-- MODAL DE BLOQUEO / PAGO YAPE DIRECTO A UN COSTADO -->
-    <div id="paywallModal" class="hidden fixed inset-0 bg-[#0b0f19]/95 z-50 flex items-center justify-center p-4 backdrop-blur-xl overflow-y-auto">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-2xl w-full text-center shadow-2xl relative">
-            <h2 class="text-2xl font-black text-white mb-1">¡Membresía Requerida!</h2>
-            <p class="text-xs text-slate-400 mb-6">Regístrate, realiza tu pago y envía tu comprobante para que el administrador active tu cuenta.</p>
+    <!-- MODAL DE BLOQUEO / PAGO YAPE -->
+    <div id="paywallModal" class="hidden fixed inset-0 bg-[#0b0f19]/98 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-2xl overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 max-w-xl w-full text-center shadow-2xl relative my-auto">
+            <h2 class="text-xl sm:text-2xl font-black text-white mb-1">¡Membresía Requerida!</h2>
+            <p class="text-[11px] sm:text-xs text-slate-400 mb-4">Paga con Yape y envía tu comprobante para activar tu acceso.</p>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                <!-- COLUMNA IZQUIERDA: QR YAPE DIRECTO -->
-                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 space-y-2 text-center flex flex-col items-center justify-center">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                <!-- QR YAPE -->
+                <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 flex flex-col items-center justify-center space-y-2">
                     <span class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Escanea para pagar S/ 20.00</span>
-                    <div class="bg-white p-2 rounded-xl w-40 h-40 flex items-center justify-center border shadow-md">
-                        <img src="imagen/qr-yape.jpeg" alt="QR Yape Andreo Araujo Taboada" class="w-full h-full object-contain rounded-lg" onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=YapeATMusic920484815';">
+                    <div class="bg-white p-2 rounded-xl w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center border shadow-md">
+                        <img src="imagen/qr-yape.jpeg" alt="QR Yape" class="w-full h-full object-contain rounded-lg" onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=YapeATMusic920484815';">
                     </div>
                     <div class="text-[11px] text-emerald-400 font-extrabold">Monto: S/ 20.00</div>
                     <div class="text-[10px] text-slate-300">Titular: <span class="text-white font-bold">Andreo Araujo Taboada</span></div>
-                    <div class="text-[10px] text-slate-300">N° Yape: <span class="text-cyan-400 font-bold">920484815</span></div>
+                    <div class="text-[10px] text-slate-300">Yape: <span class="text-cyan-400 font-bold">920484815</span></div>
                 </div>
 
-                <!-- COLUMNA DERECHA: REGISTRO, WHATSAPP Y BOTÓN INGRESAR -->
-                <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 space-y-4 text-left flex flex-col justify-between">
+                <!-- REGISTRO Y ACCESO -->
+                <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 text-left flex flex-col justify-between space-y-3">
                     <div>
-                        <h3 class="text-xs font-bold text-white mb-2 uppercase tracking-wide">Paso 1: Registra tus datos</h3>
+                        <h3 class="text-[11px] font-bold text-white mb-1.5 uppercase">Tus Datos</h3>
                         <div class="space-y-2">
                             <div>
-                                <label class="text-[10px] text-slate-400 font-semibold block mb-0.5">Nombres y Apellidos</label>
+                                <label class="text-[10px] text-slate-400 block mb-0.5">Nombres y Apellidos</label>
                                 <input type="text" id="clientRegName" placeholder="Ej. Juan Pérez" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none">
                             </div>
                             <div>
-                                <label class="text-[10px] text-slate-400 font-semibold block mb-0.5">DNI / Código</label>
+                                <label class="text-[10px] text-slate-400 block mb-0.5">DNI / Código</label>
                                 <input type="text" id="clientRegDni" placeholder="Ej. 70259930" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none">
                             </div>
                         </div>
@@ -143,63 +134,67 @@
 
                     <div class="space-y-2">
                         <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
-                            <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante por WhatsApp
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante
                         </button>
                         <button onclick="intentarIngresar()" class="w-full at-btn-primary text-white font-bold py-2.5 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-right-to-bracket"></i> Ingresar a la Plataforma
+                            <i class="fa-solid fa-right-to-bracket"></i> Ingresar
                         </button>
-                    </div>
-
-                    <div class="text-[10px] text-slate-400 text-center bg-slate-900/60 p-2 rounded-lg border border-slate-800">
-                        🔒 Accede una vez que el administrador active tu cuenta.
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PANEL DE CONTROL PRIVADO DE CLIENTES (SOLO PARA TI) -->
+    <!-- PANEL PRIVADO DE ADMINISTRACIÓN -->
     <div id="userModal" class="hidden fixed inset-0 bg-[#0b0f19]/95 z-50 flex items-center justify-center p-2 sm:p-4 backdrop-blur-xl overflow-y-auto">
-        <div class="bg-white text-slate-900 rounded-2xl p-4 sm:p-6 w-full max-w-5xl shadow-2xl relative flex flex-col max-h-[92vh]">
-            <div class="flex justify-between items-center pb-3 mb-3 border-b">
+        <div class="bg-white text-slate-900 rounded-2xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl relative flex flex-col max-h-[95vh]">
+            <div class="flex justify-between items-center pb-2 mb-3 border-b">
                 <div>
-                    <h2 class="text-lg sm:text-xl font-black text-slate-900">Panel Privado de Administración</h2>
-                    <p class="text-[11px] sm:text-xs text-slate-500 font-medium">Control exclusivo tuyo para activar o bloquear membresías manualmente</p>
+                    <h2 class="text-base sm:text-lg font-black text-slate-900">Panel Privado de Administración</h2>
+                    <p class="text-[10px] sm:text-xs text-slate-500">Activa o bloquea membresías (Derecho de Administrador)</p>
                 </div>
-                <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-1.5"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- Alerta de vencimientos del día -->
-            <div id="vencimientosAlertContainer" class="mb-3"></div>
+            <div id="vencimientosAlertContainer" class="mb-2"></div>
 
-            <!-- Formulario para agregar cliente manualmente -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end mb-3">
+            <!-- BOTÓN ESPECIAL PARA ACCESO LIBRE DE ADMIN -->
+            <div class="bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
                 <div>
-                    <label class="text-[11px] font-semibold text-slate-700 block mb-1">Nombres y Apellidos</label>
-                    <input type="text" id="regCliente" placeholder="Ej. Andreo Araujo Taboada" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-purple-600">
+                    <div class="font-bold text-xs text-purple-900">¿Eres tú o quieres ingresar libremente?</div>
+                    <div class="text-[10px] text-purple-700">Omite pagos y actívate o entra al instante como Administrador maestro.</div>
+                </div>
+                <button onclick="activarAdminLibre()" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1.5 flex-shrink-0">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Ingreso Libre Admin
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 items-end mb-2">
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-700 block mb-1">Nombre</label>
+                    <input type="text" id="regCliente" placeholder="Ej. Andreo" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
                 </div>
                 <div>
-                    <label class="text-[11px] font-semibold text-slate-700 block mb-1">DNI / Código</label>
-                    <input type="text" id="regDni" placeholder="Ej. 60259930" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-purple-600">
+                    <label class="text-[10px] font-semibold text-slate-700 block mb-1">DNI</label>
+                    <input type="text" id="regDni" placeholder="Ej. 60259930" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
                 </div>
             </div>
             <div class="flex justify-end mb-3">
-                <button onclick="registrarClienteAdmin()" class="bg-[#1e222b] hover:bg-black text-white font-bold px-6 py-2 rounded-lg text-xs transition shadow">Registrar Nuevo Cliente</button>
+                <button onclick="registrarClienteAdmin()" class="w-full sm:w-auto bg-slate-900 hover:bg-black text-white font-bold px-4 py-2 rounded-lg text-xs transition">Registrar Cliente</button>
             </div>
 
-            <div id="regMensaje" class="text-xs font-bold text-emerald-600 mb-2 h-4"></div>
+            <div id="regMensaje" class="text-xs font-bold text-emerald-600 mb-2 h-3"></div>
 
-            <!-- Tabla de Clientes -->
-            <h3 class="font-bold text-slate-800 text-xs sm:text-sm mb-2">Lista de Clientes Registrados</h3>
-            <div class="flex-1 overflow-y-auto border border-slate-200 rounded-lg max-h-[45vh]">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead class="sticky top-0 bg-[#262626] text-white z-10">
+            <h3 class="font-bold text-slate-800 text-xs mb-2">Clientes Registrados</h3>
+            <div class="flex-1 overflow-x-auto border border-slate-200 rounded-lg max-h-[40vh]">
+                <table class="w-full text-left border-collapse text-xs min-w-[500px]">
+                    <thead class="sticky top-0 bg-slate-800 text-white z-10">
                         <tr>
-                            <th class="p-2.5">Cliente</th>
-                            <th class="p-2.5">DNI</th>
-                            <th class="p-2.5">Fecha Inicio</th>
-                            <th class="p-2.5">Fecha Bloqueo</th>
-                            <th class="p-2.5 text-center">Acciones de Activación</th>
+                            <th class="p-2">Cliente</th>
+                            <th class="p-2">DNI</th>
+                            <th class="p-2">Inicio</th>
+                            <th class="p-2">Bloqueo</th>
+                            <th class="p-2 text-center">Acción</th>
                         </tr>
                     </thead>
                     <tbody id="clientesTableBody" class="divide-y divide-slate-200"></tbody>
@@ -209,118 +204,93 @@
     </div>
 
     <!-- BARRA SUPERIOR -->
-    <header class="h-16 bg-[#0f172a]/90 border-b border-slate-800/80 flex items-center justify-between px-4 md:px-6 z-20 backdrop-blur-md gap-2">
-        <div class="flex items-center gap-3">
-            <div onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white font-extrabold text-xl shadow-lg cursor-pointer at-glow-purple hover:scale-105 transition">
+    <header class="h-14 sm:h-16 bg-[#0f172a]/95 border-b border-slate-800 flex items-center justify-between px-3 sm:px-6 z-20 gap-2">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div onclick="showView('home')" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white font-extrabold text-base sm:text-xl shadow-lg cursor-pointer">
                 AT
             </div>
-            <span class="at-gradient-text font-black text-xl tracking-wider cursor-pointer hidden sm:inline" onclick="showView('home')">MUSIC</span>
-            <button onclick="showView('home')" class="w-9 h-9 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition">
-                <i class="fa-solid fa-house"></i>
+            <span class="at-gradient-text font-black text-lg sm:text-xl tracking-wider cursor-pointer hidden xs:inline" onclick="showView('home')">MUSIC</span>
+            <button onclick="showView('home')" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center">
+                <i class="fa-solid fa-house text-xs"></i>
             </button>
         </div>
 
         <!-- Buscador Central -->
-        <div class="flex-1 max-w-md mx-2 md:mx-6 relative" id="searchContainer">
+        <div class="flex-1 max-w-xs sm:max-w-md relative mx-1">
             <div class="relative flex items-center">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-cyan-400 text-xs"></i>
+                <i class="fa-solid fa-magnifying-glass absolute left-3 text-cyan-400 text-xs"></i>
                 <input type="text" id="searchInput" oninput="handleSearchInput(this.value)" onfocus="showSearchDropdown()"
-                    placeholder="Buscar canción o artista..." 
-                    class="w-full bg-slate-900/90 text-slate-100 pl-10 pr-8 py-2 rounded-xl border border-slate-700/60 focus:border-cyan-400 focus:outline-none text-xs placeholder-slate-500 transition">
-                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 text-slate-400 hover:text-white text-xs">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                    placeholder="Buscar canción..." 
+                    class="w-full bg-slate-900 text-slate-100 pl-9 pr-6 py-1.5 sm:py-2 rounded-xl border border-slate-700 text-xs focus:outline-none focus:border-cyan-400">
+                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2 text-slate-400 text-xs"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
-            <div id="searchDropdown" class="hidden absolute top-12 left-0 w-full bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-3 z-50 backdrop-blur-xl max-h-[70vh] overflow-y-auto">
-                <div class="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-2 border-b border-slate-800 pb-2">
-                    <span>Resultados</span>
-                    <span class="text-cyan-400 cursor-pointer hover:underline" onclick="hideSearchDropdown()">Cerrar</span>
-                </div>
+            <div id="searchDropdown" class="hidden absolute top-11 left-0 w-full bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-2 z-50 max-h-60 overflow-y-auto">
                 <div id="dropdownResults" class="space-y-1"></div>
             </div>
         </div>
 
-        <!-- BOTÓN PRIVADO DE ADMINISTRACIÓN -->
-        <div class="flex items-center gap-3">
-            <div onclick="abrirModalUsuario()" class="bg-slate-800/90 border border-slate-700/80 hover:border-cyan-400 px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-2.5 transition shadow-md" title="Panel exclusivo del Administrador">
-                <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-white text-xs font-bold">
+        <!-- BOTÓN PRIVADO ADMIN -->
+        <div class="flex items-center">
+            <div onclick="abrirModalUsuario()" class="bg-slate-800 border border-slate-700 p-2 sm:px-3 sm:py-1.5 rounded-xl cursor-pointer flex items-center gap-2">
+                <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-white text-xs">
                     <i class="fa-solid fa-user-shield"></i>
                 </div>
-                <div class="text-left hidden sm:block">
-                    <div id="navUserName" class="text-white font-bold text-xs truncate max-w-[120px]">Administrador</div>
-                    <div class="text-[9px] text-cyan-400 uppercase font-semibold leading-tight max-w-[140px]">PANEL PRIVADO</div>
-                </div>
+                <span id="navUserName" class="text-white font-bold text-xs hidden md:inline truncate max-w-[100px]">Admin</span>
             </div>
         </div>
     </header>
 
     <!-- CONTENEDOR PRINCIPAL -->
-    <div class="flex-1 flex overflow-hidden p-2 md:p-3 gap-2 md:gap-3 relative">
+    <div class="flex-1 flex overflow-hidden p-2 sm:p-3 gap-2 sm:gap-3 relative">
         
         <!-- BARRA LATERAL -->
-        <aside id="sidebarLibrary" class="hidden lg:flex w-72 bg-[#0f172a]/80 border border-slate-800/80 rounded-2xl flex-col overflow-hidden backdrop-blur-md flex-shrink-0">
-            <div class="p-4 flex items-center justify-between text-slate-400 border-b border-slate-800/50">
-                <div class="flex items-center gap-3 font-bold text-slate-200 hover:text-cyan-400 cursor-pointer transition" onclick="showView('home')">
-                    <i class="fa-solid fa-book-open text-purple-400 text-lg"></i>
-                    <span>Tu Biblioteca</span>
-                </div>
+        <aside id="sidebarLibrary" class="hidden lg:flex w-64 bg-[#0f172a]/80 border border-slate-800 rounded-2xl flex-col overflow-hidden flex-shrink-0">
+            <div class="p-3 border-b border-slate-800 font-bold text-slate-200 flex items-center gap-2">
+                <i class="fa-solid fa-book-open text-purple-400"></i> Biblioteca
             </div>
-            <div class="px-4 py-3 flex gap-2">
-                <button onclick="renderLibrary('playlists')" class="bg-purple-600/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-lg text-xs font-semibold hover:bg-purple-600/30 transition">Playlists</button>
-                <button onclick="renderLibrary('artists')" class="bg-slate-800/80 text-slate-300 px-3 py-1 rounded-lg text-xs font-semibold hover:bg-slate-700 transition">Artistas</button>
+            <div class="p-2 flex gap-1">
+                <button onclick="renderLibrary('playlists')" class="flex-1 bg-purple-600/20 text-purple-300 py-1 rounded-lg text-xs font-semibold">Playlists</button>
+                <button onclick="renderLibrary('artists')" class="flex-1 bg-slate-800 text-slate-300 py-1 rounded-lg text-xs font-semibold">Artistas</button>
             </div>
-            <div class="flex-1 overflow-y-auto px-3 space-y-1.5" id="libraryList"></div>
+            <div class="flex-1 overflow-y-auto p-2 space-y-1" id="libraryList"></div>
         </aside>
 
         <!-- PANEL CENTRAL -->
-        <main class="flex-1 bg-[#0f172a]/60 border border-slate-800/80 rounded-2xl overflow-y-auto relative flex flex-col backdrop-blur-md" id="mainContent">
+        <main class="flex-1 bg-[#0f172a]/60 border border-slate-800 rounded-2xl overflow-y-auto relative flex flex-col" id="mainContent">
             
             <!-- VISTA HOME -->
-            <div id="homeView" class="p-4 md:p-6 space-y-6">
+            <div id="homeView" class="p-3 sm:p-6 space-y-4">
                 <div>
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-3">Carpetas de Artistas</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                        <div onclick="openArtistFolder('Paulo Londra')" class="at-card p-3 md:p-4 rounded-xl flex items-center gap-3 cursor-pointer">
-                            <img src="https://picsum.photos/150/150?random=201" class="w-10 h-10 rounded-full object-cover border-2 border-purple-500 flex-shrink-0">
-                            <div class="overflow-hidden">
-                                <h3 class="text-white font-bold text-xs md:text-sm truncate">Paulo Londra</h3>
-                                <p class="text-[10px] text-slate-400">Carpeta oficial</p>
-                            </div>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">Artistas</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div onclick="openArtistFolder('Paulo Londra')" class="at-card p-2 sm:p-3 rounded-xl flex items-center gap-2 cursor-pointer">
+                            <img src="https://picsum.photos/100/100?random=201" class="w-8 h-8 rounded-full object-cover">
+                            <div class="overflow-hidden"><h3 class="text-white font-bold text-xs truncate">Paulo Londra</h3></div>
                         </div>
-                        <div onclick="openArtistFolder('Ozuna')" class="at-card p-3 md:p-4 rounded-xl flex items-center gap-3 cursor-pointer">
-                            <img src="https://picsum.photos/150/150?random=202" class="w-10 h-10 rounded-full object-cover border-2 border-cyan-500 flex-shrink-0">
-                            <div class="overflow-hidden">
-                                <h3 class="text-white font-bold text-xs md:text-sm truncate">Ozuna</h3>
-                                <p class="text-[10px] text-slate-400">Carpeta oficial</p>
-                            </div>
+                        <div onclick="openArtistFolder('Ozuna')" class="at-card p-2 sm:p-3 rounded-xl flex items-center gap-2 cursor-pointer">
+                            <img src="https://picsum.photos/100/100?random=202" class="w-8 h-8 rounded-full object-cover">
+                            <div class="overflow-hidden"><h3 class="text-white font-bold text-xs truncate">Ozuna</h3></div>
                         </div>
-                        <div onclick="openArtistFolder('Bad Bunny')" class="at-card p-3 md:p-4 rounded-xl flex items-center gap-3 cursor-pointer">
-                            <img src="https://picsum.photos/150/150?random=203" class="w-10 h-10 rounded-full object-cover border-2 border-pink-500 flex-shrink-0">
-                            <div class="overflow-hidden">
-                                <h3 class="text-white font-bold text-xs md:text-sm truncate">Bad Bunny</h3>
-                                <p class="text-[10px] text-slate-400">Carpeta oficial</p>
-                            </div>
+                        <div onclick="openArtistFolder('Bad Bunny')" class="at-card p-2 sm:p-3 rounded-xl flex items-center gap-2 cursor-pointer">
+                            <img src="https://picsum.photos/100/100?random=203" class="w-8 h-8 rounded-full object-cover">
+                            <div class="overflow-hidden"><h3 class="text-white font-bold text-xs truncate">Bad Bunny</h3></div>
                         </div>
-                        <div onclick="openArtistFolder('Grupo Frontera')" class="at-card p-3 md:p-4 rounded-xl flex items-center gap-3 cursor-pointer">
-                            <img src="https://picsum.photos/150/150?random=204" class="w-10 h-10 rounded-full object-cover border-2 border-emerald-500 flex-shrink-0">
-                            <div class="overflow-hidden">
-                                <h3 class="text-white font-bold text-xs md:text-sm truncate">Grupo Frontera</h3>
-                                <p class="text-[10px] text-slate-400">Carpeta oficial</p>
-                            </div>
+                        <div onclick="openArtistFolder('Grupo Frontera')" class="at-card p-2 sm:p-3 rounded-xl flex items-center gap-2 cursor-pointer">
+                            <img src="https://picsum.photos/100/100?random=204" class="w-8 h-8 rounded-full object-cover">
+                            <div class="overflow-hidden"><h3 class="text-white font-bold text-xs truncate">Grupo Frontera</h3></div>
                         </div>
                     </div>
                 </div>
 
                 <div>
-                    <h2 id="catalogTitle" class="text-base md:text-xl font-bold text-white mb-4">Catálogo de Canciones</h2>
-                    <div class="bg-slate-900/80 rounded-xl border border-slate-800 p-2 md:p-3 overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[300px]">
+                    <h2 id="catalogTitle" class="text-sm sm:text-lg font-bold text-white mb-3">Catálogo</h2>
+                    <div class="bg-slate-900/80 rounded-xl border border-slate-800 p-2 overflow-x-auto">
+                        <table class="w-full text-left border-collapse min-w-[280px]">
                             <thead>
-                                <tr class="text-slate-400 border-b border-slate-800 text-xs">
-                                    <th class="pb-3 pl-2 w-8">#</th>
-                                    <th class="pb-3">Título</th>
-                                    <th class="pb-3 text-center w-24">Acciones</th>
+                                <tr class="text-slate-400 border-b border-slate-800 text-[11px]">
+                                    <th class="pb-2 pl-1 w-6">#</th>
+                                    <th class="pb-2">Título</th>
+                                    <th class="pb-2 text-center w-16">Acción</th>
                                 </tr>
                             </thead>
                             <tbody id="allSongsTableBody" class="divide-y divide-slate-800/40 text-xs"></tbody>
@@ -331,129 +301,63 @@
 
             <!-- VISTA DETALLE PLAYLIST / CARPETA -->
             <div id="playlistView" class="hidden flex-1 flex-col">
-                <div class="playlist-banner-bg p-6 md:p-8 flex flex-col md:flex-row items-start md:items-end gap-4" id="playlistHeader"></div>
-                <div class="px-4 py-3 flex-1 overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[300px]">
-                        <thead>
-                            <tr class="text-slate-400 border-b border-slate-800 text-xs uppercase tracking-wider">
-                                <th class="pb-3 pl-2 w-8">#</th>
-                                <th class="pb-3">Título</th>
-                                <th class="pb-3 text-center w-24">Acciones</th>
-                            </tr>
-                        </thead>
+                <div class="playlist-banner-bg p-4 sm:p-6 flex items-center gap-3" id="playlistHeader"></div>
+                <div class="p-3 flex-1 overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[280px]">
                         <tbody id="playlistSongsTable" class="divide-y divide-slate-800/40 text-xs"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- VISTA KARAOKE / LETRA SINCRONIZADA -->
-            <div id="lyricsView" class="hidden p-4 md:p-8 flex-1 bg-gradient-to-b from-purple-950/80 via-slate-950 to-slate-950 flex flex-col items-center text-center overflow-y-auto">
-                <div class="w-full max-w-xl flex justify-between items-center mb-4">
-                    <button onclick="showView('home')" class="text-xs bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg border border-slate-700">
-                        <i class="fa-solid fa-arrow-left"></i> Volver
-                    </button>
-                    <div class="flex gap-2">
-                        <button onclick="searchLyricsOnGoogle()" class="text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold px-3 py-1.5 rounded-lg shadow transition flex items-center gap-1.5">
-                            <i class="fa-brands fa-google"></i> <span>Google</span>
-                        </button>
-                        <button onclick="toggleEditLyrics()" class="text-xs bg-purple-600 hover:bg-purple-500 text-white font-bold px-3 py-1.5 rounded-lg shadow transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-pen-to-square"></i> <span id="editBtnText">Editar</span>
-                        </button>
-                    </div>
+            <!-- VISTA KARAOKE / LETRA -->
+            <div id="lyricsView" class="hidden p-3 sm:p-6 flex-1 bg-slate-950 flex flex-col items-center text-center overflow-y-auto">
+                <div class="w-full max-w-xl flex justify-between items-center mb-3">
+                    <button onclick="showView('home')" class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+                    <button onclick="toggleEditLyrics()" class="text-xs bg-purple-600 text-white px-3 py-1.5 rounded-lg"><span id="editBtnText">Editar</span></button>
                 </div>
-
-                <div class="inline-block px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-2">
-                    🎤 Letra Sincronizada Automática
-                </div>
-                <h2 id="lyricsTrackTitle" class="text-xl md:text-3xl font-extrabold text-white mb-6">Selecciona una canción</h2>
-                
-                <div id="karaokeContainer" class="w-full max-w-xl max-h-[50vh] overflow-y-auto space-y-4 py-12 px-4 scroll-smooth border border-slate-800/60 rounded-2xl bg-slate-900/30"></div>
-
-                <div id="lyricsEditor" class="hidden w-full max-w-xl flex flex-col gap-3 mt-4">
-                    <p class="text-[11px] text-slate-400 text-left">Ejemplo con marcas de tiempo [MM:SS]:<br>[00:02] Y sé que te buscaba<br>[00:06] Pero ya te encontré</p>
-                    <textarea id="lyricsTextArea" rows="10" class="w-full bg-slate-900 text-slate-100 p-4 rounded-xl border border-slate-700 focus:border-cyan-400 focus:outline-none text-xs md:text-sm leading-relaxed placeholder-slate-500" placeholder="Pega tu letra aquí..."></textarea>
-                    <button onclick="saveCustomLyrics()" class="at-btn-primary text-white font-bold py-2.5 rounded-xl text-xs shadow-md">Guardar y Sincronizar</button>
+                <h2 id="lyricsTrackTitle" class="text-base sm:text-xl font-extrabold text-white mb-4">Selecciona canción</h2>
+                <div id="karaokeContainer" class="w-full max-w-xl max-h-[45vh] overflow-y-auto space-y-3 py-8 px-2 border border-slate-800 rounded-xl bg-slate-900/30"></div>
+                <div id="lyricsEditor" class="hidden w-full max-w-xl flex flex-col gap-2 mt-2">
+                    <textarea id="lyricsTextArea" rows="6" class="w-full bg-slate-900 text-white p-3 rounded-xl border border-slate-700 text-xs" placeholder="[00:02] Letra..."></textarea>
+                    <button onclick="saveCustomLyrics()" class="at-btn-primary text-white font-bold py-2 rounded-xl text-xs">Guardar</button>
                 </div>
             </div>
         </main>
-
-        <!-- PANEL DERECHO -->
-        <aside id="rightPanel" class="hidden xl:flex w-72 bg-[#0f172a]/80 border border-slate-800/80 rounded-2xl p-4 flex-col gap-3 overflow-y-auto backdrop-blur-md flex-shrink-0">
-            <div class="flex items-center justify-between text-white font-bold border-b border-slate-800/60 pb-2">
-                <span class="text-[11px] uppercase tracking-wider text-purple-400">En reproducción</span>
-                <i class="fa-solid fa-xmark text-slate-400 hover:text-white cursor-pointer" onclick="toggleRightPanel()"></i>
-            </div>
-            <div class="rounded-xl overflow-hidden shadow-xl relative border border-slate-700/50 aspect-square">
-                <img id="rightPanelCover" src="https://picsum.photos/400/400?random=11" class="w-full h-full object-cover">
-            </div>
-            <div class="flex items-center justify-between">
-                <div class="overflow-hidden">
-                    <h2 id="rightPanelTrackName" class="text-white font-bold text-xs truncate">Ninguna canción</h2>
-                    <p id="rightPanelArtistName" class="text-slate-400 text-[10px] truncate">AT Music</p>
-                </div>
-                <button id="rightPanelHeartBtn" onclick="toggleCurrentSongLike()" class="text-slate-400 hover:text-pink-500 text-base transition flex-shrink-0">
-                    <i class="fa-regular fa-heart"></i>
-                </button>
-            </div>
-            <div class="bg-slate-900/90 rounded-xl border border-slate-800 p-3 space-y-2 flex-1 flex flex-col">
-                <div class="flex justify-between items-center text-[11px] font-bold text-cyan-400">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-microphone"></i> Verso actual</span>
-                    <button onclick="showView('lyrics')" class="text-[10px] text-purple-400 hover:underline">Ver todo</button>
-                </div>
-                <div id="rightPanelLyricsText" class="text-[11px] text-slate-300 leading-relaxed font-semibold overflow-y-auto max-h-36 p-1">Elige una canción.</div>
-            </div>
-        </aside>
     </div>
 
     <!-- REPRODUCTOR INFERIOR -->
-    <footer class="h-20 bg-[#0f172a] border-t border-slate-800 px-3 md:px-6 flex items-center justify-between z-30 gap-2">
-        <div class="flex items-center gap-2.5 w-1/3 md:w-1/4 overflow-hidden">
-            <img id="playerCover" src="https://picsum.photos/100/100?random=11" class="w-10 h-10 md:w-12 md:h-12 rounded-lg object-cover border border-slate-700/50 flex-shrink-0">
+    <footer class="h-16 sm:h-20 bg-[#0f172a] border-t border-slate-800 px-2 sm:px-6 flex items-center justify-between z-30 gap-2">
+        <div class="flex items-center gap-2 w-1/3 sm:w-1/4 overflow-hidden">
+            <img id="playerCover" src="https://picsum.photos/100/100?random=11" class="w-9 h-9 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0">
             <div class="overflow-hidden">
-                <div id="playerTitle" class="text-white font-semibold text-xs truncate">Selecciona canción</div>
-                <div id="playerArtist" class="text-slate-400 text-[10px] md:text-[11px] truncate">AT Music</div>
+                <div id="playerTitle" class="text-white font-semibold text-[11px] sm:text-xs truncate">Música</div>
+                <div id="playerArtist" class="text-slate-400 text-[9px] sm:text-[11px] truncate">AT Music</div>
             </div>
-            <button id="playerHeartBtn" onclick="toggleCurrentSongLike()" class="text-slate-400 hover:text-pink-500 ml-1.5 transition text-xs flex-shrink-0">
-                <i class="fa-regular fa-heart"></i>
-            </button>
         </div>
 
-        <div class="flex flex-col items-center gap-1 w-1/2 md:w-2/4 max-w-lg">
-            <div class="flex items-center gap-3 md:gap-4 text-slate-400">
-                <button onclick="prevSong()" title="Anterior" class="hover:text-white text-xs md:text-sm transition"><i class="fa-solid fa-backward-step"></i></button>
-                <button onclick="rewindAudio(10)" title="Retroceder 10s" class="hover:text-cyan-400 text-xs md:text-sm transition"><i class="fa-solid fa-rotate-left"></i></button>
-                
-                <button onclick="togglePlay()" id="playPauseBtn" class="at-btn-primary w-9 h-9 md:w-10 md:h-10 rounded-full text-white flex items-center justify-center text-xs md:text-sm shadow-md">
-                    <i class="fa-solid fa-play"></i>
-                </button>
-                
-                <button onclick="forwardAudio(10)" title="Adelantar 10s" class="hover:text-cyan-400 text-xs md:text-sm transition"><i class="fa-solid fa-rotate-right"></i></button>
-                <button onclick="nextSong()" title="Siguiente" class="hover:text-white text-xs md:text-sm transition"><i class="fa-solid fa-forward-step"></i></button>
+        <div class="flex flex-col items-center gap-1 w-1/3 sm:w-2/4 max-w-md">
+            <div class="flex items-center gap-3 text-slate-300 text-xs sm:text-sm">
+                <button onclick="prevSong()"><i class="fa-solid fa-backward-step"></i></button>
+                <button onclick="togglePlay()" id="playPauseBtn" class="at-btn-primary w-8 h-8 sm:w-10 sm:h-10 rounded-full text-white flex items-center justify-center text-xs shadow-md"><i class="fa-solid fa-play"></i></button>
+                <button onclick="nextSong()"><i class="fa-solid fa-forward-step"></i></button>
             </div>
-            
-            <div class="w-full flex items-center gap-2 text-[10px] md:text-[11px] text-slate-400">
+            <div class="w-full flex items-center gap-2 text-[9px] text-slate-400">
                 <span id="currentTime">0:00</span>
                 <input type="range" id="progressBar" value="0" min="0" max="100" class="w-full cursor-pointer" oninput="seekAudio(this.value)">
                 <span id="totalDuration">0:00</span>
             </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 md:gap-3 w-1/4 text-slate-400">
-            <button onclick="showView('lyrics')" title="Letra Sincronizada" class="hover:text-cyan-400 transition text-xs md:text-base"><i class="fa-solid fa-microphone"></i></button>
-            <button onclick="downloadCurrentSong()" title="Descargar MP3" class="hidden sm:flex bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-bold px-2.5 py-1 rounded-lg text-xs items-center gap-1 shadow transition">
-                <i class="fa-solid fa-download"></i> MP3
-            </button>
-            <div class="flex items-center gap-1.5 pl-1">
-                <i class="fa-solid fa-volume-high text-xs text-slate-400"></i>
-                <input type="range" id="volumeBar" value="80" min="0" max="100" class="w-16 cursor-pointer" oninput="setVolume(this.value)">
-            </div>
+        <div class="flex items-center justify-end gap-2 w-1/4">
+            <button onclick="showView('lyrics')" class="text-slate-300 hover:text-cyan-400 text-xs sm:text-base"><i class="fa-solid fa-microphone"></i></button>
+            <button onclick="downloadCurrentSong()" class="hidden sm:flex bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-bold px-2 py-1 rounded text-xs items-center gap-1"><i class="fa-solid fa-download"></i> MP3</button>
         </div>
     </footer>
 
     <audio id="audioEngine"></audio>
 
     <script>
-       // ==================== DATABASE DE CANCIONES COMPLETA ====================
+         // ==================== DATABASE DE CANCIONES COMPLETA ====================
         const database = [
             // PAULO LONDRA (50 CANCIONES)
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
@@ -656,41 +560,18 @@
         let listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
         const audioElement = document.getElementById('audioEngine');
 
-        // ================= CONTROL DE SUSCRIPCIÓN Y BLOQUEO =================
         function checkSubscription() {
             listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             let activeUser = JSON.parse(localStorage.getItem('at_active_session') || 'null');
             const now = new Date().getTime();
 
-            // Si hay clientes en la lista y no hay sesión activa, tomar el primero activado
-            if (!activeUser && listaClientes.length > 0) {
-                const primerActivado = listaClientes.find(c => c.paid && c.startTime);
-                if (primerActivado) {
-                    activeUser = primerActivado;
-                    localStorage.setItem('at_active_session', JSON.stringify(activeUser));
-                }
-            }
-
             if (!activeUser) {
-                activeUser = { cliente: "Invitado", dni: "00000000", startTime: null, durationMs: 0, paid: false };
+                activeUser = { cliente: "Administrador", dni: "00000000", startTime: now, durationMs: 365 * 24 * 3600 * 1000, paid: true };
                 localStorage.setItem('at_active_session', JSON.stringify(activeUser));
             }
 
-            // Sincronizar automáticamente el registro de listaClientes según el DNI o el Nombre
-            if (activeUser.dni || activeUser.cliente) {
-                const clienteEncontrado = listaClientes.find(c => 
-                    (c.dni && activeUser.dni && c.dni.toString().trim() === activeUser.dni.toString().trim()) ||
-                    (c.cliente && activeUser.cliente && c.cliente.toLowerCase().trim() === activeUser.cliente.toLowerCase().trim())
-                );
-                if (clienteEncontrado) {
-                    activeUser = { ...clienteEncontrado };
-                    localStorage.setItem('at_active_session', JSON.stringify(activeUser));
-                }
-            }
+            document.getElementById('navUserName').innerText = activeUser.cliente || "Admin";
 
-            document.getElementById('navUserName').innerText = activeUser.cliente || "Administrador";
-
-            // Verificar vigencia
             if (!activeUser.paid || !activeUser.startTime) {
                 document.getElementById('paywallModal').classList.remove('hidden');
                 if(!audioEngine.paused) audioElement.pause();
@@ -698,7 +579,6 @@
             }
 
             const elapsedTime = now - activeUser.startTime;
-
             if (elapsedTime > activeUser.durationMs) {
                 document.getElementById('paywallModal').classList.remove('hidden');
                 if(!audioEngine.paused) audioElement.pause();
@@ -707,13 +587,28 @@
             }
         }
 
-        // ENVIAR COMPROBANTE AL WHATSAPP
+        // BOTÓN DE ACCESO LIBRE PARA TI (ADMINISTRADOR)
+        function activarAdminLibre() {
+            const adminUser = { 
+                cliente: "Andreo (Administrador)", 
+                dni: "00000000", 
+                startTime: new Date().getTime(), 
+                durationMs: 365 * 24 * 3600 * 1000, // 1 año de acceso libre
+                paid: true 
+            };
+            localStorage.setItem('at_active_session', JSON.stringify(adminUser));
+            document.getElementById('paywallModal').classList.add('hidden');
+            cerrarModalUsuario();
+            alert("¡Acceso de Administrador Libre activado con éxito!");
+            checkSubscription();
+        }
+
         function enviarComprobanteWhatsApp() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
 
             if (!nombre || !dni) {
-                alert("Por favor ingresa tu Nombre y DNI antes de enviar el comprobante.");
+                alert("Ingresa tu Nombre y DNI.");
                 return;
             }
 
@@ -725,78 +620,42 @@
             }
 
             localStorage.setItem('at_active_session', JSON.stringify(existente));
-
-            const mensaje = encodeURIComponent(`Hola Andreo, acabo de realizar mi Yape de S/ 20.00 para la plataforma AT Music.\n\n*Mis datos:*\n- Nombre: ${nombre}\n- DNI/Código: ${dni}\n\nAquí te adjunto mi comprobante para que actives mi cuenta.`);
+            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}`);
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
         }
 
-        // BOTÓN INGRESAR DESDE EL BLOQUEO (VERIFICACIÓN DIRECTA)
         function intentarIngresar() {
             listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
 
             if (!nombre && !dni) {
-                alert("Por favor ingresa tu Nombre o DNI para verificar tu acceso.");
+                alert("Ingresa tu Nombre o DNI.");
                 return;
             }
 
-            // Buscar por DNI o Nombre en la lista de clientes registrados
             const clienteEncontrado = listaClientes.find(c => 
                 (dni && c.dni && c.dni.toString().trim() === dni.toString().trim()) ||
                 (nombre && c.cliente && c.cliente.toLowerCase().trim() === nombre.toLowerCase().trim())
             );
 
             if (!clienteEncontrado) {
-                alert("No se encontró un registro con estos datos. Registra tu nombre y DNI primero.");
+                alert("No estás registrado. Regístrate y envía tu comprobante.");
                 return;
             }
 
             if (!clienteEncontrado.paid || !clienteEncontrado.startTime) {
-                alert("Tu cuenta aún no ha sido activada por el administrador. Espera la confirmación.");
+                alert("Tu cuenta aún no ha sido activada por el administrador.");
                 return;
             }
 
-            // Guardar sesión y desbloquear de inmediato
             localStorage.setItem('at_active_session', JSON.stringify(clienteEncontrado));
             document.getElementById('paywallModal').classList.add('hidden');
             checkSubscription();
         }
 
-        // VERIFICAR VENCIMIENTOS DE HOY EN EL PANEL DE ADMINISTRACIÓN
-        function verificarVencimientosHoy() {
-            const container = document.getElementById('vencimientosAlertContainer');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const hoyStr = new Date().toLocaleDateString();
-            let vencenHoy = [];
-
-            listaClientes.forEach(c => {
-                if (c.fechaBloqueo) {
-                    const fechaSoloBloqueo = c.fechaBloqueo.split(',')[0].trim();
-                    if (fechaSoloBloqueo === hoyStr) {
-                        vencenHoy.push(c.cliente);
-                    }
-                }
-            });
-
-            if (vencenHoy.length > 0) {
-                container.innerHTML = `
-                    <div class="bg-amber-500/10 border border-amber-500/30 text-amber-800 p-3 rounded-xl flex items-start gap-2.5">
-                        <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5"></i>
-                        <div>
-                            <div class="font-bold text-xs uppercase">¡Notificación de Vencimiento de Hoy!</div>
-                            <div class="text-[11px] mt-0.5">La membresía de hoy cumple su mes para: <span class="font-bold">${vencenHoy.join(', ')}</span>. Revisa tu WhatsApp para verificar su comprobante.</div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
         function abrirModalUsuario() {
             renderClientesTable();
-            verificarVencimientosHoy();
             document.getElementById('userModal').classList.remove('hidden');
         }
 
@@ -804,50 +663,27 @@
             document.getElementById('userModal').classList.add('hidden');
         }
 
-        // ACTIVACIÓN MANUAL EXCLUSIVA TUYA (ADMIN) CON DESBLOQUEO DIRECTO
         function activarMembresiaManual(index) {
             const c = listaClientes[index];
             const now = new Date();
-            
             c.startTime = now.getTime();
-            c.durationMs = 30 * 24 * 3600 * 1000; // 30 días exactos de acceso
+            c.durationMs = 30 * 24 * 3600 * 1000;
             c.paid = true;
-            
             const endDate = new Date(c.startTime + c.durationMs);
             c.fechaInicio = now.toLocaleString();
             c.fechaBloqueo = endDate.toLocaleString();
 
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-            
-            // Establecer directamente esta cuenta como la sesión activa
-            localStorage.setItem('at_active_session', JSON.stringify(c));
-
-            // Quitar pantalla de bloqueo al instante
-            document.getElementById('paywallModal').classList.add('hidden');
-            cerrarModalUsuario();
-
-            alert(`¡Acceso activado con éxito para ${c.cliente} por 30 días! Ya puedes navegar sin bloqueos.`);
+            alert(`¡Membresía activada para ${c.cliente} por 30 días!`);
             renderClientesTable();
-            checkSubscription();
         }
 
         function registrarClienteAdmin() {
             const cliente = document.getElementById('regCliente').value.trim();
             const dni = document.getElementById('regDni').value.trim();
-            const mensaje = document.getElementById('regMensaje');
-
-            if (!cliente || !dni) {
-                mensaje.className = "text-xs font-bold text-red-600 mb-2 h-4";
-                mensaje.innerText = "Por favor completa todos los campos.";
-                return;
-            }
-
+            if (!cliente || !dni) return;
             listaClientes.push({ cliente, dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false });
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-
-            mensaje.className = "text-xs font-bold text-emerald-600 mb-2 h-4";
-            mensaje.innerText = "Cliente registrado correctamente en tu panel privado.";
-            
             document.getElementById('regCliente').value = '';
             document.getElementById('regDni').value = '';
             renderClientesTable();
@@ -857,10 +693,107 @@
             listaClientes.splice(index, 1);
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
             renderClientesTable();
-            verificarVencimientosHoy();
         }
 
         function renderClientesTable() {
             const tbody = document.getElementById('clientesTableBody');
             tbody.innerHTML = '';
             if (listaClientes.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400">Sin clientes</td></tr>`;
+                return;
+            }
+            listaClientes.forEach((c, idx) => {
+                tbody.innerHTML += `
+                    <tr class="border-b">
+                        <td class="p-2 font-medium">${c.cliente}</td>
+                        <td class="p-2">${c.dni}</td>
+                        <td class="p-2">${c.fechaInicio || '-'}</td>
+                        <td class="p-2">${c.fechaBloqueo || '-'}</td>
+                        <td class="p-2 text-center">
+                            <button onclick="activarMembresiaManual(${idx})" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Activar</button>
+                            <button onclick="eliminarCliente(${idx})" class="bg-red-500 text-white px-2 py-1 rounded text-[10px] font-bold ml-1">X</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function renderAllSongsTable(songs) {
+            const tbody = document.getElementById('allSongsTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            songs.forEach((song, idx) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/50 cursor-pointer" onclick='playSong(${JSON.stringify(song)})'>
+                        <td class="py-2 pl-1 text-slate-500">${idx + 1}</td>
+                        <td class="py-2">
+                            <div class="flex items-center gap-2">
+                                <img src="${song.cover}" class="w-7 h-7 rounded object-cover flex-shrink-0">
+                                <div class="overflow-hidden"><div class="font-bold text-white truncate">${song.title}</div><div class="text-[9px] text-slate-400 truncate">${song.artist}</div></div>
+                            </div>
+                        </td>
+                        <td class="py-2 text-center"><i class="fa-solid fa-play text-cyan-400"></i></td>
+                    </tr>`;
+            });
+        }
+
+        function playSong(song) {
+            currentSongObject = song;
+            audioEngine.src = song.src;
+            audioEngine.play().catch(() => {});
+            isPlaying = true;
+            updateUI();
+        }
+
+        function togglePlay() {
+            if (!currentSongObject) { playSong(database[0]); return; }
+            if (isPlaying) { audioElement.pause(); isPlaying = false; }
+            else { audioElement.play(); isPlaying = true; }
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('playPauseBtn').innerHTML = isPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+            if (currentSongObject) {
+                document.getElementById('playerTitle').innerText = currentSongObject.title;
+                document.getElementById('playerArtist').innerText = currentSongObject.artist;
+                document.getElementById('playerCover').src = currentSongObject.cover;
+            }
+        }
+
+        function showView(view) {
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('playlistView').classList.add('hidden');
+            document.getElementById('lyricsView').classList.add('hidden');
+            if (view === 'home') document.getElementById('homeView').classList.remove('hidden');
+            if (view === 'playlist') document.getElementById('playlistView').classList.remove('hidden');
+            if (view === 'lyrics') document.getElementById('lyricsView').classList.remove('hidden');
+        }
+
+        function openArtistFolder(artist) {
+            const filtered = database.filter(s => s.artist.toLowerCase().includes(artist.toLowerCase()));
+            document.getElementById('playlistHeader').innerHTML = `<h1 class="text-base sm:text-xl font-bold text-white">${artist}</h1>`;
+            const tbody = document.getElementById('playlistSongsTable');
+            tbody.innerHTML = '';
+            filtered.forEach(song => {
+                tbody.innerHTML += `<tr class="cursor-pointer" onclick='playSong(${JSON.stringify(song)})'><td class="py-2 font-bold text-white">${song.title}</td></tr>`;
+            });
+            showView('playlist');
+        }
+
+        audioEngine.ontimeupdate = () => {
+            if (audioEngine.duration) {
+                document.getElementById('progressBar').value = (audioEngine.currentTime / audioEngine.duration) * 100;
+                let m = Math.floor(audioEngine.currentTime / 60), s = Math.floor(audioEngine.currentTime % 60);
+                document.getElementById('currentTime').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                let dm = Math.floor(audioEngine.duration / 60), ds = Math.floor(audioEngine.duration % 60);
+                document.getElementById('totalDuration').innerText = `${dm}:${ds < 10 ? '0' : ''}${ds}`;
+            }
+        };
+
+        window.onload = () => {
+            checkSubscription();
+            renderAllSongsTable(database);
+        };
+    </script>
+</body>
+</html>
