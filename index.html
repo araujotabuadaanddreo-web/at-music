@@ -125,7 +125,7 @@
                     <div class="text-[10px] text-slate-300">N° Yape: <span class="text-cyan-400 font-bold">920484815</span></div>
                 </div>
 
-                <!-- COLUMNA DERECHA: REGISTRO Y ENVÍO DE COMPROBANTE -->
+                <!-- COLUMNA DERECHA: REGISTRO, WHATSAPP Y BOTÓN INGRESAR -->
                 <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 space-y-4 text-left flex flex-col justify-between">
                     <div>
                         <h3 class="text-xs font-bold text-white mb-2 uppercase tracking-wide">Paso 1: Registra tus datos</h3>
@@ -141,15 +141,18 @@
                         </div>
                     </div>
 
-                    <div>
-                        <h3 class="text-xs font-bold text-white mb-2 uppercase tracking-wide">Paso 2: Envía tu comprobante</h3>
+                    <div class="space-y-2">
                         <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
                             <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante por WhatsApp
+                        </button>
+                        <!-- NUEVO BOTÓN INGRESAR DIRECTO -->
+                        <button onclick="intentarIngresar()" class="w-full at-btn-primary text-white font-bold py-2.5 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-right-to-bracket"></i> Ingresar a la Plataforma
                         </button>
                     </div>
 
                     <div class="text-[10px] text-slate-400 text-center bg-slate-900/60 p-2 rounded-lg border border-slate-800">
-                        🔒 El administrador verificará y aprobará tu acceso manualmente.
+                        🔒 Accede una vez que el administrador active tu cuenta.
                     </div>
                 </div>
             </div>
@@ -451,7 +454,8 @@
     <audio id="audioEngine"></audio>
 
     <script>
-    // ==================== DATABASE DE CANCIONES COMPLETA ====================
+       
+        // ==================== DATABASE DE CANCIONES COMPLETA ====================
         const database = [
             // PAULO LONDRA (50 CANCIONES)
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
@@ -664,6 +668,17 @@
                 localStorage.setItem('at_active_session', JSON.stringify(activeUser));
             }
 
+            // Sincronizar estado actual con la lista de clientes registrados en el panel
+            if (activeUser.dni && activeUser.dni !== "00000000") {
+                const clienteEncontrado = listaClientes.find(c => c.dni === activeUser.dni);
+                if (clienteEncontrado) {
+                    activeUser = { ...clienteEncontrado };
+                    localStorage.setItem('at_active_session', JSON.stringify(activeUser));
+                }
+            }
+
+            document.getElementById('navUserName').innerText = activeUser.cliente || "Administrador";
+
             // Si el cliente no ha pagado o no está activado por ti, se bloquea la plataforma
             if (!activeUser.paid || !activeUser.startTime) {
                 document.getElementById('paywallModal').classList.remove('hidden');
@@ -681,7 +696,7 @@
             }
         }
 
-        // ENVIAR COMPROBANTE AL WHATSAPP CON LOS DATOS ESCRITOS
+        // ENVIAR COMPROBANTE AL WHATSAPP
         function enviarComprobanteWhatsApp() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
@@ -691,18 +706,43 @@
                 return;
             }
 
-            // Guardar o registrar provisionalmente al cliente en tu lista administrativa si no existe
             let existente = listaClientes.find(c => c.dni === dni);
             if (!existente) {
-                listaClientes.push({ cliente: nombre, dni: dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false });
+                existente = { cliente: nombre, dni: dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false };
+                listaClientes.push(existente);
                 localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
             }
 
-            // Guardar sesión activa del usuario actual
-            localStorage.setItem('at_active_session', JSON.stringify({ cliente: nombre, dni: dni, startTime: null, durationMs: 0, paid: false }));
+            localStorage.setItem('at_active_session', JSON.stringify(existente));
 
             const mensaje = encodeURIComponent(`Hola Andreo, acabo de realizar mi Yape de S/ 20.00 para la plataforma AT Music.\n\n*Mis datos:*\n- Nombre: ${nombre}\n- DNI/Código: ${dni}\n\nAquí te adjunto mi comprobante para que actives mi cuenta.`);
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
+        }
+
+        // BOTÓN INGRESAR DESDE EL BLOQUEO (VERIFICA SI YA ESTÁS ACTIVADO)
+        function intentarIngresar() {
+            const nombre = document.getElementById('clientRegName').value.trim();
+            const dni = document.getElementById('clientRegDni').value.trim();
+
+            if (!nombre || !dni) {
+                alert("Por favor ingresa tu Nombre y DNI para verificar tu acceso.");
+                return;
+            }
+
+            const clienteEncontrado = listaClientes.find(c => c.dni === dni || c.cliente.toLowerCase() === nombre.toLowerCase());
+            
+            if (!clienteEncontrado) {
+                alert("Aún no estás registrado en el sistema. Escribe tus datos y envía tu comprobante por WhatsApp primero.");
+                return;
+            }
+
+            if (!clienteEncontrado.paid || !clienteEncontrado.startTime) {
+                alert("Tu cuenta aún no ha sido activada por el administrador. Espera la confirmación.");
+                return;
+            }
+
+            localStorage.setItem('at_active_session', JSON.stringify(clienteEncontrado));
+            checkSubscription();
         }
 
         // VERIFICAR VENCIMIENTOS DE HOY EN EL PANEL DE ADMINISTRACIÓN
@@ -761,9 +801,9 @@
 
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
             
-            // Si el cliente activo en este navegador coincide, actualizar sesión
+            // Actualizar sesión activa si es el usuario actual
             let activeUser = JSON.parse(localStorage.getItem('at_active_session') || '{}');
-            if (activeUser.dni === c.dni) {
+            if (activeUser.dni === c.dni || activeUser.cliente.toLowerCase() === c.cliente.toLowerCase()) {
                 localStorage.setItem('at_active_session', JSON.stringify(c));
             }
 
@@ -853,7 +893,7 @@
             customLyricsMap[1] = `[00:02] Y sé que te buscaba
 [00:06] Pero ya te encontré
 [00:10] Ey, mami, yo te extrañaba
-[00:15]󠁧󠁢󠁥󠁮󠁧󠁿 Y no lo negaré
+[00:15] Y no lo negaré
 [00:20] Tal vez, te acuerdes de mí
 [00:25] En una noche de abril`;
         }
