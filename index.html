@@ -137,7 +137,6 @@
                             <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante
                         </button>
 
-                        <!-- NUEVO BOTÓN CON SEPARACIÓN ADECUADA -->
                         <button onclick="registrarConAdministrador()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2 mt-1">
                             <i class="fa-solid fa-user-gear text-sm"></i> Registrarse con el Administrador
                         </button>
@@ -162,7 +161,7 @@
                 <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- BOTÓN DE ACCESO LIBRE PARA TI (ADMIN) -->
+            <!-- ACCESO LIBRE PARA TI (ADMIN) -->
             <div class="bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
                 <div>
                     <div class="font-bold text-xs text-purple-900">Acceso Maestro de Administrador</div>
@@ -413,7 +412,7 @@
             checkSubscription();
         }
 
-        // BOTÓN: ENVIAR COMPROBANTE POR WHATSAPP
+        // ENVIAR COMPROBANTE POR WHATSAPP Y GUARDAR EN LA LISTA
         function enviarComprobanteWhatsApp() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
@@ -423,19 +422,23 @@
                 return;
             }
 
+            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
             if (!existente) {
                 existente = { cliente: nombre, dni: dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false };
                 listaClientes.push(existente);
-                localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
+            } else {
+                existente.cliente = nombre;
             }
 
+            localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
             localStorage.setItem('at_active_session', JSON.stringify(existente));
+
             const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}`);
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
         }
 
-        // NUEVO BOTÓN: REGISTRARSE CON EL ADMINISTRADOR (AUTOMÁTICO EN EL PANEL)
+        // BOTÓN: REGISTRARSE CON EL ADMINISTRADOR (AUTOMÁTICO EN EL PANEL)
         function registrarConAdministrador() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
@@ -445,19 +448,21 @@
                 return;
             }
 
-            // Verificar si ya existe en la lista
+            // Cargar datos actuales de localStorage para evitar sobreescrituras
+            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
+            
             let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
             if (!existente) {
                 existente = { cliente: nombre, dni: dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false };
                 listaClientes.push(existente);
             } else {
-                existente.cliente = nombre; // Actualizar por si cambió el nombre
+                existente.cliente = nombre;
             }
 
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
             localStorage.setItem('at_active_session', JSON.stringify(existente));
 
-            alert("¡Te has registrado correctamente con el administrador! Ahora espera a que active tu cuenta desde su panel.");
+            alert("¡Registro enviado al Administrador! Tus datos ya aparecen en el panel privado.");
             checkSubscription();
         }
 
@@ -504,6 +509,7 @@
 
         // TÚ ACTIVAS MANUALMENTE AL CLIENTE DESDE TU PANEL PRIVADO
         function activarMembresiaManual(index) {
+            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             const c = listaClientes[index];
             const now = new Date();
             c.startTime = now.getTime();
@@ -519,12 +525,14 @@
         }
 
         function eliminarCliente(index) {
+            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             listaClientes.splice(index, 1);
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
             renderClientesTable();
         }
 
         function renderClientesTable() {
+            // Actualizar siempre desde localStorage al abrir o modificar la tabla
             listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             const tbody = document.getElementById('clientesTableBody');
             tbody.innerHTML = '';
@@ -533,11 +541,12 @@
                 return;
             }
             listaClientes.forEach((c, idx) => {
+                let badgeEstado = c.paid ? '<span class="text-emerald-600 font-bold">Activo</span>' : '<span class="text-amber-600 font-bold">Pendiente</span>';
                 tbody.innerHTML += `
                     <tr class="border-b">
                         <td class="p-2 font-medium">${c.cliente}</td>
                         <td class="p-2">${c.dni}</td>
-                        <td class="p-2">${c.fechaInicio || '-'}</td>
+                        <td class="p-2">${c.fechaInicio || badgeEstado}</td>
                         <td class="p-2">${c.fechaBloqueo || '-'}</td>
                         <td class="p-2 text-center">
                             <button onclick="activarMembresiaManual(${idx})" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Activar</button>
