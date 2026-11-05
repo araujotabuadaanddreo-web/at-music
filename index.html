@@ -98,11 +98,11 @@
 </head>
 <body class="min-h-screen w-full flex flex-col bg-[#0b0f19] text-xs sm:text-sm overflow-x-hidden pb-20">
 
-    <!-- MODAL DE BLOQUEO / PAGO YAPE CON CÓDIGO DE SEGURIDAD -->
+    <!-- MODAL DE BLOQUEO / PAGO YAPE PARA CLIENTES NUEVOS -->
     <div id="paywallModal" class="hidden fixed inset-0 bg-[#0b0f19]/98 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-2xl overflow-y-auto">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 max-w-xl w-full text-center shadow-2xl relative my-auto">
             <h2 class="text-xl sm:text-2xl font-black text-white mb-1">¡Membresía Requerida!</h2>
-            <p class="text-[11px] sm:text-xs text-slate-400 mb-4">Paga con Yape, obtén tu código de seguridad y envíalo por WhatsApp.</p>
+            <p class="text-[11px] sm:text-xs text-slate-400 mb-4">Escanea el QR para pagar con Yape, registra tus datos y envíalos.</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                 <!-- QR YAPE -->
@@ -116,10 +116,10 @@
                     <div class="text-[10px] text-slate-300">Yape: <span class="text-cyan-400 font-bold">920484815</span></div>
                 </div>
 
-                <!-- REGISTRO Y CÓDIGO -->
+                <!-- REGISTRO Y ACCESO -->
                 <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 text-left flex flex-col justify-between space-y-3">
                     <div>
-                        <h3 class="text-[11px] font-bold text-white mb-1.5 uppercase">Tus Datos y Seguridad</h3>
+                        <h3 class="text-[11px] font-bold text-white mb-1.5 uppercase">Paso 1: Registra tus datos</h3>
                         <div class="space-y-2">
                             <div>
                                 <label class="text-[10px] text-slate-400 block mb-0.5">Nombres y Apellidos</label>
@@ -129,22 +129,20 @@
                                 <label class="text-[10px] text-slate-400 block mb-0.5">DNI / Código</label>
                                 <input type="text" id="clientRegDni" placeholder="Ej. 70259930" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none">
                             </div>
-                            <div>
-                                <label class="text-[10px] text-cyan-400 block mb-0.5 font-bold">Código de Seguridad (5 dígitos)</label>
-                                <div class="flex gap-2">
-                                    <input type="text" id="securityCode" readonly class="w-full bg-slate-900 text-cyan-300 font-mono font-bold tracking-widest px-3 py-2 rounded-xl border border-cyan-500/40 text-xs text-center" placeholder="12345">
-                                    <button onclick="generarCodigoSeguridad()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold" title="Generar nuevo código"><i class="fa-solid fa-rotate"></i></button>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
-                    <div class="space-y-2">
+                    <div class="space-y-2.5">
                         <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
-                            <i class="fa-brands fa-whatsapp text-sm"></i> Enviar por WhatsApp
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante
                         </button>
-                        <button onclick="intentarIngresar()" class="w-full at-btn-primary text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-right-to-bracket"></i> Ingresar a la Plataforma
+
+                        <button onclick="registrarConAdministrador()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2 mt-1">
+                            <i class="fa-solid fa-user-gear text-sm"></i> Registrarse con el Administrador
+                        </button>
+
+                        <button onclick="intentarIngresar()" class="w-full at-btn-primary text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2 mt-1">
+                            <i class="fa-solid fa-right-to-bracket"></i> Ingresar
                         </button>
                     </div>
                 </div>
@@ -158,12 +156,12 @@
             <div class="flex justify-between items-center pb-2 mb-3 border-b">
                 <div>
                     <h2 class="text-base sm:text-lg font-black text-slate-900">Panel Privado de Administración</h2>
-                    <p class="text-[10px] sm:text-xs text-slate-500">Verifica el código de 5 dígitos que te envíen por WhatsApp y actívalos</p>
+                    <p class="text-[10px] sm:text-xs text-slate-500">Pega aquí el enlace recibido por WhatsApp o activa a tus clientes</p>
                 </div>
                 <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- ACCESO LIBRE ADMIN -->
+            <!-- ACCESO LIBRE PARA TI (ADMIN) -->
             <div class="bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
                 <div>
                     <div class="font-bold text-xs text-purple-900">Acceso Maestro de Administrador</div>
@@ -174,28 +172,24 @@
                 </button>
             </div>
 
-            <!-- FORMULARIO MANUAL PARA REGISTRAR AMIGOS DESDE TU PC -->
-            <div class="bg-slate-100 border border-slate-200 p-3 rounded-xl mb-3 space-y-2">
-                <div class="font-bold text-xs text-slate-800">Agregar cliente manualmente con su código de seguridad</div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <input type="text" id="manualNombre" placeholder="Nombre y Apellidos" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
-                    <input type="text" id="manualDni" placeholder="DNI / Código" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
-                    <input type="text" id="manualCodigo" placeholder="Código de 5 dígitos" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
-                </div>
-                <div class="flex justify-end">
-                    <button onclick="agregarClienteManual()" class="bg-slate-900 hover:bg-black text-white font-bold px-4 py-1.5 rounded-lg text-xs transition">Registrar y Guardar</button>
+            <!-- CAMPO PARA PEGAR LA DIRECCIÓN QUE TE ENVIARON POR WHATSAPP -->
+            <div class="bg-slate-100 border border-slate-300 p-3 rounded-xl mb-3 space-y-2">
+                <div class="font-bold text-xs text-slate-800">📥 Registrar mediante enlace de WhatsApp</div>
+                <div class="flex gap-2">
+                    <input type="text" id="whatsappLinkInput" placeholder="Pega aquí el enlace recibido (ej. ?cliente=Juan&dni=123)" class="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                    <button onclick="procesarEnlaceWhatsApp()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-1.5 rounded-lg text-xs shadow transition">Procesar y Agregar</button>
                 </div>
             </div>
 
             <h3 class="font-bold text-slate-800 text-xs mb-2">Solicitudes y Clientes Registrados</h3>
             <div class="flex-1 overflow-x-auto border border-slate-200 rounded-lg max-h-[40vh]">
-                <table class="w-full text-left border-collapse text-xs min-w-[600px]">
+                <table class="w-full text-left border-collapse text-xs min-w-[500px]">
                     <thead class="sticky top-0 bg-slate-800 text-white z-10">
                         <tr>
                             <th class="p-2">Cliente</th>
                             <th class="p-2">DNI</th>
-                            <th class="p-2">Código Seguridad</th>
-                            <th class="p-2">Estado</th>
+                            <th class="p-2">Inicio</th>
+                            <th class="p-2">Bloqueo</th>
                             <th class="p-2 text-center">Acción</th>
                         </tr>
                     </thead>
@@ -242,8 +236,10 @@
         </div>
     </header>
 
-    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- CONTENEDOR PRINCIPAL FLUIDO Y ADAPTABLE -->
     <div class="flex-1 flex w-full p-2 sm:p-3 gap-2 sm:gap-3 relative">
+        
+        <!-- BARRA LATERAL -->
         <aside id="sidebarLibrary" class="hidden lg:flex w-64 bg-[#0f172a]/80 border border-slate-800 rounded-2xl flex-col overflow-hidden flex-shrink-0">
             <div class="p-3 border-b border-slate-800 font-bold text-slate-200 flex items-center gap-2">
                 <i class="fa-solid fa-book-open text-purple-400"></i> Biblioteca
@@ -255,7 +251,10 @@
             <div class="flex-1 overflow-y-auto p-2 space-y-1" id="libraryList"></div>
         </aside>
 
+        <!-- PANEL CENTRAL -->
         <main class="flex-1 bg-[#0f172a]/60 border border-slate-800 rounded-2xl overflow-y-auto relative flex flex-col min-h-[70vh]" id="mainContent">
+            
+            <!-- VISTA HOME -->
             <div id="homeView" class="p-3 sm:p-6 space-y-4">
                 <div>
                     <h2 class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">Artistas</h2>
@@ -296,6 +295,7 @@
                 </div>
             </div>
 
+            <!-- VISTA DETALLE PLAYLIST / CARPETA -->
             <div id="playlistView" class="hidden flex-1 flex-col">
                 <div class="playlist-banner-bg p-4 sm:p-6 flex items-center gap-3" id="playlistHeader"></div>
                 <div class="p-3 flex-1 overflow-x-auto">
@@ -305,6 +305,7 @@
                 </div>
             </div>
 
+            <!-- VISTA KARAOKE / LETRA -->
             <div id="lyricsView" class="hidden p-3 sm:p-6 flex-1 bg-slate-950 flex flex-col items-center text-center overflow-y-auto">
                 <div class="w-full max-w-xl flex justify-between items-center mb-3">
                     <button onclick="showView('home')" class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-lg"><i class="fa-solid fa-arrow-left"></i> Volver</button>
@@ -320,7 +321,7 @@
         </main>
     </div>
 
-    <!-- REPRODUCTOR INFERIOR -->
+    <!-- REPRODUCTOR INFERIOR FIJO VISIBLE EN CELULARES -->
     <footer class="fixed bottom-0 left-0 w-full h-16 sm:h-20 bg-[#0f172a] border-t border-slate-800 px-2 sm:px-6 flex items-center justify-between z-40 gap-2 shadow-2xl">
         <div class="flex items-center gap-2 w-1/3 sm:w-1/4 overflow-hidden">
             <img id="playerCover" src="https://picsum.photos/100/100?random=11" class="w-9 h-9 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0">
@@ -376,12 +377,6 @@
         let listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
         const audioElement = document.getElementById('audioEngine');
 
-        // Generar código de seguridad aleatorio de 5 dígitos al cargar
-        function generarCodigoSeguridad() {
-            const codigo = Math.floor(10000 + Math.random() * 90000).toString();
-            document.getElementById('securityCode').value = codigo;
-        }
-
         function checkSubscription() {
             listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             let activeUser = JSON.parse(localStorage.getItem('at_active_session') || 'null');
@@ -389,7 +384,6 @@
 
             if (!activeUser) {
                 document.getElementById('paywallModal').classList.remove('hidden');
-                generarCodigoSeguridad();
                 if(!audioEngine.paused) audioElement.pause();
                 return;
             }
@@ -398,7 +392,6 @@
 
             if (!activeUser.paid || !activeUser.startTime) {
                 document.getElementById('paywallModal').classList.remove('hidden');
-                generarCodigoSeguridad();
                 if(!audioEngine.paused) audioElement.pause();
                 return;
             }
@@ -406,19 +399,17 @@
             const elapsedTime = now - activeUser.startTime;
             if (elapsedTime > activeUser.durationMs) {
                 document.getElementById('paywallModal').classList.remove('hidden');
-                generarCodigoSeguridad();
                 if(!audioEngine.paused) audioElement.pause();
             } else {
                 document.getElementById('paywallModal').classList.add('hidden');
             }
         }
 
-        // ACCESO LIBRE ADMIN
+        // ACCESO LIBRE PARA TI (ADMINISTRADOR)
         function activarAdminLibre() {
             const adminUser = { 
                 cliente: "Andreo (Administrador)", 
                 dni: "00000000", 
-                codigoSeguridad: "ADMIN",
                 startTime: new Date().getTime(), 
                 durationMs: 365 * 24 * 3600 * 1000, 
                 paid: true 
@@ -430,35 +421,85 @@
             checkSubscription();
         }
 
-        // ENVIAR WHATSAPP INCLUYENDO EL CÓDIGO DE SEGURIDAD
+        // ENVIAR COMPROBANTE POR WHATSAPP CON DIRECCIÓN AUTOMÁTICA
         function enviarComprobanteWhatsApp() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
-            const codigo = document.getElementById('securityCode').value.trim();
 
             if (!nombre || !dni) {
                 alert("Ingresa tu Nombre y DNI.");
                 return;
             }
 
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
-            let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
-            if (!existente) {
-                existente = { cliente: nombre, dni: dni, codigoSeguridad: codigo, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false };
-                listaClientes.push(existente);
-            } else {
-                existente.cliente = nombre;
-                existente.codigoSeguridad = codigo;
-            }
-
-            localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-            localStorage.setItem('at_active_session', JSON.stringify(existente));
-
-            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigo}`);
+            const linkCliente = `?cliente=${encodeURIComponent(nombre)}&dni=${encodeURIComponent(dni)}`;
+            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n\nMi enlace de registro:\n${linkCliente}`);
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
         }
 
-        // INTENTAR INGRESAR (VERIFICANDO CÓDIGO)
+        // BOTÓN: REGISTRARSE CON EL ADMINISTRADOR (GENERA ENLACE AUTOMÁTICO)
+        function registrarConAdministrador() {
+            const nombre = document.getElementById('clientRegName').value.trim();
+            const dni = document.getElementById('clientRegDni').value.trim();
+
+            if (!nombre || !dni) {
+                alert("Por favor ingresa tu Nombre y DNI para registrarte.");
+                return;
+            }
+
+            const linkCliente = `?cliente=${encodeURIComponent(nombre)}&dni=${encodeURIComponent(dni)}`;
+            const mensaje = encodeURIComponent(`Hola Andreo, me he registrado en AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n\nCopia este texto y pégalo en tu panel de administración:\n${linkCliente}`);
+            window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
+            alert("¡Se abrió WhatsApp para enviar tu registro al Administrador!");
+        }
+
+        // PROCESAR EL ENLACE PEGADO EN TU PANEL PRIVADO
+        function procesarEnlaceWhatsApp() {
+            const texto = document.getElementById('whatsappLinkInput').value.trim();
+            if (!texto) {
+                alert("Pega el enlace o texto recibido.");
+                return;
+            }
+
+            try {
+                let nombre = "";
+                let dni = "";
+
+                if (texto.includes("cliente=")) {
+                    const urlParams = new URLSearchParams(texto.includes('?') ? texto.split('?')[1] : texto);
+                    nombre = decodeURIComponent(urlParams.get('cliente') || '');
+                    dni = decodeURIComponent(urlParams.get('dni') || '');
+                } else {
+                    // Si te mandaron el texto plano con Nombre y DNI
+                    const lineas = texto.split('\n');
+                    lineas.forEach(l => {
+                        if (l.toLowerCase().includes('nombre:')) nombre = l.split(':')[1].trim();
+                        if (l.toLowerCase().includes('dni:')) dni = l.split(':')[1].trim();
+                    });
+                }
+
+                if (!nombre || !dni) {
+                    alert("No se pudo extraer el Nombre y DNI del texto. Asegúrate de copiarlo bien.");
+                    return;
+                }
+
+                listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
+                let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
+                if (!existente) {
+                    listaClientes.push({ cliente: nombre, dni: dni, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false });
+                    localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
+                    alert(`¡Cliente ${nombre} agregado con éxito al panel! Ya puedes activarlo.`);
+                } else {
+                    alert("Este cliente ya se encontraba registrado.");
+                }
+
+                document.getElementById('whatsappLinkInput').value = '';
+                renderClientesTable();
+            } catch (e) {
+                alert("Formato no válido.");
+            }
+        }
+
+        // BOTÓN: INTENTAR INGRESAR
         function intentarIngresar() {
             listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             const nombre = document.getElementById('clientRegName').value.trim();
@@ -475,12 +516,12 @@
             );
 
             if (!clienteEncontrado) {
-                alert("No estás registrado en la base de datos.");
+                alert("No estás registrado. Haz clic en 'Registrarse con el Administrador'.");
                 return;
             }
 
             if (!clienteEncontrado.paid || !clienteEncontrado.startTime) {
-                alert("Tu cuenta aún no ha sido activada por el administrador.");
+                alert("Tu cuenta aún no ha sido activada por el administrador. Espera la confirmación.");
                 return;
             }
 
@@ -488,28 +529,6 @@
             document.getElementById('paywallModal').classList.add('hidden');
             checkSubscription();
             alert("¡Bienvenido a AT Music!");
-        }
-
-        // AGREGAR CLIENTE MANUALMENTE DESDE EL PANEL DE ADMIN
-        function agregarClienteManual() {
-            const cliente = document.getElementById('manualNombre').value.trim();
-            const dni = document.getElementById('manualDni').value.trim();
-            const codigoSeguridad = document.getElementById('manualCodigo').value.trim();
-
-            if (!cliente || !dni || !codigoSeguridad) {
-                alert("Completa todos los campos manuales.");
-                return;
-            }
-
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
-            listaClientes.push({ cliente, dni, codigoSeguridad, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false });
-            localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-
-            document.getElementById('manualNombre').value = '';
-            document.getElementById('manualDni').value = '';
-            document.getElementById('manualCodigo').value = '';
-            renderClientesTable();
-            alert("¡Cliente agregado al panel!");
         }
 
         function abrirModalUsuario() {
@@ -521,7 +540,7 @@
             document.getElementById('userModal').classList.add('hidden');
         }
 
-        // ACTIVAR MEMBRESÍA MANUALMENTE
+        // TÚ ACTIVAS MANUALMENTE AL CLIENTE DESDE TU PANEL PRIVADO
         function activarMembresiaManual(index) {
             listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             const c = listaClientes[index];
@@ -534,7 +553,7 @@
             c.fechaBloqueo = endDate.toLocaleString();
 
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-            alert(`¡Membresía activada con éxito para ${c.cliente} (Código: ${c.codigoSeguridad})!`);
+            alert(`¡Membresía activada con éxito para ${c.cliente} por 30 días!`);
             renderClientesTable();
         }
 
@@ -559,8 +578,8 @@
                     <tr class="border-b">
                         <td class="p-2 font-medium">${c.cliente}</td>
                         <td class="p-2">${c.dni}</td>
-                        <td class="p-2 font-mono font-bold text-cyan-700">${c.codigoSeguridad || '-----'}</td>
-                        <td class="p-2">${c.fechaInicio ? badgeEstado : badgeEstado}</td>
+                        <td class="p-2">${c.fechaInicio || badgeEstado}</td>
+                        <td class="p-2">${c.fechaBloqueo || '-'}</td>
                         <td class="p-2 text-center">
                             <button onclick="activarMembresiaManual(${idx})" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Activar</button>
                             <button onclick="eliminarCliente(${idx})" class="bg-red-500 text-white px-2 py-1 rounded text-[10px] font-bold ml-1">X</button>
