@@ -156,7 +156,7 @@
             <div class="flex justify-between items-center pb-2 mb-3 border-b">
                 <div>
                     <h2 class="text-base sm:text-lg font-black text-slate-900">Panel Privado de Administración</h2>
-                    <p class="text-[10px] sm:text-xs text-slate-500">Pega aquí el mensaje recibido por WhatsApp para registrar y activar</p>
+                    <p class="text-[10px] sm:text-xs text-slate-500">Pega aquí el mensaje completo de WhatsApp que te envió tu cliente</p>
                 </div>
                 <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
             </div>
@@ -172,11 +172,11 @@
                 </button>
             </div>
 
-            <!-- CAMPO PARA PEGAR EL MENSAJE DE WHATSAPP -->
+            <!-- CAMPO INTELIGENTE PARA PEGAR EL MENSAJE DE WHATSAPP -->
             <div class="bg-slate-100 border border-slate-300 p-3 rounded-xl mb-3 space-y-2">
-                <div class="font-bold text-xs text-slate-800">📥 Registrar mediante mensaje de WhatsApp</div>
+                <div class="font-bold text-xs text-slate-800">📥 Registrar pegando el mensaje de WhatsApp</div>
                 <div class="flex gap-2">
-                    <input type="text" id="whatsappLinkInput" placeholder="Pega aquí todo el texto recibido por WhatsApp..." class="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                    <input type="text" id="whatsappLinkInput" placeholder="Pega aquí todo el texto de WhatsApp o escribe el DNI..." class="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
                     <button onclick="procesarEnlaceWhatsApp()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-1.5 rounded-lg text-xs shadow transition">Procesar y Agregar</button>
                 </div>
             </div>
@@ -427,7 +427,7 @@
             return Math.floor(10000 + Math.random() * 90000).toString();
         }
 
-        // ENVIAR COMPROBANTE POR WHATSAPP CON DIRECCIÓN Y CÓDIGO AUTOMÁTICO
+        // ENVIAR COMPROBANTE POR WHATSAPP
         function enviarComprobanteWhatsApp() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
@@ -438,12 +438,11 @@
             }
 
             const codigoUnico = generarCodigoAleatorio();
-            const plataformaUrl = window.location.href.split('?')[0];
-            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}\n- Plataforma: ${plataformaUrl}`);
+            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}`);
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
         }
 
-        // BOTÓN: REGISTRARSE CON EL ADMINISTRADOR (GENERA CÓDIGO Y DIRECCIÓN)
+        // BOTÓN: REGISTRARSE CON EL ADMINISTRADOR
         function registrarConAdministrador() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
@@ -454,13 +453,12 @@
             }
 
             const codigoUnico = generarCodigoAleatorio();
-            const plataformaUrl = window.location.href.split('?')[0];
-            const mensaje = encodeURIComponent(`Hola Andreo, me he registrado en AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}\n- Plataforma: ${plataformaUrl}`);
+            const mensaje = encodeURIComponent(`Hola Andreo, me he registrado en AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}`);
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
             alert("¡Se abrió WhatsApp con tu registro automático y código único!");
         }
 
-        // PROCESAR EL TEXTO PEGADO EN TU PANEL PRIVADO
+        // PROCESAR EL MENSAJE DE WHATSAPP PEGADO EN EL PANEL
         function procesarEnlaceWhatsApp() {
             const texto = document.getElementById('whatsappLinkInput').value.trim();
             if (!texto) {
@@ -481,9 +479,10 @@
                     if (lineaLower.includes('código de seguridad:') || lineaLower.includes('codigo:')) codigo = l.split(':')[1].trim();
                 });
 
-                if (!nombre || !dni) {
-                    alert("No se pudo extraer el Nombre y DNI. Asegúrate de copiar todo el mensaje de WhatsApp.");
-                    return;
+                // Si pegaron solo el DNI o el nombre directamente
+                if (!nombre && !dni) {
+                    dni = texto;
+                    nombre = "Cliente " + dni;
                 }
 
                 listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
