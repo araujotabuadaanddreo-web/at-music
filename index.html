@@ -368,19 +368,19 @@
             const now = new Date().getTime();
             if (!activeUser) {
                 document.getElementById('paywallModal').classList.remove('hidden');
-                if(!audioEngine.paused) audioElement.pause();
+                if(!audioEngine.paused) audioEngine.pause();
                 return;
             }
             document.getElementById('navUserName').innerText = activeUser.cliente || "Admin";
             if (!activeUser.paid || !activeUser.startTime) {
                 document.getElementById('paywallModal').classList.remove('hidden');
-                if(!audioEngine.paused) audioElement.pause();
+                if(!audioEngine.paused) audioEngine.pause();
                 return;
             }
             const elapsedTime = now - activeUser.startTime;
             if (elapsedTime > activeUser.durationMs) {
                 document.getElementById('paywallModal').classList.remove('hidden');
-                if(!audioEngine.paused) audioElement.pause();
+                if(!audioEngine.paused) audioEngine.pause();
             } else {
                 document.getElementById('paywallModal').classList.add('hidden');
             }
