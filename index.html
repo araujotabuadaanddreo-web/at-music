@@ -98,11 +98,11 @@
 </head>
 <body class="min-h-screen w-full flex flex-col bg-[#0b0f19] text-xs sm:text-sm overflow-x-hidden pb-20">
 
-    <!-- MODAL DE BLOQUEO / PAGO YAPE PARA CLIENTES NUEVOS -->
+    <!-- MODAL DE BLOQUEO / PAGO YAPE CON CÓDIGO DE SEGURIDAD -->
     <div id="paywallModal" class="hidden fixed inset-0 bg-[#0b0f19]/98 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-2xl overflow-y-auto">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 max-w-xl w-full text-center shadow-2xl relative my-auto">
             <h2 class="text-xl sm:text-2xl font-black text-white mb-1">¡Membresía Requerida!</h2>
-            <p class="text-[11px] sm:text-xs text-slate-400 mb-4">Escanea el QR para pagar con Yape y envía tu comprobante por WhatsApp[cite: 6].</p>
+            <p class="text-[11px] sm:text-xs text-slate-400 mb-4">Paga con Yape, obtén tu código de seguridad y envíalo por WhatsApp.</p>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                 <!-- QR YAPE -->
@@ -116,10 +116,10 @@
                     <div class="text-[10px] text-slate-300">Yape: <span class="text-cyan-400 font-bold">920484815</span></div>
                 </div>
 
-                <!-- REGISTRO Y ACCESO -->
+                <!-- REGISTRO Y CÓDIGO -->
                 <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 text-left flex flex-col justify-between space-y-3">
                     <div>
-                        <h3 class="text-[11px] font-bold text-white mb-1.5 uppercase">Paso 1: Registra tus datos</h3>
+                        <h3 class="text-[11px] font-bold text-white mb-1.5 uppercase">Tus Datos y Seguridad</h3>
                         <div class="space-y-2">
                             <div>
                                 <label class="text-[10px] text-slate-400 block mb-0.5">Nombres y Apellidos</label>
@@ -129,14 +129,21 @@
                                 <label class="text-[10px] text-slate-400 block mb-0.5">DNI / Código</label>
                                 <input type="text" id="clientRegDni" placeholder="Ej. 70259930" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none">
                             </div>
+                            <div>
+                                <label class="text-[10px] text-cyan-400 block mb-0.5 font-bold">Código de Seguridad (5 dígitos)</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="securityCode" readonly class="w-full bg-slate-900 text-cyan-300 font-mono font-bold tracking-widest px-3 py-2 rounded-xl border border-cyan-500/40 text-xs text-center" placeholder="12345">
+                                    <button onclick="generarCodigoSeguridad()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold" title="Generar nuevo código"><i class="fa-solid fa-rotate"></i></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="space-y-2.5">
-                        <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
-                            <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante por WhatsApp[cite: 6]
+                    <div class="space-y-2">
+                        <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> Enviar por WhatsApp
                         </button>
-                        <button onclick="intentarIngresar()" class="w-full at-btn-primary text-white font-bold py-2.5 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
+                        <button onclick="intentarIngresar()" class="w-full at-btn-primary text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-right-to-bracket"></i> Ingresar a la Plataforma
                         </button>
                     </div>
@@ -151,12 +158,12 @@
             <div class="flex justify-between items-center pb-2 mb-3 border-b">
                 <div>
                     <h2 class="text-base sm:text-lg font-black text-slate-900">Panel Privado de Administración</h2>
-                    <p class="text-[10px] sm:text-xs text-slate-500">Agrega el Nombre y DNI que te enviaron por WhatsApp[cite: 6] para activarlos</p>
+                    <p class="text-[10px] sm:text-xs text-slate-500">Verifica el código de 5 dígitos que te envíen por WhatsApp y actívalos</p>
                 </div>
                 <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <!-- ACCESO LIBRE PARA TI (ADMIN) -->
+            <!-- ACCESO LIBRE ADMIN -->
             <div class="bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
                 <div>
                     <div class="font-bold text-xs text-purple-900">Acceso Maestro de Administrador</div>
@@ -167,30 +174,28 @@
                 </button>
             </div>
 
-            <!-- FORMULARIO PARA AGREGAR MANUALMENTE DESDE WHATSAPP -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 items-end mb-2 bg-slate-100 p-3 rounded-xl border">
-                <div>
-                    <label class="text-[10px] font-semibold text-slate-700 block mb-1">Nombre del cliente (del WhatsApp)</label>
-                    <input type="text" id="regCliente" placeholder="Ej. Juan Pérez" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+            <!-- FORMULARIO MANUAL PARA REGISTRAR AMIGOS DESDE TU PC -->
+            <div class="bg-slate-100 border border-slate-200 p-3 rounded-xl mb-3 space-y-2">
+                <div class="font-bold text-xs text-slate-800">Agregar cliente manualmente con su código de seguridad</div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <input type="text" id="manualNombre" placeholder="Nombre y Apellidos" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                    <input type="text" id="manualDni" placeholder="DNI / Código" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                    <input type="text" id="manualCodigo" placeholder="Código de 5 dígitos" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
                 </div>
-                <div>
-                    <label class="text-[10px] font-semibold text-slate-700 block mb-1">DNI del cliente</label>
-                    <input type="text" id="regDni" placeholder="Ej. 70259930" class="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                <div class="flex justify-end">
+                    <button onclick="agregarClienteManual()" class="bg-slate-900 hover:bg-black text-white font-bold px-4 py-1.5 rounded-lg text-xs transition">Registrar y Guardar</button>
                 </div>
-            </div>
-            <div class="flex justify-end mb-3">
-                <button onclick="registrarClienteAdmin()" class="bg-slate-900 hover:bg-black text-white font-bold px-4 py-2 rounded-lg text-xs transition shadow">Registrar Cliente</button>
             </div>
 
-            <h3 class="font-bold text-slate-800 text-xs mb-2">Lista de Clientes Activos</h3>
+            <h3 class="font-bold text-slate-800 text-xs mb-2">Solicitudes y Clientes Registrados</h3>
             <div class="flex-1 overflow-x-auto border border-slate-200 rounded-lg max-h-[40vh]">
-                <table class="w-full text-left border-collapse text-xs min-w-[500px]">
+                <table class="w-full text-left border-collapse text-xs min-w-[600px]">
                     <thead class="sticky top-0 bg-slate-800 text-white z-10">
                         <tr>
                             <th class="p-2">Cliente</th>
                             <th class="p-2">DNI</th>
-                            <th class="p-2">Inicio</th>
-                            <th class="p-2">Bloqueo</th>
+                            <th class="p-2">Código Seguridad</th>
+                            <th class="p-2">Estado</th>
                             <th class="p-2 text-center">Acción</th>
                         </tr>
                     </thead>
@@ -315,7 +320,7 @@
         </main>
     </div>
 
-    <!-- REPRODUCTOR INFERIOR FIJO -->
+    <!-- REPRODUCTOR INFERIOR -->
     <footer class="fixed bottom-0 left-0 w-full h-16 sm:h-20 bg-[#0f172a] border-t border-slate-800 px-2 sm:px-6 flex items-center justify-between z-40 gap-2 shadow-2xl">
         <div class="flex items-center gap-2 w-1/3 sm:w-1/4 overflow-hidden">
             <img id="playerCover" src="https://picsum.photos/100/100?random=11" class="w-9 h-9 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0">
@@ -371,6 +376,12 @@
         let listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
         const audioElement = document.getElementById('audioEngine');
 
+        // Generar código de seguridad aleatorio de 5 dígitos al cargar
+        function generarCodigoSeguridad() {
+            const codigo = Math.floor(10000 + Math.random() * 90000).toString();
+            document.getElementById('securityCode').value = codigo;
+        }
+
         function checkSubscription() {
             listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             let activeUser = JSON.parse(localStorage.getItem('at_active_session') || 'null');
@@ -378,6 +389,7 @@
 
             if (!activeUser) {
                 document.getElementById('paywallModal').classList.remove('hidden');
+                generarCodigoSeguridad();
                 if(!audioEngine.paused) audioElement.pause();
                 return;
             }
@@ -386,6 +398,7 @@
 
             if (!activeUser.paid || !activeUser.startTime) {
                 document.getElementById('paywallModal').classList.remove('hidden');
+                generarCodigoSeguridad();
                 if(!audioEngine.paused) audioElement.pause();
                 return;
             }
@@ -393,16 +406,19 @@
             const elapsedTime = now - activeUser.startTime;
             if (elapsedTime > activeUser.durationMs) {
                 document.getElementById('paywallModal').classList.remove('hidden');
+                generarCodigoSeguridad();
                 if(!audioEngine.paused) audioElement.pause();
             } else {
                 document.getElementById('paywallModal').classList.add('hidden');
             }
         }
 
+        // ACCESO LIBRE ADMIN
         function activarAdminLibre() {
             const adminUser = { 
                 cliente: "Andreo (Administrador)", 
                 dni: "00000000", 
+                codigoSeguridad: "ADMIN",
                 startTime: new Date().getTime(), 
                 durationMs: 365 * 24 * 3600 * 1000, 
                 paid: true 
@@ -414,20 +430,35 @@
             checkSubscription();
         }
 
-        // ENVIAR COMPROBANTE AL WHATSAPP CON DATOS AUTOMÁTICOS
+        // ENVIAR WHATSAPP INCLUYENDO EL CÓDIGO DE SEGURIDAD
         function enviarComprobanteWhatsApp() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
+            const codigo = document.getElementById('securityCode').value.trim();
 
             if (!nombre || !dni) {
                 alert("Ingresa tu Nombre y DNI.");
                 return;
             }
 
-            const mensaje = encodeURIComponent(`Hola Andreo, acabo de realizar mi Yape de S/ 20.00 para AT Music.\n\n*Mis datos:*\n- Nombre: ${nombre}\n- DNI: ${dni}\n\nAquí te adjunto mi comprobante[cite: 6].`);
+            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
+            let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
+            if (!existente) {
+                existente = { cliente: nombre, dni: dni, codigoSeguridad: codigo, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false };
+                listaClientes.push(existente);
+            } else {
+                existente.cliente = nombre;
+                existente.codigoSeguridad = codigo;
+            }
+
+            localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
+            localStorage.setItem('at_active_session', JSON.stringify(existente));
+
+            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigo}`);
             window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
         }
 
+        // INTENTAR INGRESAR (VERIFICANDO CÓDIGO)
         function intentarIngresar() {
             listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             const nombre = document.getElementById('clientRegName').value.trim();
@@ -444,12 +475,12 @@
             );
 
             if (!clienteEncontrado) {
-                alert("Aún no estás activado por el administrador. Asegúrate de haber enviado tu comprobante por WhatsApp[cite: 6].");
+                alert("No estás registrado en la base de datos.");
                 return;
             }
 
             if (!clienteEncontrado.paid || !clienteEncontrado.startTime) {
-                alert("Tu cuenta está pendiente de activación por el administrador.");
+                alert("Tu cuenta aún no ha sido activada por el administrador.");
                 return;
             }
 
@@ -457,6 +488,28 @@
             document.getElementById('paywallModal').classList.add('hidden');
             checkSubscription();
             alert("¡Bienvenido a AT Music!");
+        }
+
+        // AGREGAR CLIENTE MANUALMENTE DESDE EL PANEL DE ADMIN
+        function agregarClienteManual() {
+            const cliente = document.getElementById('manualNombre').value.trim();
+            const dni = document.getElementById('manualDni').value.trim();
+            const codigoSeguridad = document.getElementById('manualCodigo').value.trim();
+
+            if (!cliente || !dni || !codigoSeguridad) {
+                alert("Completa todos los campos manuales.");
+                return;
+            }
+
+            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
+            listaClientes.push({ cliente, dni, codigoSeguridad, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false });
+            localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
+
+            document.getElementById('manualNombre').value = '';
+            document.getElementById('manualDni').value = '';
+            document.getElementById('manualCodigo').value = '';
+            renderClientesTable();
+            alert("¡Cliente agregado al panel!");
         }
 
         function abrirModalUsuario() {
@@ -468,57 +521,20 @@
             document.getElementById('userModal').classList.add('hidden');
         }
 
-        function registrarClienteAdmin() {
-            const cliente = document.getElementById('regCliente').value.trim();
-            const dni = document.getElementById('regDni').value.trim();
-
-            if (!cliente || !dni) {
-                alert("Ingresa el Nombre y DNI.");
-                return;
-            }
-
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
-            let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
-            
-            if (!existente) {
-                const now = new Date();
-                const durationMs = 30 * 24 * 3600 * 1000;
-                const endDate = new Date(now.getTime() + durationMs);
-                
-                listaClientes.push({ 
-                    cliente, 
-                    dni, 
-                    fechaInicio: now.toLocaleString(), 
-                    fechaBloqueo: endDate.toLocaleString(), 
-                    startTime: now.getTime(), 
-                    durationMs: durationMs, 
-                    paid: true 
-                });
-            } else {
-                activarMembresiaManual(listaClientes.indexOf(existente));
-                return;
-            }
-
-            localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-            document.getElementById('regCliente').value = '';
-            document.getElementById('regDni').value = '';
-            alert(`¡Cliente ${cliente} registrado y activado por 30 días con éxito!`);
-            renderClientesTable();
-        }
-
+        // ACTIVAR MEMBRESÍA MANUALMENTE
         function activarMembresiaManual(index) {
             listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             const c = listaClientes[index];
             const now = new Date();
             c.startTime = now.getTime();
-            c.durationMs = 30 * 24 * 3600 * 1000;
+            c.durationMs = 30 * 24 * 3600 * 1000; // 30 días
             c.paid = true;
             const endDate = new Date(c.startTime + c.durationMs);
             c.fechaInicio = now.toLocaleString();
             c.fechaBloqueo = endDate.toLocaleString();
 
             localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-            alert(`¡Membresía activada por 30 días para ${c.cliente}!`);
+            alert(`¡Membresía activada con éxito para ${c.cliente} (Código: ${c.codigoSeguridad})!`);
             renderClientesTable();
         }
 
@@ -543,8 +559,8 @@
                     <tr class="border-b">
                         <td class="p-2 font-medium">${c.cliente}</td>
                         <td class="p-2">${c.dni}</td>
-                        <td class="p-2">${c.fechaInicio || badgeEstado}</td>
-                        <td class="p-2">${c.fechaBloqueo || '-'}</td>
+                        <td class="p-2 font-mono font-bold text-cyan-700">${c.codigoSeguridad || '-----'}</td>
+                        <td class="p-2">${c.fechaInicio ? badgeEstado : badgeEstado}</td>
                         <td class="p-2 text-center">
                             <button onclick="activarMembresiaManual(${idx})" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Activar</button>
                             <button onclick="eliminarCliente(${idx})" class="bg-red-500 text-white px-2 py-1 rounded text-[10px] font-bold ml-1">X</button>
