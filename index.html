@@ -512,12 +512,12 @@
             });
         }
 
-        // RENDERIZAR TABLA DE CLIENTES EN EL PANEL ADMIN (Con botón Desactivar)
+        // RENDERIZAR TABLA DE CLIENTES EN EL PANEL ADMIN (CON BOTÓN ACTIVAR Y DESACTIVAR)
         function renderClientesTable() {
             const tbody = document.getElementById('clientesTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            listaClientes.forEach((c, index) => {
+            listaClientes.forEach((c) => {
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50">
                         <td class="p-2 font-semibold">${c.cliente || 'Sin nombre'}</td>
@@ -552,7 +552,7 @@
             });
         }
 
-        // DESACTIVAR MEMBRESÍA EN FIRESTORE
+        // DESACTIVAR MEMBRESÍA EN FIRESTORE (BLOQUEA EL ACCESO INMEDIATAMENTE)
         function desactivarMembresiaFirestore(id) {
             db.collection("clientes").doc(id).update({
                 paid: false,
@@ -561,7 +561,7 @@
                 fechaInicio: "",
                 fechaBloqueo: ""
             }).then(() => {
-                alert("¡Membresía desactivada correctamente!");
+                alert("¡Membresía desactivada! El acceso del cliente ha sido bloqueado hasta nuevo pago.");
             });
         }
 
