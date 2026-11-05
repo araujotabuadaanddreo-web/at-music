@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        
         :root {
             --at-purple: #8b5cf6;
             --at-cyan: #06b6d4;
@@ -19,7 +18,6 @@
             --at-card: #151c2c;
             --at-hover: #1e293b;
         }
-
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--at-dark);
@@ -27,7 +25,6 @@
             user-select: none;
             -webkit-user-select: none;
         }
-
         ::-webkit-scrollbar {
             width: 4px;
             height: 4px;
@@ -39,7 +36,6 @@
             background: #334155;
             border-radius: 4px;
         }
-
         .at-glow-purple {
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.35);
         }
@@ -49,14 +45,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-
         .at-card {
             background: rgba(21, 28, 44, 0.7);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.06);
             transition: all 0.3s ease;
         }
-
         .at-btn-primary {
             background: linear-gradient(135deg, #7c3aed, #0284c7);
             transition: all 0.2s ease;
@@ -64,15 +58,12 @@
         .at-btn-primary:active {
             transform: scale(0.95);
         }
-
         input[type="range"] {
             accent-color: #38bdf8;
         }
-
         .playlist-banner-bg {
             background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(6, 182, 212, 0.2), #0b0f19);
         }
-
         .karaoke-line {
             transition: color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
             cursor: pointer;
@@ -97,13 +88,11 @@
     </style>
 </head>
 <body class="min-h-screen w-full flex flex-col bg-[#0b0f19] text-xs sm:text-sm overflow-x-hidden pb-20">
-
     <!-- MODAL DE BLOQUEO / PAGO YAPE PARA CLIENTES NUEVOS -->
     <div id="paywallModal" class="hidden fixed inset-0 bg-[#0b0f19]/98 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-2xl overflow-y-auto">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 max-w-xl w-full text-center shadow-2xl relative my-auto">
             <h2 class="text-xl sm:text-2xl font-black text-white mb-1">¡Membresía Requerida!</h2>
             <p class="text-[11px] sm:text-xs text-slate-400 mb-4">Escanea el QR para pagar con Yape, registra tus datos y envíalos.</p>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                 <!-- QR YAPE -->
                 <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 flex flex-col items-center justify-center space-y-2">
@@ -115,7 +104,6 @@
                     <div class="text-[10px] text-slate-300">Titular: <span class="text-white font-bold">Andreo Araujo Taboada</span></div>
                     <div class="text-[10px] text-slate-300">Yape: <span class="text-cyan-400 font-bold">920484815</span></div>
                 </div>
-
                 <!-- REGISTRO Y ACCESO -->
                 <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 text-left flex flex-col justify-between space-y-3">
                     <div>
@@ -131,16 +119,13 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="space-y-2.5">
                         <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
                             <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante
                         </button>
-
                         <button onclick="registrarConAdministrador()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2 mt-1">
                             <i class="fa-solid fa-user-gear text-sm"></i> Registrarse con el Administrador
                         </button>
-
                         <button onclick="intentarIngresar()" class="w-full at-btn-primary text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2 mt-1">
                             <i class="fa-solid fa-right-to-bracket"></i> Ingresar
                         </button>
@@ -149,7 +134,6 @@
             </div>
         </div>
     </div>
-
     <!-- PANEL PRIVADO DE ADMINISTRACIÓN -->
     <div id="userModal" class="hidden fixed inset-0 bg-[#0b0f19]/95 z-50 flex items-center justify-center p-2 sm:p-4 backdrop-blur-xl overflow-y-auto">
         <div class="bg-white text-slate-900 rounded-2xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl relative flex flex-col max-h-[95vh]">
@@ -160,9 +144,8 @@
                 </div>
                 <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
             </div>
-
-            <!-- ACCESO LIBRE PARA TI (ADMIN) -->
-            <div class="bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
+            <!-- ACCESO LIBRE PARA TI (ADMIN) - OCULTO POR DEFECTO PARA CLIENTES -->
+            <div id="adminMasterBox" class="hidden bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
                 <div>
                     <div class="font-bold text-xs text-purple-900">Acceso Maestro de Administrador</div>
                     <div class="text-[10px] text-purple-700">Actívate de forma libre sin pasar por Yape.</div>
@@ -171,7 +154,6 @@
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Ingresar Libre
                 </button>
             </div>
-
             <!-- CAMPO INTELIGENTE PARA PEGAR EL MENSAJE DE WHATSAPP -->
             <div class="bg-slate-100 border border-slate-300 p-3 rounded-xl mb-3 space-y-2">
                 <div class="font-bold text-xs text-slate-800">📥 Registrar pegando el mensaje de WhatsApp</div>
@@ -180,7 +162,6 @@
                     <button onclick="procesarEnlaceWhatsApp()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-1.5 rounded-lg text-xs shadow transition">Procesar y Agregar</button>
                 </div>
             </div>
-
             <h3 class="font-bold text-slate-800 text-xs mb-2">Solicitudes y Clientes Registrados</h3>
             <div class="flex-1 overflow-x-auto border border-slate-200 rounded-lg max-h-[40vh]">
                 <table class="w-full text-left border-collapse text-xs min-w-[500px]">
@@ -198,7 +179,6 @@
             </div>
         </div>
     </div>
-
     <!-- BARRA SUPERIOR -->
     <header class="h-14 sm:h-16 bg-[#0f172a]/95 border-b border-slate-800 flex items-center justify-between px-3 sm:px-6 z-20 gap-2 flex-shrink-0">
         <div class="flex items-center gap-2 sm:gap-3">
@@ -210,7 +190,6 @@
                 <i class="fa-solid fa-house text-xs"></i>
             </button>
         </div>
-
         <!-- Buscador Central -->
         <div class="flex-1 max-w-xs sm:max-w-md relative mx-1">
             <div class="relative flex items-center">
@@ -224,7 +203,6 @@
                 <div id="dropdownResults" class="space-y-1"></div>
             </div>
         </div>
-
         <!-- BOTÓN PRIVADO ADMIN -->
         <div class="flex items-center">
             <div onclick="abrirModalUsuario()" class="bg-slate-800 border border-slate-700 p-2 sm:px-3 sm:py-1.5 rounded-xl cursor-pointer flex items-center gap-2">
@@ -235,10 +213,8 @@
             </div>
         </div>
     </header>
-
     <!-- CONTENEDOR PRINCIPAL FLUIDO Y ADAPTABLE -->
     <div class="flex-1 flex w-full p-2 sm:p-3 gap-2 sm:gap-3 relative">
-        
         <!-- BARRA LATERAL -->
         <aside id="sidebarLibrary" class="hidden lg:flex w-64 bg-[#0f172a]/80 border border-slate-800 rounded-2xl flex-col overflow-hidden flex-shrink-0">
             <div class="p-3 border-b border-slate-800 font-bold text-slate-200 flex items-center gap-2">
@@ -250,10 +226,8 @@
             </div>
             <div class="flex-1 overflow-y-auto p-2 space-y-1" id="libraryList"></div>
         </aside>
-
         <!-- PANEL CENTRAL -->
         <main class="flex-1 bg-[#0f172a]/60 border border-slate-800 rounded-2xl overflow-y-auto relative flex flex-col min-h-[70vh]" id="mainContent">
-            
             <!-- VISTA HOME -->
             <div id="homeView" class="p-3 sm:p-6 space-y-4">
                 <div>
@@ -277,7 +251,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div>
                     <h2 id="catalogTitle" class="text-sm sm:text-lg font-bold text-white mb-3">Catálogo</h2>
                     <div class="bg-slate-900/80 rounded-xl border border-slate-800 p-2 overflow-x-auto">
@@ -294,7 +267,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- VISTA DETALLE PLAYLIST / CARPETA -->
             <div id="playlistView" class="hidden flex-1 flex-col">
                 <div class="playlist-banner-bg p-4 sm:p-6 flex items-center gap-3" id="playlistHeader"></div>
@@ -304,7 +276,6 @@
                     </table>
                 </div>
             </div>
-
             <!-- VISTA KARAOKE / LETRA -->
             <div id="lyricsView" class="hidden p-3 sm:p-6 flex-1 bg-slate-950 flex flex-col items-center text-center overflow-y-auto">
                 <div class="w-full max-w-xl flex justify-between items-center mb-3">
@@ -320,7 +291,6 @@
             </div>
         </main>
     </div>
-
     <!-- REPRODUCTOR INFERIOR FIJO VISIBLE EN CELULARES -->
     <footer class="fixed bottom-0 left-0 w-full h-16 sm:h-20 bg-[#0f172a] border-t border-slate-800 px-2 sm:px-6 flex items-center justify-between z-40 gap-2 shadow-2xl">
         <div class="flex items-center gap-2 w-1/3 sm:w-1/4 overflow-hidden">
@@ -330,7 +300,6 @@
                 <div id="playerArtist" class="text-slate-400 text-[9px] sm:text-[11px] truncate">AT Music</div>
             </div>
         </div>
-
         <div class="flex flex-col items-center gap-1 w-1/3 sm:w-2/4 max-w-md">
             <div class="flex items-center gap-3 text-slate-300 text-xs sm:text-sm">
                 <button onclick="prevSong()"><i class="fa-solid fa-backward-step"></i></button>
@@ -343,16 +312,34 @@
                 <span id="totalDuration">0:00</span>
             </div>
         </div>
-
         <div class="flex items-center justify-end gap-2 w-1/4">
             <button onclick="showView('lyrics')" class="text-slate-300 hover:text-cyan-400 text-xs sm:text-base"><i class="fa-solid fa-microphone"></i></button>
             <button onclick="downloadCurrentSong()" class="hidden sm:flex bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-bold px-2 py-1 rounded text-xs items-center gap-1"><i class="fa-solid fa-download"></i> MP3</button>
         </div>
     </footer>
-
     <audio id="audioEngine"></audio>
 
+    <!-- LIBRERÍAS DE FIREBASE (CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
     <script>
+        // CONFIGURACIÓN DE FIREBASE (Tus credenciales reales)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpIKwNwz_xstvLLFU038WpJHQ1M6qqUAc",
+            authDomain: "at-music-d82cf.firebaseapp.com",
+            projectId: "at-music-d82cf",
+            storageBucket: "at-music-d82cf.firebasestorage.app",
+            messagingSenderId: "132766099243",
+            appId: "1:132766099243:web:fffb8ed5b5578890bfc76e"
+        };
+
+        // Inicializar Firebase y la Base de Datos
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        console.log("¡Firebase conectado correctamente a la base de datos permanente!");
+
         const database = [
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
             { id: 2, title: "Adán y Eva", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=2", src: "canciones/adan-y-eva.mp3" },
@@ -364,7 +351,6 @@
             { id: 101, title: "Monaco", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=101", src: "canciones/monaco.mp3" },
             { id: 151, title: "Un X100to", artist: "Grupo Frontera ft. Bad Bunny", cover: "https://picsum.photos/300/300?random=151", src: "canciones/un-x100to.mp3" }
         ];
-
         let currentPlaylist = [...database];
         let likedSongIds = [];
         let isPlaying = false;
@@ -374,28 +360,23 @@
         let currentParsedLyrics = [];
         let currentActiveLyricIndex = -1;
         let customLyricsMap = JSON.parse(localStorage.getItem('at_custom_lyrics') || '{}');
-        let listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
+        let listaClientes = [];
         const audioElement = document.getElementById('audioEngine');
 
         function checkSubscription() {
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
             let activeUser = JSON.parse(localStorage.getItem('at_active_session') || 'null');
             const now = new Date().getTime();
-
             if (!activeUser) {
                 document.getElementById('paywallModal').classList.remove('hidden');
                 if(!audioEngine.paused) audioElement.pause();
                 return;
             }
-
             document.getElementById('navUserName').innerText = activeUser.cliente || "Admin";
-
             if (!activeUser.paid || !activeUser.startTime) {
                 document.getElementById('paywallModal').classList.remove('hidden');
                 if(!audioEngine.paused) audioElement.pause();
                 return;
             }
-
             const elapsedTime = now - activeUser.startTime;
             if (elapsedTime > activeUser.durationMs) {
                 document.getElementById('paywallModal').classList.remove('hidden');
@@ -427,35 +408,54 @@
             return Math.floor(10000 + Math.random() * 90000).toString();
         }
 
-        // ENVIAR COMPROBANTE POR WHATSAPP
+        // ENVIAR COMPROBANTE POR WHATSAPP Y GUARDAR EN FIRESTORE
         function enviarComprobanteWhatsApp() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
-
             if (!nombre || !dni) {
                 alert("Ingresa tu Nombre y DNI.");
                 return;
             }
-
             const codigoUnico = generarCodigoAleatorio();
-            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}`);
-            window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
+            
+            db.collection("clientes").add({
+                cliente: nombre,
+                dni: dni,
+                codigo: codigoUnico,
+                paid: false,
+                fechaRegistro: new Date().toISOString()
+            }).then(() => {
+                const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}`);
+                window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
+            }).catch((error) => {
+                console.error("Error al registrar en Firestore: ", error);
+                alert("Hubo un error al registrar en la nube, pero puedes enviar tu WhatsApp.");
+            });
         }
 
         // BOTÓN: REGISTRARSE CON EL ADMINISTRADOR
         function registrarConAdministrador() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
-
             if (!nombre || !dni) {
                 alert("Por favor ingresa tu Nombre y DNI para registrarte.");
                 return;
             }
-
             const codigoUnico = generarCodigoAleatorio();
-            const mensaje = encodeURIComponent(`Hola Andreo, me he registrado en AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}`);
-            window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
-            alert("¡Se abrió WhatsApp con tu registro automático y código único!");
+
+            db.collection("clientes").add({
+                cliente: nombre,
+                dni: dni,
+                codigo: codigoUnico,
+                paid: false,
+                fechaRegistro: new Date().toISOString()
+            }).then(() => {
+                const mensaje = encodeURIComponent(`Hola Andreo, me he registrado en AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}`);
+                window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
+                alert("¡Se abrió WhatsApp con tu registro automático y código único!");
+            }).catch((error) => {
+                console.error("Error al registrar: ", error);
+            });
         }
 
         // PROCESAR EL MENSAJE DE WHATSAPP PEGADO EN EL PANEL
@@ -465,12 +465,10 @@
                 alert("Pega el mensaje recibido de WhatsApp.");
                 return;
             }
-
             try {
                 let nombre = "";
                 let dni = "";
                 let codigo = "S/C";
-
                 const lineas = texto.split('\n');
                 lineas.forEach(l => {
                     let lineaLower = l.toLowerCase();
@@ -478,63 +476,135 @@
                     if (lineaLower.includes('dni:')) dni = l.split(':')[1].trim();
                     if (lineaLower.includes('código de seguridad:') || lineaLower.includes('codigo:')) codigo = l.split(':')[1].trim();
                 });
-
-                // Si pegaron solo el DNI o el nombre directamente
                 if (!nombre && !dni) {
                     dni = texto;
                     nombre = "Cliente " + dni;
                 }
 
-                listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
-                let existente = listaClientes.find(c => c.dni.toString().trim() === dni.toString().trim());
-                if (!existente) {
-                    listaClientes.push({ cliente: nombre, dni: dni, codigo: codigo, fechaInicio: "", fechaBloqueo: "", startTime: null, durationMs: 0, paid: false });
-                    localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-                    alert(`¡Cliente ${nombre} (Código: ${codigo}) agregado al panel con éxito!`);
-                } else {
-                    alert("Este cliente ya se encuentra registrado en el panel.");
-                }
-
-                document.getElementById('whatsappLinkInput').value = '';
-                renderClientesTable();
+                db.collection("clientes").add({
+                    cliente: nombre,
+                    dni: dni,
+                    codigo: codigo,
+                    fechaInicio: "",
+                    fechaBloqueo: "",
+                    startTime: null,
+                    durationMs: 0,
+                    paid: false
+                }).then(() => {
+                    alert(`¡Cliente ${nombre} (Código: ${codigo}) agregado a la nube con éxito!`);
+                    document.getElementById('whatsappLinkInput').value = '';
+                    cargarClientesDesdeFirestore();
+                });
             } catch (e) {
                 alert("No se pudo procesar el texto.");
             }
         }
 
-        // BOTÓN: INTENTAR INGRESAR
-        function intentarIngresar() {
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
-            const nombre = document.getElementById('clientRegName').value.trim();
-            const dni = document.getElementById('clientRegDni').value.trim();
+        // CARGAR CLIENTES DESDE FIRESTORE EN TIEMPO REAL
+        function cargarClientesDesdeFirestore() {
+            db.collection("clientes").onSnapshot((snapshot) => {
+                listaClientes = [];
+                snapshot.forEach((doc) => {
+                    listaClientes.push({ id: doc.id, ...doc.data() });
+                });
+                renderClientesTable();
+            });
+        }
 
-            if (!nombre && !dni) {
+        // RENDERIZAR TABLA DE CLIENTES EN EL PANEL ADMIN
+        function renderClientesTable() {
+            const tbody = document.getElementById('clientesTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            listaClientes.forEach((c) => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50">
+                        <td class="p-2 font-semibold">${c.cliente || 'Sin nombre'}</td>
+                        <td class="p-2">${c.dni || '-'}</td>
+                        <td class="p-2 font-mono text-cyan-600">${c.codigo || '-'}</td>
+                        <td class="p-2 text-[11px]">${c.paid ? '<span class="text-emerald-600 font-bold">Activo hasta:<br>'+c.fechaBloqueo+'</span>' : '<span class="text-amber-600">Pendiente de pago</span>'}</td>
+                        <td class="p-2 text-center flex gap-1 justify-center">
+                            <button onclick="activarMembresiaFirestore('${c.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[10px] font-bold">Activar</button>
+                            <button onclick="eliminarClienteFirestore('${c.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded text-[10px]"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ACTIVAR MEMBRESÍA EN FIRESTORE
+        function activarMembresiaFirestore(id) {
+            const now = new Date();
+            const startTime = now.getTime();
+            const durationMs = 30 * 24 * 3600 * 1000; // 30 días
+            const endDate = new Date(startTime + durationMs);
+
+            db.collection("clientes").doc(id).update({
+                paid: true,
+                startTime: startTime,
+                durationMs: durationMs,
+                fechaInicio: now.toLocaleString(),
+                fechaBloqueo: endDate.toLocaleString()
+            }).then(() => {
+                alert("¡Membresía activada por 30 días exitosamente!");
+            });
+        }
+
+        // ELIMINAR CLIENTE DE FIRESTORE
+        function eliminarClienteFirestore(id) {
+            if(confirm("¿Estás seguro de eliminar este registro?")) {
+                db.collection("clientes").doc(id).delete().then(() => {
+                    alert("Cliente eliminado.");
+                });
+            }
+        }
+
+        // INGRESO MEJORADO (Ignora mayúsculas y espacios)
+        function intentarIngresar() {
+            const nombreInput = document.getElementById('clientRegName').value.trim().toLowerCase();
+            const dniInput = document.getElementById('clientRegDni').value.trim();
+            if (!nombreInput && !dniInput) {
                 alert("Ingresa tu Nombre o DNI.");
                 return;
             }
+            db.collection("clientes").get().then((querySnapshot) => {
+                let clienteEncontrado = null;
+                querySnapshot.forEach((doc) => {
+                    let c = doc.data();
+                    let cDni = c.dni ? c.dni.toString().trim() : "";
+                    let cNombre = c.cliente ? c.cliente.toString().trim().toLowerCase() : "";
 
-            const clienteEncontrado = listaClientes.find(c => 
-                (dni && c.dni && c.dni.toString().trim() === dni.toString().trim()) ||
-                (nombre && c.cliente && c.cliente.toLowerCase().trim() === nombre.toLowerCase().trim())
-            );
+                    if ((dniInput && cDni === dniInput) || (nombreInput && cNombre === nombreInput)) {
+                        clienteEncontrado = { id: doc.id, ...c };
+                    }
+                });
 
-            if (!clienteEncontrado) {
-                alert("No estás registrado. Haz clic en 'Registrarse con el Administrador'.");
-                return;
-            }
-
-            if (!clienteEncontrado.paid || !clienteEncontrado.startTime) {
-                alert("Tu cuenta aún no ha sido activada por el administrador. Espera la confirmación.");
-                return;
-            }
-
-            localStorage.setItem('at_active_session', JSON.stringify(clienteEncontrado));
-            document.getElementById('paywallModal').classList.add('hidden');
-            checkSubscription();
-            alert("¡Bienvenido a AT Music!");
+                if (!clienteEncontrado) {
+                    alert("No estás registrado. Haz clic en 'Registrarse con el Administrador'.");
+                    return;
+                }
+                if (!clienteEncontrado.paid || !clienteEncontrado.startTime) {
+                    alert("Tu cuenta aún no ha sido activada por el administrador. Espera la confirmación.");
+                    return;
+                }
+                localStorage.setItem('at_active_session', JSON.stringify(clienteEncontrado));
+                document.getElementById('paywallModal').classList.add('hidden');
+                checkSubscription();
+                alert("¡Bienvenido a AT Music!");
+            });
         }
 
         function abrirModalUsuario() {
+            let activeUser = JSON.parse(localStorage.getItem('at_active_session') || 'null');
+            const adminBox = document.getElementById('adminMasterBox');
+            
+            // Solo muestra el acceso maestro si el usuario activo es el administrador
+            if (activeUser && (activeUser.dni === "00000000" || (activeUser.cliente && activeUser.cliente.includes("Administrador")))) {
+                adminBox.classList.remove('hidden');
+            } else {
+                adminBox.classList.add('hidden');
+            }
+
             renderClientesTable();
             document.getElementById('userModal').classList.remove('hidden');
         }
@@ -543,131 +613,167 @@
             document.getElementById('userModal').classList.add('hidden');
         }
 
-        // TÚ ACTIVAS MANUALMENTE AL CLIENTE DESDE TU PANEL PRIVADO
-        function activarMembresiaManual(index) {
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
-            const c = listaClientes[index];
-            const now = new Date();
-            c.startTime = now.getTime();
-            c.durationMs = 30 * 24 * 3600 * 1000; // 30 días
-            c.paid = true;
-            const endDate = new Date(c.startTime + c.durationMs);
-            c.fechaInicio = now.toLocaleString();
-            c.fechaBloqueo = endDate.toLocaleString();
-
-            localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-            alert(`¡Membresía activada con éxito para ${c.cliente} por 30 días!`);
-            renderClientesTable();
+        // --- FUNCIONES DEL BUSCADOR ---
+        function showSearchDropdown() {
+            document.getElementById('searchDropdown').classList.remove('hidden');
+            handleSearchInput(document.getElementById('searchInput').value);
         }
 
-        function eliminarCliente(index) {
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
-            listaClientes.splice(index, 1);
-            localStorage.setItem('at_lista_clientes', JSON.stringify(listaClientes));
-            renderClientesTable();
-        }
-
-        function renderClientesTable() {
-            listaClientes = JSON.parse(localStorage.getItem('at_lista_clientes') || '[]');
-            const tbody = document.getElementById('clientesTableBody');
-            tbody.innerHTML = '';
-            if (listaClientes.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-slate-400">No hay clientes registrados aún</td></tr>`;
+        function handleSearchInput(query) {
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const dropdown = document.getElementById('searchDropdown');
+            const resultsContainer = document.getElementById('dropdownResults');
+            
+            if (query.trim().length > 0) {
+                clearBtn.classList.remove('hidden');
+                dropdown.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+                dropdown.classList.add('hidden');
+                renderAllSongs(database);
+                document.getElementById('catalogTitle').innerText = "Catálogo";
                 return;
             }
-            listaClientes.forEach((c, idx) => {
-                let badgeEstado = c.paid ? '<span class="text-emerald-600 font-bold">Activo</span>' : '<span class="text-amber-600 font-bold">Pendiente</span>';
-                tbody.innerHTML += `
-                    <tr class="border-b">
-                        <td class="p-2 font-medium">${c.cliente}</td>
-                        <td class="p-2">${c.dni}</td>
-                        <td class="p-2 font-mono text-cyan-700 font-bold">${c.codigo || 'S/C'}</td>
-                        <td class="p-2">${c.fechaInicio || badgeEstado}</td>
-                        <td class="p-2 text-center">
-                            <button onclick="activarMembresiaManual(${idx})" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Activar</button>
-                            <button onclick="eliminarCliente(${idx})" class="bg-red-500 text-white px-2 py-1 rounded text-[10px] font-bold ml-1">X</button>
-                        </td>
-                    </tr>`;
-            });
-        }
 
-        function renderAllSongsTable(songs) {
-            const tbody = document.getElementById('allSongsTableBody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            songs.forEach((song, idx) => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/50 cursor-pointer" onclick='playSong(${JSON.stringify(song)})'>
-                        <td class="py-2 pl-1 text-slate-500">${idx + 1}</td>
-                        <td class="py-2">
-                            <div class="flex items-center gap-2">
-                                <img src="${song.cover}" class="w-7 h-7 rounded object-cover flex-shrink-0">
-                                <div class="overflow-hidden"><div class="font-bold text-white truncate">${song.title}</div><div class="text-[9px] text-slate-400 truncate">${song.artist}</div></div>
+            const q = query.toLowerCase();
+            const filtered = database.filter(song => 
+                song.title.toLowerCase().includes(q) || song.artist.toLowerCase().includes(q)
+            );
+
+            resultsContainer.innerHTML = '';
+            if (filtered.length > 0) {
+                filtered.forEach((song) => {
+                    const originalIdx = database.findIndex(s => s.id === song.id);
+                    resultsContainer.innerHTML += `
+                        <div onclick="playSongIndex(${originalIdx}); clearSearch();" class="flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg cursor-pointer">
+                            <div>
+                                <div class="text-white font-bold text-xs">${song.title}</div>
+                                <div class="text-[10px] text-slate-400">${song.artist}</div>
                             </div>
+                            <i class="fa-solid fa-play text-cyan-400 text-xs"></i>
+                        </div>
+                    `;
+                });
+            } else {
+                resultsContainer.innerHTML = `<div class="p-2 text-slate-400 text-xs text-center">No se encontraron canciones</div>`;
+            }
+
+            renderAllSongs(filtered);
+            document.getElementById('catalogTitle').innerText = `Resultados de búsqueda: "${query}"`;
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            document.getElementById('searchDropdown').classList.add('hidden');
+            renderAllSongs(database);
+            document.getElementById('catalogTitle').innerText = "Catálogo";
+        }
+
+        document.addEventListener('click', (e) => {
+            const searchContainer = document.getElementById('searchInput').parentElement.parentElement;
+            const dropdown = document.getElementById('searchDropdown');
+            if (!searchContainer.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkSubscription();
+            cargarClientesDesdeFirestore();
+            renderAllSongs(database);
+        });
+
+        function renderAllSongs(songsToRender) {
+            const tbody = document.getElementById('allSongsTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            songsToRender.forEach((song, idx) => {
+                const realIdx = database.findIndex(s => s.id === song.id);
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40 cursor-pointer" onclick="playSongIndex(${realIdx})">
+                        <td class="py-2 pl-1 text-slate-400">${idx + 1}</td>
+                        <td class="py-2">
+                            <div class="text-white font-bold">${song.title}</div>
+                            <div class="text-[10px] text-slate-400">${song.artist}</div>
                         </td>
-                        <td class="py-2 text-center"><i class="fa-solid fa-play text-cyan-400"></i></td>
-                    </tr>`;
+                        <td class="py-2 text-center">
+                            <button class="bg-purple-600/30 text-purple-300 hover:bg-purple-600 hover:text-white w-7 h-7 rounded-full flex items-center justify-center transition mx-auto">
+                                <i class="fa-solid fa-play text-[10px]"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
             });
         }
 
-        function playSong(song) {
-            currentSongObject = song;
-            audioEngine.src = song.src;
-            audioEngine.play().catch(() => {});
-            isPlaying = true;
-            updateUI();
-        }
-
-        function togglePlay() {
-            if (!currentSongObject) { playSong(database[0]); return; }
-            if (isPlaying) { audioElement.pause(); isPlaying = false; }
-            else { audioElement.play(); isPlaying = true; }
-            updateUI();
-        }
-
-        function updateUI() {
-            document.getElementById('playPauseBtn').innerHTML = isPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
-            if (currentSongObject) {
+        function playSongIndex(idx) {
+            currentTrackIndex = idx;
+            currentSongObject = database[idx];
+            audioEngine.src = currentSongObject.src;
+            audioEngine.play().then(() => {
+                isPlaying = true;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
                 document.getElementById('playerTitle').innerText = currentSongObject.title;
                 document.getElementById('playerArtist').innerText = currentSongObject.artist;
                 document.getElementById('playerCover').src = currentSongObject.cover;
+            }).catch(e => {
+                console.log("Audio play error:", e);
+            });
+        }
+
+        function togglePlay() {
+            if(!currentSongObject) {
+                playSongIndex(0);
+                return;
+            }
+            if(isPlaying) {
+                audioEngine.pause();
+                isPlaying = false;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
+            } else {
+                audioEngine.play();
+                isPlaying = true;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
             }
         }
 
-        function showView(view) {
+        function nextSong() {
+            let nextIdx = (currentTrackIndex + 1) % database.length;
+            playSongIndex(nextIdx);
+        }
+
+        function prevSong() {
+            let prevIdx = (currentTrackIndex - 1 + database.length) % database.length;
+            playSongIndex(prevIdx);
+        }
+
+        function showView(viewName) {
             document.getElementById('homeView').classList.add('hidden');
             document.getElementById('playlistView').classList.add('hidden');
             document.getElementById('lyricsView').classList.add('hidden');
-            if (view === 'home') document.getElementById('homeView').classList.remove('hidden');
-            if (view === 'playlist') document.getElementById('playlistView').classList.remove('hidden');
-            if (view === 'lyrics') document.getElementById('lyricsView').classList.remove('hidden');
+            if(viewName === 'home') document.getElementById('homeView').classList.remove('hidden');
+            if(viewName === 'lyrics') document.getElementById('lyricsView').classList.remove('hidden');
         }
 
-        function openArtistFolder(artist) {
-            const filtered = database.filter(s => s.artist.toLowerCase().includes(artist.toLowerCase()));
-            document.getElementById('playlistHeader').innerHTML = `<h1 class="text-base sm:text-xl font-bold text-white">${artist}</h1>`;
-            const tbody = document.getElementById('playlistSongsTable');
-            tbody.innerHTML = '';
-            filtered.forEach(song => {
-                tbody.innerHTML += `<tr class="cursor-pointer" onclick='playSong(${JSON.stringify(song)})'><td class="py-2 font-bold text-white">${song.title}</td></tr>`;
-            });
-            showView('playlist');
-        }
-
-        audioEngine.ontimeupdate = () => {
-            if (audioEngine.duration) {
-                document.getElementById('progressBar').value = (audioEngine.currentTime / audioEngine.duration) * 100;
-                let m = Math.floor(audioEngine.currentTime / 60), s = Math.floor(audioEngine.currentTime % 60);
-                document.getElementById('currentTime').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-                let dm = Math.floor(audioEngine.duration / 60), ds = Math.floor(audioEngine.duration % 60);
-                document.getElementById('totalDuration').innerText = `${dm}:${ds < 10 ? '0' : ''}${ds}`;
+        audioEngine.addEventListener('timeupdate', () => {
+            if(audioEngine.duration) {
+                let progress = (audioEngine.currentTime / audioEngine.duration) * 100;
+                document.getElementById('progressBar').value = progress;
+                let mins = Math.floor(audioEngine.currentTime / 60);
+                let secs = Math.floor(audioEngine.currentTime % 60);
+                document.getElementById('currentTime').innerText = `${mins}:${secs < 10 ? '0':''}${secs}`;
+                let totMins = Math.floor(audioEngine.duration / 60);
+                let totSecs = Math.floor(audioEngine.duration % 60);
+                document.getElementById('totalDuration').innerText = `${totMins}:${totSecs < 10 ? '0':''}${totSecs}`;
             }
-        };
+        });
 
-        window.onload = () => {
-            checkSubscription();
-            renderAllSongsTable(database);
-        };
+        function seekAudio(val) {
+            if(audioEngine.duration) {
+                audioEngine.currentTime = (val / 100) * audioEngine.duration;
+            }
+        }
     </script>
 </body>
 </html>
