@@ -11,12 +11,10 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         :root {
-            --at-purple: #8b5cf6;
-            --at-cyan: #06b6d4;
-            --at-pink: #ec4899;
             --at-dark: #000000;
-            --at-card: #121212;
-            --at-hover: #282828;
+            --spotify-green: #1ed760;
+            --spotify-card: #181818;
+            --spotify-hover: #282828;
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -37,25 +35,10 @@
             background: #282828;
             border-radius: 4px;
         }
-        .at-gradient-text {
-            background: linear-gradient(135deg, #a78bfa, #38bdf8);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .spotify-card {
-            background: #202020;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-            overflow: hidden;
-        }
-        .spotify-card:active {
-            background: #282828;
-        }
         .spotify-chip {
             background: #262626;
             color: #ffffff;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             padding: 6px 14px;
             border-radius: 20px;
@@ -66,14 +49,41 @@
             background: #ffffff;
             color: #000000;
         }
-        .at-btn-primary {
-            background: linear-gradient(135deg, #7c3aed, #0284c7);
-            transition: all 0.2s ease;
+        .spotify-card {
+            background: #181818;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: background 0.2s;
+        }
+        .spotify-card:active {
+            background: #282828;
         }
         input[type="range"] {
-            accent-color: #1ed760;
+            accent-color: var(--spotify-green);
         }
         
+        /* Animación de ondas verdes estilo Spotify */
+        .playing-icon {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 14px;
+            width: 14px;
+        }
+        .playing-bar {
+            background-color: var(--spotify-green);
+            width: 3px;
+            border-radius: 1px;
+            animation: bounce 1.2s ease-in-out infinite alternate;
+        }
+        .playing-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+        .playing-bar:nth-child(2) { height: 100%; animation-delay: 0.3s; }
+        .playing-bar:nth-child(3) { height: 60%; animation-delay: 0.2s; }
+        @keyframes bounce {
+            10% { height: 20%; }
+            100% { height: 100%; }
+        }
+
         .karaoke-line {
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
@@ -84,7 +94,7 @@
             line-height: 1.3;
         }
         .karaoke-line.active {
-            color: #1ed760 !important;
+            color: var(--spotify-green) !important;
             font-size: 1.6rem !important;
             font-weight: 800 !important;
             opacity: 1 !important;
@@ -98,16 +108,31 @@
     </style>
 </head>
 <body class="h-screen w-full flex flex-col bg-black text-xs sm:text-sm overflow-hidden">
-    <!-- MODAL DE CONFIRMACIÓN -->
-    <div id="customConfirmModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[70] flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-[#181818] border border-[#282828] rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl space-y-4">
-            <h3 id="confirmModalTitle" class="text-sm font-bold text-white uppercase tracking-wider">Confirmación</h3>
-            <p id="confirmModalText" class="text-xs text-slate-300">¿Estás seguro de realizar esta acción?</p>
-            <div class="flex gap-2 justify-center pt-2">
-                <button id="confirmModalCancelBtn" class="bg-[#282828] hover:bg-[#3e3e3e] text-white font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Cancelar</button>
-                <button id="confirmModalOkBtn" class="bg-[#1ed760] hover:bg-[#1db954] text-black font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Aceptar</button>
-            </div>
+    
+    <!-- BARRA SUPERIOR CON BOTÓN SALIR -->
+    <header class="flex items-center justify-between px-3 py-2 bg-black border-b border-[#282828] flex-shrink-0 z-30">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-cyan-400 flex items-center justify-center font-bold text-white text-xs shadow">AT</div>
+            <span class="font-bold text-white text-xs tracking-wider">AT MUSIC</span>
         </div>
+        <button onclick="abrirPaywallModal()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 shadow transition">
+            <i class="fa-solid fa-power-off"></i> Salir
+        </button>
+    </header>
+
+    <!-- MENÚ FLOTANTE ESTILO SPOTIFY (OPCIONES DE CANCIÓN) -->
+    <div id="spotifyContextMenu" style="display: none;" class="fixed bg-[#282828] border border-[#3e3e3e] rounded-xl shadow-2xl py-2 w-60 z-[100] text-white text-xs">
+        <div onclick="menuAccion('playlist')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer flex items-center justify-between">Agregar a playlist <i class="fa-solid fa-chevron-right text-[10px]"></i></div>
+        <div onclick="menuAccion('megusta')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer flex items-center gap-2"><i class="fa-solid fa-heart text-[#1ed760]"></i> Agregar a Tus me gusta</div>
+        <div onclick="menuAccion('cola')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer">Agregar a la fila de reproducción</div>
+        <div onclick="menuAccion('excluir')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer">Excluir de tu perfil de gustos</div>
+        <hr class="border-[#3e3e3e] my-1">
+        <div onclick="menuAccion('radio')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer">Ir a radio de la canción</div>
+        <div onclick="menuAccion('album')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer">Ir al álbum</div>
+        <div onclick="menuAccion('creditos')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer">Ver créditos</div>
+        <div onclick="menuAccion('compartir')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer flex items-center justify-between">Compartir <i class="fa-solid fa-chevron-right text-[10px]"></i></div>
+        <hr class="border-[#3e3e3e] my-1">
+        <div onclick="menuAccion('escritorio')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer">Abrir en aplicación de escritorio</div>
     </div>
 
     <!-- MODAL DE CONTRASEÑA DE ADMINISTRADOR -->
@@ -117,7 +142,7 @@
                 <i class="fa-solid fa-lock"></i>
             </div>
             <h3 class="text-sm font-bold text-white uppercase tracking-wider">Acceso de Administrador</h3>
-            <p class="text-xs text-slate-400">Ingresa la contraseña maestra para ver los registros.</p>
+            <p class="text-xs text-slate-400">Ingresa la contraseña maestra.</p>
             <input type="password" id="adminPasswordInput" placeholder="Contraseña..." class="w-full bg-[#121212] text-white px-3.5 py-2.5 rounded-xl border border-[#282828] text-xs focus:border-[#1ed760] focus:outline-none text-center tracking-widest">
             <div class="flex gap-2 justify-center pt-1">
                 <button onclick="cerrarModalPassword()" class="bg-[#282828] text-white font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Cancelar</button>
@@ -127,86 +152,50 @@
     </div>
 
     <!-- MODAL DE BLOQUEO / PAGO YAPE -->
-    <div id="paywallModal" style="display: none;" class="fixed inset-0 bg-black/98 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-2xl overflow-y-auto">
-        <div class="bg-[#121212] border border-[#282828] rounded-3xl p-4 sm:p-8 max-w-xl w-full text-center shadow-2xl relative my-auto">
-            <button onclick="pedirPasswordAdmin()" class="absolute top-4 right-4 bg-[#282828] text-slate-300 px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition">
+    <div id="paywallModal" style="display: none;" class="fixed inset-0 bg-black/98 z-50 flex items-center justify-center p-3 backdrop-blur-2xl overflow-y-auto">
+        <div class="bg-[#121212] border border-[#282828] rounded-3xl p-4 max-w-md w-full text-center shadow-2xl relative my-auto">
+            <button onclick="pedirPasswordAdmin()" class="absolute top-4 right-4 bg-[#282828] text-slate-300 px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5">
                 <i class="fa-solid fa-user-shield text-[#1ed760]"></i> Admin
             </button>
-            <h2 class="text-xl sm:text-2xl font-black text-white mb-1 pt-2">¡Membresía Requerida o Vencida!</h2>
-            <p class="text-[11px] sm:text-xs text-slate-400 mb-4">Escanea el QR para pagar con Yape (S/ 20.00 por 1 mes), regístrese y envíe sus datos por WhatsApp.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                <div class="bg-[#181818] border border-[#282828] rounded-2xl p-3 flex flex-col items-center justify-center space-y-2">
-                    <span class="text-[10px] text-[#1ed760] font-bold uppercase tracking-wider">Escanea para pagar S/ 20.00</span>
-                    <div class="bg-white p-2 rounded-xl w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center border shadow-md">
+            <h2 class="text-lg font-black text-white mb-1 pt-2">¡Membresía Requerida o Vencida!</h2>
+            <p class="text-[11px] text-slate-400 mb-3">Escanea el QR para pagar S/ 20.00 por 1 mes con Yape y envía tu comprobante.</p>
+            <div class="space-y-3">
+                <div class="bg-[#181818] p-3 rounded-2xl flex flex-col items-center justify-center space-y-2 border border-[#282828]">
+                    <div class="bg-white p-2 rounded-xl w-32 h-32 flex items-center justify-center">
                         <img src="imagen/qr-yape.jpeg" alt="QR Yape" class="w-full h-full object-contain rounded-lg">
                     </div>
-                    <div class="text-[11px] text-[#1ed760] font-extrabold">Monto: S/ 20.00 (1 Mes)</div>
-                    <div class="text-[10px] text-slate-300">Titular: <span class="text-white font-bold">Andreo Araujo Taboada</span></div>
-                    <div class="text-[10px] text-slate-300">Yape: <span class="text-[#1ed760] font-bold">920484815</span></div>
+                    <div class="text-[11px] text-[#1ed760] font-extrabold">Yape: 920484815 (Andreo Araujo Taboada)</div>
                 </div>
-                <div class="bg-[#181818] border border-[#282828] rounded-2xl p-3 text-left flex flex-col justify-between space-y-3">
-                    <div>
-                        <h3 class="text-[11px] font-bold text-white mb-1.5 uppercase">Regístrese o Ingrese</h3>
-                        <div class="space-y-2">
-                            <div>
-                                <label class="text-[10px] text-slate-400 block mb-0.5">Nombres y Apellidos</label>
-                                <input type="text" id="clientRegName" placeholder="Ej. Juan Pérez" class="w-full bg-[#121212] text-white px-3 py-2 rounded-xl border border-[#282828] text-xs focus:border-[#1ed760] focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-slate-400 block mb-0.5">DNI / Código</label>
-                                <input type="text" id="clientRegDni" placeholder="Ej. 70259930" class="w-full bg-[#121212] text-white px-3 py-2 rounded-xl border border-[#282828] text-xs focus:border-[#1ed760] focus:outline-none">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="space-y-2">
-                        <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-[#1ed760] hover:bg-[#1db954] text-black font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
-                            <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante y Registrarse
-                        </button>
-                        <button onclick="intentarIngresarCode()" class="w-full bg-[#282828] hover:bg-[#3e3e3e] text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-right-to-bracket"></i> Ingresar (Ya Activado)
-                        </button>
-                    </div>
+                <div class="space-y-2 text-left">
+                    <input type="text" id="clientRegName" placeholder="Nombres y Apellidos" class="w-full bg-[#181818] text-white px-3 py-2 rounded-xl border border-[#282828] text-xs">
+                    <input type="text" id="clientRegDni" placeholder="DNI o Código" class="w-full bg-[#181818] text-white px-3 py-2 rounded-xl border border-[#282828] text-xs">
+                    <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-[#1ed760] text-black font-bold py-2 rounded-xl text-xs shadow flex items-center justify-center gap-2">
+                        <i class="fa-brands fa-whatsapp"></i> Enviar Comprobante y Registrarse
+                    </button>
+                    <button onclick="intentarIngresarCode()" class="w-full bg-[#282828] text-white font-bold py-2 rounded-xl text-xs shadow">
+                        Ingresar (Ya Activado)
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- PANEL PRIVADO DE ADMINISTRACIÓN -->
-    <div id="userModal" style="display: none;" class="fixed inset-0 bg-black/95 z-[55] flex items-center justify-center p-2 sm:p-4 backdrop-blur-xl overflow-y-auto">
-        <div class="bg-white text-slate-900 rounded-2xl p-4 sm:p-6 w-full max-w-5xl shadow-2xl relative flex flex-col max-h-[95vh]">
+    <div id="userModal" style="display: none;" class="fixed inset-0 bg-black/95 z-[55] flex items-center justify-center p-2 backdrop-blur-xl overflow-y-auto">
+        <div class="bg-white text-slate-900 rounded-2xl p-4 w-full max-w-4xl shadow-2xl relative flex flex-col max-h-[95vh]">
             <div class="flex justify-between items-center pb-2 mb-3 border-b">
-                <div>
-                    <h2 class="text-base sm:text-lg font-black text-slate-900">Panel Privado de Administración</h2>
-                    <p class="text-[10px] sm:text-xs text-slate-500">Control de activaciones por 1 mes y fechas de vencimiento</p>
-                </div>
-                <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
+                <h2 class="text-base font-black text-slate-900">Panel de Administración</h2>
+                <button onclick="cerrarModalUsuario()" class="text-slate-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
-                <div>
-                    <div class="font-bold text-xs text-purple-900">Acceso Maestro Activo</div>
-                    <div class="text-[10px] text-purple-700">Al activar un cliente se programa automáticamente su vigencia por 1 mes.</div>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="cargarClientesDesdeFirestore()" class="bg-purple-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-rotate"></i> Actualizar
-                    </button>
-                    <button onclick="cerrarSesionAdmin()" class="bg-rose-600 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1.5">
-                        <i class="fa-solid fa-right-from-bracket"></i> Salir
-                    </button>
-                </div>
-            </div>
-            <h3 class="font-bold text-slate-800 text-xs mb-2">Clientes Registrados en la Plataforma</h3>
             <div class="flex-1 overflow-x-auto border border-slate-200 rounded-lg max-h-[50vh]">
-                <table class="w-full text-left border-collapse text-xs min-w-[700px]">
-                    <thead class="sticky top-0 bg-slate-800 text-white z-10">
+                <table class="w-full text-left border-collapse text-xs min-w-[600px]">
+                    <thead class="sticky top-0 bg-slate-800 text-white">
                         <tr>
-                            <th class="p-2.5">Cliente</th>
-                            <th class="p-2.5">DNI</th>
-                            <th class="p-2.5">Código</th>
-                            <th class="p-2.5">Estado</th>
-                            <th class="p-2.5">Activación</th>
-                            <th class="p-2.5">Vencimiento (1 Mes)</th>
-                            <th class="p-2.5 text-center">Acción</th>
+                            <th class="p-2">Cliente</th>
+                            <th class="p-2">DNI</th>
+                            <th class="p-2">Estado</th>
+                            <th class="p-2">Vencimiento (1 Mes)</th>
+                            <th class="p-2 text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="clientesTableBody" class="divide-y divide-slate-200"></tbody>
@@ -215,100 +204,225 @@
         </div>
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL -->
-    <div class="flex-1 flex flex-col w-full p-2 sm:p-3 gap-2 relative overflow-hidden">
-        <!-- CHIPS SUPERIORES ESTILO SPOTIFY -->
-        <div class="flex items-center gap-2 overflow-x-auto py-1 flex-shrink-0 no-scrollbar">
-            <button class="spotify-chip active" onclick="showView('home')">Todas</button>
-            <button class="spotify-chip" onclick="openArtistFolder('Paulo Londra')">Música</button>
-            <button class="spotify-chip" onclick="openArtistFolder('Bad Bunny')">Bad Bunny</button>
-            <button class="spotify-chip" onclick="openArtistFolder('Ozuna')">Ozuna</button>
+    <!-- CONTENEDOR PRINCIPAL DE VISTAS MÓVILES -->
+    <div class="flex-1 flex flex-col w-full p-2 gap-2 relative overflow-hidden pb-36">
+        
+        <!-- VISTA 1: INICIO -->
+        <div id="viewHome" class="flex-1 flex flex-col space-y-2 overflow-y-auto">
+            <div class="flex items-center gap-2 overflow-x-auto py-1 flex-shrink-0 no-scrollbar">
+                <button class="spotify-chip active" onclick="filtrarCategoria('todas', this)">Todas</button>
+                <button class="spotify-chip" onclick="filtrarCategoria('Paulo Londra', this)">Paulo Londra</button>
+                <button class="spotify-chip" onclick="filtrarCategoria('Ozuna', this)">Ozuna</button>
+                <button class="spotify-chip" onclick="filtrarCategoria('Bad Bunny', this)">Bad Bunny</button>
+                <button class="spotify-chip" onclick="filtrarCategoria('Grupo Frontera', this)">Grupo Frontera</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 flex-shrink-0">
+                <div onclick="openArtistFolder('Paulo Londra')" class="spotify-card flex items-center gap-2 cursor-pointer p-1.5">
+                    <img src="https://picsum.photos/100/100?random=201" class="w-10 h-10 rounded-l object-cover">
+                    <span class="text-white font-bold text-xs truncate">Paulo Londra</span>
+                </div>
+                <div onclick="openArtistFolder('Ozuna')" class="spotify-card flex items-center gap-2 cursor-pointer p-1.5">
+                    <img src="https://picsum.photos/100/100?random=202" class="w-10 h-10 rounded-l object-cover">
+                    <span class="text-white font-bold text-xs truncate">Ozuna Antiguo</span>
+                </div>
+                <div onclick="openArtistFolder('Bad Bunny')" class="spotify-card flex items-center gap-2 cursor-pointer p-1.5">
+                    <img src="https://picsum.photos/100/100?random=203" class="w-10 h-10 rounded-l object-cover">
+                    <span class="text-white font-bold text-xs truncate">Bad Bunny 6 rings</span>
+                </div>
+                <div onclick="openArtistFolder('Grupo Frontera')" class="spotify-card flex items-center gap-2 cursor-pointer p-1.5">
+                    <img src="https://picsum.photos/100/100?random=204" class="w-10 h-10 rounded-l object-cover">
+                    <span class="text-white font-bold text-xs truncate">Grupo Frontera</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between mb-2 pt-1">
+                    <h2 class="text-sm font-bold text-white">Sigue reproduciendo</h2>
+                </div>
+                <div class="bg-[#121212] rounded-xl p-2">
+                    <table class="w-full text-left border-collapse">
+                        <tbody id="allSongsTableBody" class="divide-y divide-[#282828] text-xs"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <div class="flex-1 flex w-full gap-2 relative overflow-hidden">
-            <main class="flex-1 bg-black rounded-xl overflow-y-auto relative flex flex-col" id="mainContentArea">
-                <div id="homeView" class="p-2 sm:p-4 space-y-3">
-                    <!-- CUADRÍCULA DE ARTISTAS / PLAYLISTS -->
-                    <div class="grid grid-cols-2 gap-2">
-                        <div onclick="openArtistFolder('Paulo Londra')" class="spotify-card flex items-center gap-2 cursor-pointer p-1.5">
-                            <img src="https://picsum.photos/100/100?random=201" class="w-10 h-10 rounded-l object-cover">
-                            <span class="text-white font-bold text-xs truncate">Paulo Londra</span>
-                        </div>
-                        <div onclick="openArtistFolder('Ozuna')" class="spotify-card flex items-center gap-2 cursor-pointer p-1.5">
-                            <img src="https://picsum.photos/100/100?random=202" class="w-10 h-10 rounded-l object-cover">
-                            <span class="text-white font-bold text-xs truncate">Ozuna Antiguo</span>
-                        </div>
-                        <div onclick="openArtistFolder('Bad Bunny')" class="spotify-card flex items-center gap-2 cursor-pointer p-1.5">
-                            <img src="https://picsum.photos/100/100?random=203" class="w-10 h-10 rounded-l object-cover">
-                            <span class="text-white font-bold text-xs truncate">Bad Bunny 6 rings</span>
-                        </div>
-                        <div onclick="openArtistFolder('Grupo Frontera')" class="spotify-card flex items-center gap-2 cursor-pointer p-1.5">
-                            <img src="https://picsum.photos/100/100?random=204" class="w-10 h-10 rounded-l object-cover">
-                            <span class="text-white font-bold text-xs truncate">Grupo Frontera</span>
-                        </div>
-                    </div>
+        <!-- VISTA 2: BUSCAR -->
+        <div id="viewSearch" class="flex-1 flex flex-col space-y-3 overflow-y-auto hidden">
+            <div class="flex items-center justify-between pt-1">
+                <h1 class="text-lg font-black text-white">Buscar</h1>
+                <i class="fa-solid fa-camera text-white text-base"></i>
+            </div>
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-black text-xs"></i>
+                <input type="text" id="searchInput" oninput="handleSearchInput(this.value)" placeholder="¿Qué quieres escuchar?" class="w-full bg-white text-black pl-9 pr-3 py-2.5 rounded-lg text-xs font-semibold focus:outline-none">
+            </div>
+            <div class="text-xs font-bold text-white pt-1">Explorar todo</div>
+            <div class="grid grid-cols-2 gap-2.5">
+                <div onclick="filtrarCategoria('Paulo Londra', document.querySelector('.spotify-chip'))" class="bg-pink-600 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
+                    Música
+                    <img src="https://picsum.photos/80/80?random=301" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
+                </div>
+                <div onclick="filtrarCategoria('Bad Bunny', document.querySelector('.spotify-chip'))" class="bg-teal-700 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
+                    Podcasts
+                    <img src="https://picsum.photos/80/80?random=302" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
+                </div>
+                <div onclick="filtrarCategoria('Ozuna', document.querySelector('.spotify-chip'))" class="bg-indigo-700 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
+                    Audiolibros
+                    <img src="https://picsum.photos/80/80?random=303" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
+                </div>
+                <div onclick="switchTab('home')" class="bg-purple-700 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
+                    Eventos en vivo
+                    <img src="https://picsum.photos/80/80?random=304" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
+                </div>
+            </div>
+            <div id="searchResultsContainer" class="space-y-1 pt-2"></div>
+        </div>
 
-                    <!-- BANNER O CATÁLOGO -->
+        <!-- VISTA 3: TU BIBLIOTECA -->
+        <div id="viewLibrary" class="flex-1 flex flex-col space-y-3 overflow-y-auto hidden">
+            <div class="flex items-center justify-between pt-1">
+                <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white text-xs">AT</div>
+                    <h1 class="text-lg font-black text-white">Tu biblioteca</h1>
+                </div>
+                <div class="flex items-center gap-4 text-white text-base">
+                    <i class="fa-solid fa-magnifying-glass cursor-pointer" onclick="switchTab('search')"></i>
+                    <i class="fa-solid fa-plus cursor-pointer" onclick="alert('Crea una playlist nueva')"></i>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
+                <button class="spotify-chip active" onclick="filtrarBiblioteca('playlists', this)">Playlists</button>
+                <button class="spotify-chip" onclick="filtrarBiblioteca('podcasts', this)">Podcasts</button>
+                <button class="spotify-chip" onclick="filtrarBiblioteca('artistas', this)">Artistas</button>
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-400 py-1">
+                <span><i class="fa-solid fa-arrow-down-up"></i> Recientes</span>
+                <i class="fa-solid fa-table-cells text-white"></i>
+            </div>
+            <div id="libraryContentList" class="space-y-2.5">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-12 h-12 rounded bg-gradient-to-br from-indigo-600 to-purple-400 flex items-center justify-center text-white"><i class="fa-solid fa-heart"></i></div>
                     <div>
-                        <h2 id="catalogTitle" class="text-sm font-bold text-white mb-2 pt-2">Sigue reproduciendo</h2>
-                        <div class="bg-[#121212] rounded-xl p-2 overflow-x-auto">
-                            <table class="w-full text-left border-collapse min-w-[280px]">
-                                <tbody id="allSongsTableBody" class="divide-y divide-[#282828] text-xs"></tbody>
-                            </table>
-                        </div>
+                        <div class="text-white font-bold text-xs">Tus me gusta</div>
+                        <div class="text-[10px] text-slate-400"><i class="fa-solid fa-thumbtack text-[#1ed760]"></i> Playlist • Andreotabuadaa</div>
                     </div>
                 </div>
+                <div class="flex items-center gap-3 cursor-pointer" onclick="alert('Tus episodios guardados')">
+                    <div class="w-12 h-12 rounded bg-emerald-600 flex items-center justify-center text-white"><i class="fa-solid fa-bookmark"></i></div>
+                    <div>
+                        <div class="text-white font-bold text-xs">Tus episodios</div>
+                        <div class="text-[10px] text-slate-400"><i class="fa-solid fa-thumbtack text-[#1ed760]"></i> Episodios guardados</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 cursor-pointer" onclick="openArtistFolder('Paulo Londra')">
+                    <img src="https://picsum.photos/100/100?random=201" class="w-12 h-12 rounded-full object-cover">
+                    <div>
+                        <div class="text-white font-bold text-xs">Paulo Londra</div>
+                        <div class="text-[10px] text-slate-400">Artista</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 cursor-pointer" onclick="openArtistFolder('Ozuna')">
+                    <img src="https://picsum.photos/100/100?random=202" class="w-12 h-12 rounded-full object-cover">
+                    <div>
+                        <div class="text-white font-bold text-xs">Ozuna Antiguo</div>
+                        <div class="text-[10px] text-slate-400">Artista</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <div id="artistView" class="hidden p-3 space-y-3">
-                    <button onclick="showView('home')" class="text-xs bg-[#282828] text-white px-3 py-1.5 rounded-xl flex items-center gap-2">
-                        <i class="fa-solid fa-arrow-left"></i> Volver
-                    </button>
-                    <h2 id="artistViewTitle" class="text-base font-extrabold text-white">Artista</h2>
-                    <div class="bg-[#121212] rounded-xl p-2">
-                        <table class="w-full text-left border-collapse">
-                            <tbody id="artistSongsTableBody" class="divide-y divide-[#282828] text-xs"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </main>
+    </div>
 
-            <!-- PANEL LATERAL "LETRA EN VIVO" (Flotante o lateral) -->
-            <aside id="lyricsPanelContainer" class="hidden lg:flex w-80 bg-[#121212] border border-[#282828] rounded-2xl flex-col p-3 flex-shrink-0 shadow-2xl overflow-hidden">
-                <div class="flex items-center justify-between pb-2 border-b border-[#282828] mb-2">
-                    <span class="text-white uppercase text-xs font-bold"><i class="fa-solid fa-microphone text-[#1ed760]"></i> Letra en Vivo</span>
-                    <div class="flex gap-1">
-                        <button onclick="buscarLetraGoogle()" class="bg-purple-600 text-white px-2 py-1 rounded text-[10px] font-bold"><i class="fa-brands fa-google"></i></button>
-                        <button onclick="toggleEditMode()" class="bg-[#282828] text-white px-2 py-1 rounded text-[10px] font-bold"><span id="editTextLabel">Ver</span></button>
-                    </div>
+    <!-- MODAL PANTALLA COMPLETA DE LETRA EN VIVO -->
+    <div id="lyricsModal" style="display: none;" class="fixed inset-0 bg-[#121212] z-50 flex flex-col p-4">
+        <div class="flex items-center justify-between pb-3 border-b border-[#282828]">
+            <div class="flex items-center gap-2">
+                <img id="modalSongCover" src="https://picsum.photos/100/100?random=1" class="w-8 h-8 rounded object-cover">
+                <div>
+                    <h3 id="modalSongTitle" class="text-white font-bold text-xs truncate">Canción</h3>
+                    <p id="modalSongArtist" class="text-slate-400 text-[10px] truncate">Artista</p>
                 </div>
-                <div id="lyricsViewPanel" class="flex-1 overflow-y-auto relative py-1 px-2 text-center select-none flex flex-col justify-start">
-                    <div id="karaokeContainer" class="space-y-2 px-1 pt-1">
-                        <div class="text-slate-500 text-xs py-4">Reproduce una canción para ver la letra aquí.</div>
-                    </div>
-                </div>
-                <div id="lyricsEditorPanel" class="hidden flex-1 flex flex-col space-y-2 text-left">
-                    <textarea id="manualLyricsInput" class="w-full flex-1 bg-black text-white p-2 rounded border border-[#282828] text-xs resize-none" placeholder="Pega la letra aquí..."></textarea>
-                    <div class="flex gap-1">
-                        <button onclick="toggleEditMode()" class="bg-[#282828] text-white text-[10px] py-1 px-2 rounded flex-1">Cancelar</button>
-                        <button onclick="guardarLetraManual()" class="bg-[#1ed760] text-black font-bold text-[10px] py-1 px-2 rounded flex-1">Guardar</button>
-                    </div>
-                </div>
-            </aside>
+            </div>
+            <button onclick="toggleLyricsModal()" class="text-white text-lg px-2"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="flex gap-2 py-2">
+            <button onclick="buscarLetraGoogle()" class="flex-1 bg-purple-600 text-white py-1.5 rounded-lg text-xs font-bold"><i class="fa-brands fa-google"></i> Buscar Letra</button>
+            <button onclick="toggleEditMode()" class="flex-1 bg-[#282828] text-white py-1.5 rounded-lg text-xs font-bold"><span id="editTextLabel">Editar / Pegar</span></button>
+        </div>
+        <div id="lyricsViewPanel" class="flex-1 overflow-y-auto relative py-6 px-2 text-center select-none flex flex-col justify-start">
+            <div id="karaokeContainer" class="space-y-4 px-1">
+                <div class="text-slate-500 text-xs py-10">Reproduce una canción para ver la letra sincronizada aquí.</div>
+            </div>
+        </div>
+        <div id="lyricsEditorPanel" class="hidden flex-1 flex flex-col space-y-2 text-left pt-2">
+            <textarea id="manualLyricsInput" class="w-full flex-1 bg-black text-white p-3 rounded-xl border border-[#282828] text-xs resize-none" placeholder="Pega la letra aquí renglón por renglón..."></textarea>
+            <div class="flex gap-2">
+                <button onclick="toggleEditMode()" class="bg-[#282828] text-white text-xs py-2 px-4 rounded-xl flex-1">Cancelar</button>
+                <button onclick="guardarLetraManual()" class="bg-[#1ed760] text-black font-bold text-xs py-2 px-4 rounded-xl flex-1">Guardar</button>
+            </div>
         </div>
     </div>
 
-    <!-- REPRODUCTOR INFERIOR ESTILO SPOTIFY MÓVIL -->
-    <footer class="fixed bottom-1 left-2 right-2 h-14 bg-[#282828] rounded-xl px-3 flex items-center justify-between z-40 gap-2 shadow-2xl">
-        <div class="flex items-center gap-2 overflow-hidden flex-1" onclick="togglePlay()">
-            <img id="playerCover" src="https://picsum.photos/100/100?random=11" class="w-10 h-10 rounded object-cover flex-shrink-0">
-            <div class="overflow-hidden">
-                <div id="playerTitle" class="text-white font-bold text-xs truncate">Música</div>
-                <div id="playerArtist" class="text-slate-400 text-[10px] truncate">AT Music</div>
+    <!-- BARRA DE NAVEGACIÓN INFERIOR Y REPRODUCTOR PROFESIONAL ESTILO SPOTIFY -->
+    <footer class="fixed bottom-0 left-0 w-full bg-[#121212] border-t border-[#282828] z-40 flex flex-col">
+        
+        <!-- Reproductor compacto idéntico a la referencia -->
+        <div class="px-3 pt-2.5 pb-2 bg-[#181818] mx-2 mt-2 rounded-xl shadow-lg space-y-2 border border-[#282828]">
+            <div class="flex items-center justify-between">
+                <!-- Portada, Título y Artista a la izquierda -->
+                <div class="flex items-center gap-2.5 overflow-hidden flex-1 cursor-pointer" onclick="toggleLyricsModal()">
+                    <img id="playerCover" src="https://picsum.photos/100/100?random=11" class="w-10 h-10 rounded object-cover flex-shrink-0">
+                    <div class="overflow-hidden">
+                        <div id="playerTitle" class="text-white font-bold text-xs truncate">Selecciona una canción</div>
+                        <div id="playerArtist" class="text-slate-400 text-[10px] truncate">AT Music</div>
+                    </div>
+                </div>
+
+                <!-- Botón de Me Gusta (+) -->
+                <button onclick="toggleLikeCurrentSong()" id="playerLikeBtn" class="text-slate-400 hover:text-white px-2" title="Guardar en Tus me gusta"><i class="fa-solid fa-circle-plus text-base"></i></button>
+
+                <!-- Controles centrales de reproducción -->
+                <div class="flex items-center gap-3 text-white text-sm px-1">
+                    <button onclick="toggleShuffle()" id="shuffleBtn" class="text-slate-400 hover:text-white" title="Aleatorio"><i class="fa-solid fa-shuffle text-xs"></i></button>
+                    <button onclick="prevSong()" class="hover:text-[#1ed760]"><i class="fa-solid fa-backward-step"></i></button>
+                    <button onclick="togglePlay()" id="playPauseBtn" class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xs shadow"><i class="fa-solid fa-play"></i></button>
+                    <button onclick="nextSong()" class="hover:text-[#1ed760]"><i class="fa-solid fa-forward-step"></i></button>
+                    <button onclick="toggleRepeat()" id="repeatBtn" class="text-slate-400 hover:text-white" title="Repetir"><i class="fa-solid fa-repeat text-xs"></i></button>
+                </div>
+            </div>
+
+            <!-- Línea de tiempo y minutos exactos -->
+            <div class="flex items-center gap-2 text-[10px] text-slate-400">
+                <span id="currentTime">0:00</span>
+                <input type="range" id="progressBar" value="0" min="0" max="100" class="w-full h-1 cursor-pointer" oninput="seekAudio(this.value)">
+                <span id="totalDuration">3:10</span>
             </div>
         </div>
-        <div class="flex items-center gap-3 text-white text-base">
-            <button onclick="togglePlay()" id="playPauseBtn" class="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center text-xs"><i class="fa-solid fa-play"></i></button>
-            <button onclick="nextSong()" class="hover:text-[#1ed760]"><i class="fa-solid fa-forward-step"></i></button>
+
+        <!-- Menú inferior de Spotify -->
+        <div class="flex justify-around items-center h-14 px-1 text-slate-400">
+            <button onclick="switchTab('home')" id="navHome" class="flex flex-col items-center gap-0.5 text-white">
+                <i class="fa-solid fa-house text-base"></i>
+                <span class="text-[10px]">Inicio</span>
+            </button>
+            <button onclick="switchTab('search')" id="navSearch" class="flex flex-col items-center gap-0.5 hover:text-white">
+                <i class="fa-solid fa-magnifying-glass text-base"></i>
+                <span class="text-[10px]">Buscar</span>
+            </button>
+            <button onclick="switchTab('library')" id="navLibrary" class="flex flex-col items-center gap-0.5 hover:text-white">
+                <i class="fa-solid fa-book-open text-base"></i>
+                <span class="text-[10px]">Tu biblioteca</span>
+            </button>
+            <button onclick="pedirPasswordAdmin()" class="flex flex-col items-center gap-0.5 hover:text-white">
+                <i class="fa-solid fa-crown text-base text-[#1ed760]"></i>
+                <span class="text-[10px]">Premium</span>
+            </button>
+            <button onclick="toggleLyricsModal()" class="flex flex-col items-center gap-0.5 hover:text-white">
+                <i class="fa-solid fa-microphone text-base"></i>
+                <span class="text-[10px]">Letras</span>
+            </button>
         </div>
     </footer>
     <audio id="audioEngine"></audio>
@@ -336,6 +450,7 @@
         }
 
         const database = [
+            // PAULO LONDRA (50 CANCIONES)
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
             { id: 2, title: "Adán y Eva", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=2", src: "canciones/adan-y-eva.mp3" },
             { id: 3, title: "Plan A", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=3", src: "canciones/plan-a.mp3" },
@@ -343,78 +458,459 @@
             { id: 5, title: "Chance", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=5", src: "canciones/chance.mp3" },
             { id: 6, title: "Forever Alone", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=6", src: "canciones/forever-alone.mp3" },
             { id: 7, title: "Cuando Te Besé", artist: "Paulo Londra ft. Becky G", cover: "https://picsum.photos/300/300?random=7", src: "canciones/cuando-te-bese.mp3" },
-            { id: 8, title: "Condenado para el Millón", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=8", src: "canciones/condenado.mp3" },
-            { id: 51, title: "Se Preparó", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=51", src: "canciones/se-preparo.mp3" },
-            { id: 101, title: "Monaco", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=101", src: "canciones/monaco.mp3" },
-            { id: 151, title: "Un X100to", artist: "Grupo Frontera ft. Bad Bunny", cover: "https://picsum.photos/300/300?random=151", src: "canciones/un-x100to.mp3" }
-        ];
+            { id: 8, title: "Condenado para el Millón", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=8", src: "canciones/condenado-para-el-millon.mp3" },
+            { id: 9, title: "Nena Maldición", artist: "Paulo Londra ft. Lenny Tavárez", cover: "https://picsum.photos/300/300?random=9", src: "canciones/nena-maldicion.mp3" },
+            { id: 10, title: "Te Amo", artist: "Pistoleros ft. Paulo Londra", cover: "https://picsum.photos/300/300?random=10", src: "canciones/te-amo.mp3" },
+            { id: 11, title: "Dímelo", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=11", src: "canciones/dimelo.mp3" },
+            { id: 12, title: "Y Lloro", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=12", src: "canciones/y-lloro.mp3" },
+            { id: 13, title: "Luces", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=13", src: "canciones/luces.mp3" },
+            { id: 14, title: "Cansado", artist: "Paulo Londra ft. Joaqo", cover: "https://picsum.photos/300/300?random=14", src: "canciones/cansado.mp3" },
+            { id: 15, title: "Por Mí", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=15", src: "canciones/por-mi.mp3" },
+            { id: 16, title: "Bala Perdida", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=16", src: "canciones/bala-perdida.mp3" },
+            { id: 17, title: "Party en el Barrio", artist: "Paulo Londra ft. Duki", cover: "https://picsum.photos/300/300?random=17", src: "canciones/party-en-el-barrio.mp3" },
+            { id: 18, title: "Chica Paranormal", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=18", src: "canciones/chica-paranormal.mp3" },
+            { id: 19, title: "Maldita Abusadora", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=19", src: "canciones/maldita-abusadora.mp3" },
+            { id: 20, title: "Querido Amigo", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=20", src: "canciones/querido-amigo.mp3" },
+            { id: 21, title: "A Escondidas", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=21", src: "canciones/a-escondidas.mp3" },
+            { id: 22, title: "Solo Pienso En Ti", artist: "Paulo Londra ft. De La Ghetto", cover: "https://picsum.photos/300/300?random=22", src: "canciones/solo-pienso-en-ti.mp3" },
+            { id: 23, title: "Romeo y Julieta", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=23", src: "canciones/romeo-y-julieta.mp3" },
+            { id: 24, title: "No Puedo", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=24", src: "canciones/no-puedo.mp3" },
+            { id: 25, title: "Tenso", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=25", src: "canciones/tenso.mp3" },
+            { id: 26, title: "Princesa", artist: "Khea ft. Paulo Londra", cover: "https://picsum.photos/300/300?random=26", src: "canciones/princesa.mp3" },
+            { id: 27, title: "Julieta", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=27", src: "canciones/julieta.mp3" },
+            { id: 28, title: "Noche de Novela", artist: "Paulo Londra ft. Ed Sheeran", cover: "https://picsum.photos/300/300?random=28", src: "canciones/noche-de-novela.mp3" },
+            { id: 29, title: "Neceser", artist: "Paulo Londra ft. Ryan Castro", cover: "https://picsum.photos/300/300?random=29", src: "canciones/neceser.mp3" },
+            { id: 30, title: "Posdata", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=30", src: "canciones/posdata.mp3" },
+            { id: 31, title: "Me Tiene Mal", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=31", src: "canciones/me-tiene-mal.mp3" },
+            { id: 32, title: "Demasiado Solo", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=32", src: "canciones/demasiado-solo.mp3" },
+            { id: 33, title: "Sin Cadenas", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=33", src: "canciones/sin-cadenas.mp3" },
+            { id: 34, title: "Soledad", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=34", src: "canciones/soledad.mp3" },
+            { id: 35, title: "Cámara Lenta", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=35", src: "canciones/camara-lenta.mp3" },
+            { id: 36, title: "Fuera de Lista", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=36", src: "canciones/fuera-de-lista.mp3" },
+            { id: 37, title: "Rumbos", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=37", src: "canciones/rumbos.mp3" },
+            { id: 38, title: "Pensando en Ti", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=38", src: "canciones/pensando-en-ti.mp3" },
+            { id: 39, title: "Sigo Aquí", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=39", src: "canciones/sigo-aqui.mp3" },
+            { id: 40, title: "Sola", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=40", src: "canciones/sola.mp3" },
+            { id: 41, title: "A Ciegas", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=41", src: "canciones/a-ciegas.mp3" },
+            { id: 42, title: "Vuelvo", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=42", src: "canciones/vuelvo.mp3" },
+            { id: 43, title: "Recuerdos", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=43", src: "canciones/recuerdos.mp3" },
+            { id: 44, title: "Destino", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=44", src: "canciones/destino.mp3" },
+            { id: 45, title: "Sin Pensar", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=45", src: "canciones/sin-pensar.mp3" },
+            { id: 46, title: "En El Aire", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=46", src: "canciones/en-el-aire.mp3" },
+            { id: 47, title: "Cerca de Mí", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=47", src: "canciones/cerca-de-mi.mp3" },
+            { id: 48, title: "Saber Que Estás", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=48", src: "canciones/saber-que-estas.mp3" },
+            { id: 49, title: "Último Beso", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=49", src: "canciones/ultimo-beso.mp3" },
+            { id: 50, title: "Camino", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=50", src: "canciones/camino.mp3" },
 
+            // OZUNA (50 CANCIONES)
+            { id: 51, title: "Se Preparó", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=51", src: "canciones/se-preparo.mp3" },
+            { id: 52, title: "El Farsante", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=52", src: "canciones/el-farsante.mp3" },
+            { id: 53, title: "Dile Que Tú Me Quieres", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=53", src: "canciones/dile-que-tu-me-quieres.mp3" },
+            { id: 54, title: "Baila Baila Baila", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=54", src: "canciones/baila-baila-baila.mp3" },
+            { id: 55, title: "Caramelo", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=55", src: "canciones/caramelo.mp3" },
+            { id: 56, title: "Única", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=56", src: "canciones/unica.mp3" },
+            { id: 57, title: "Síguelo Bailando", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=57", src: "canciones/siguelo-bailando.mp3" },
+            { id: 58, title: "Tu Foto", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=58", src: "canciones/tu-foto.mp3" },
+            { id: 59, title: "Vaina Loca", artist: "Ozuna ft. Manuel Turizo", cover: "https://picsum.photos/300/300?random=59", src: "canciones/vaina-loca.mp3" },
+            { id: 60, title: "Criminal", artist: "Natti Natasha ft. Ozuna", cover: "https://picsum.photos/300/300?random=60", src: "canciones/criminal.mp3" },
+            { id: 61, title: "Te Boté", artist: "Nio García ft. Ozuna, Bad Bunny", cover: "https://picsum.photos/300/300?random=61", src: "canciones/te-bote.mp3" },
+            { id: 62, title: "Egoísta", artist: "Ozuna ft. Zion & Lennox", cover: "https://picsum.photos/300/300?random=62", src: "canciones/egoista.mp3" },
+            { id: 63, title: "Comentale", artist: "Ozuna ft. Akon", cover: "https://picsum.photos/300/300?random=63", src: "canciones/comentale.mp3" },
+            { id: 64, title: "Ibiza", artist: "Ozuna ft. Romeo Santos", cover: "https://picsum.photos/300/300?random=64", src: "canciones/ibiza.mp3" },
+            { id: 65, title: "Quiero Repetir", artist: "Ozuna ft. J Balvin", cover: "https://picsum.photos/300/300?random=65", src: "canciones/quiero-repetir.mp3" },
+            { id: 66, title: "Luz Apaga", artist: "Ozuna ft. Lunay, Rauw Alejandro", cover: "https://picsum.photos/300/300?random=66", src: "canciones/luz-apaga.mp3" },
+            { id: 67, title: "Devuélveme", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=67", src: "canciones/devuelveme.mp3" },
+            { id: 68, title: "La Modelo", artist: "Ozuna ft. Cardi B", cover: "https://picsum.photos/300/300?random=68", src: "canciones/la-modelo.mp3" },
+            { id: 69, title: "Sígueme los Pasos", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=69", src: "canciones/sigueme-los-pasos.mp3" },
+            { id: 70, title: "Sobredosis", artist: "Romeo Santos ft. Ozuna", cover: "https://picsum.photos/300/300?random=70", src: "canciones/sobredosis.mp3" },
+            { id: 71, title: "Aura", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=71", src: "canciones/aura.mp3" },
+            { id: 72, title: "Monotonía", artist: "Shakira ft. Ozuna", cover: "https://picsum.photos/300/300?random=72", src: "canciones/monotonia.mp3" },
+            { id: 73, title: "Despeinada", artist: "Ozuna ft. Camilo", cover: "https://picsum.photos/300/300?random=73", src: "canciones/despeinada.mp3" },
+            { id: 74, title: "Lollipop", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=74", src: "canciones/lollipop.mp3" },
+            { id: 75, title: "Señorita", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=75", src: "canciones/senorita.mp3" },
+            { id: 76, title: "El Desorden", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=76", src: "canciones/el-desorden.mp3" },
+            { id: 77, title: "La Ocasión", artist: "De La Ghetto, Arcángel, Ozuna", cover: "https://picsum.photos/300/300?random=77", src: "canciones/la-ocasion.mp3" },
+            { id: 78, title: "Si Tu Marido No Te Quiere", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=78", src: "canciones/si-tu-marido-no-te-quiere.mp3" },
+            { id: 79, title: "No Quiere Enamorarse", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=79", src: "canciones/no-quiere-enamorarse.mp3" },
+            { id: 80, title: "Corazón de Seda", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=80", src: "canciones/corazon-de-seda.mp3" },
+            { id: 81, title: "En La Intimidad", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=81", src: "canciones/en-la-intimidad.mp3" },
+            { id: 82, title: "Mirame", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=82", src: "canciones/mirame.mp3" },
+            { id: 83, title: "Cumpleaños", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=83", src: "canciones/cumpleanos.mp3" },
+            { id: 84, title: "Pasado y Presente", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=84", src: "canciones/pasado-y-presente.mp3" },
+            { id: 85, title: "Te Vas", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=85", src: "canciones/te-vas.mp3" },
+            { id: 86, title: "Unica", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=86", src: "canciones/unica.mp3" },
+            { id: 87, title: "Una Flor", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=87", src: "canciones/una-flor.mp3" },
+            { id: 88, title: "Besos En La Guerra", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=88", src: "canciones/besos-en-la-guerra.mp3" },
+            { id: 89, title: "Fuego", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=89", src: "canciones/fuego.mp3" },
+            { id: 90, title: "Del Mar", artist: "Ozuna ft. Doja Cat, Sia", cover: "https://picsum.photos/300/300?random=90", src: "canciones/del-mar.mp3" },
+            { id: 91, title: "Gazu", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=91", src: "canciones/gazu.mp3" },
+            { id: 92, title: "100 Preguntas", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=92", src: "canciones/100-preguntas.mp3" },
+            { id: 93, title: "Temporal", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=93", src: "canciones/temporal.mp3" },
+            { id: 94, title: "Hasta Que Salga El Sol", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=94", src: "canciones/hasta-que-salga-el-sol.mp3" },
+            { id: 95, title: "Fantasía", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=95", src: "canciones/fantasia.mp3" },
+            { id: 96, title: "NIBIRU", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=96", src: "canciones/nibiru.mp3" },
+            { id: 97, title: "Amor Genuino", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=97", src: "canciones/amor-genuino.mp3" },
+            { id: 98, title: "Cama Vacía", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=98", src: "canciones/cama-vacia.mp3" },
+            { id: 99, title: "Bailando", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=99", src: "canciones/bailando.mp3" },
+            { id: 100, title: "Mar de Emociones", artist: "Ozuna", cover: "https://picsum.photos/300/300?random=100", src: "canciones/mar-de-emociones.mp3" },
+
+            // BAD BUNNY (ID 101 a 150)
+            { id: 101, title: "Monaco", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=101", src: "canciones/monaco.mp3" },
+            { id: 102, title: "Tití Me Preguntó", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=102", src: "canciones/titi-me-pregunto.mp3" },
+            { id: 103, title: "Me Porto Bonito", artist: "Bad Bunny ft. Chencho Corleone", cover: "https://picsum.photos/300/300?random=103", src: "canciones/me-porto-bonito.mp3" },
+            { id: 104, title: "Ojitos Lindos", artist: "Bad Bunny ft. Bomba Estéreo", cover: "https://picsum.photos/300/300?random=104", src: "canciones/ojitos-lindos.mp3" },
+            { id: 105, title: "Moscow Mule", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=105", src: "canciones/moscow-mule.mp3" },
+            { id: 106, title: "Neverita", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=106", src: "canciones/neverita.mp3" },
+            { id: 107, title: "Efecto", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=107", src: "canciones/efecto.mp3" },
+            { id: 108, title: "Un Preview", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=108", src: "canciones/un-preview.mp3" },
+            { id: 109, title: "Perro Negro", artist: "Bad Bunny ft. Feid", cover: "https://picsum.photos/300/300?random=109", src: "canciones/perro-negro.mp3" },
+            { id: 110, title: "Fina", artist: "Bad Bunny ft. Young Miko", cover: "https://picsum.photos/300/300?random=110", src: "canciones/fina.mp3" },
+            { id: 111, title: "Dákiti", artist: "Bad Bunny ft. Jhay Cortez", cover: "https://picsum.photos/300/300?random=111", src: "canciones/dakiti.mp3" },
+            { id: 112, title: "Safaera", artist: "Bad Bunny ft. Jowell & Randy, Ñengo Flow", cover: "https://picsum.photos/300/300?random=112", src: "canciones/safaera.mp3" },
+            { id: 113, title: "Yo Perreo Sola", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=113", src: "canciones/yo-perreo-sola.mp3" },
+            { id: 114, title: "La Canción", artist: "J Balvin ft. Bad Bunny", cover: "https://picsum.photos/300/300?random=114", src: "canciones/la-cancion.mp3" },
+            { id: 115, title: "Callaíta", artist: "Bad Bunny ft. Tainy", cover: "https://picsum.photos/300/300?random=115", src: "canciones/callaita.mp3" },
+            { id: 116, title: "Booker T", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=116", src: "canciones/booker-t.mp3" },
+            { id: 117, title: "La Santa", artist: "Bad Bunny ft. Daddy Yankee", cover: "https://picsum.photos/300/300?random=117", src: "canciones/la-santa.mp3" },
+            { id: 118, title: "Vete", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=118", src: "canciones/vete.mp3" },
+            { id: 119, title: "Soy Peor", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=119", src: "canciones/soy-peor.mp3" },
+            { id: 120, title: "Amorfoda", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=120", src: "canciones/amorfoda.mp3" },
+            { id: 121, title: "I Like It", artist: "Cardi B ft. Bad Bunny, J Balvin", cover: "https://picsum.photos/300/300?random=121", src: "canciones/i-like-it.mp3" },
+            { id: 122, title: "Mia", artist: "Bad Bunny ft. Drake", cover: "https://picsum.photos/300/300?random=122", src: "canciones/mia.mp3" },
+            { id: 123, title: "La Corriente", artist: "Bad Bunny ft. Tony Dize", cover: "https://picsum.photos/300/300?random=123", src: "canciones/la-corriente.mp3" },
+            { id: 124, title: "Party", artist: "Bad Bunny ft. Rauw Alejandro", cover: "https://picsum.photos/300/300?random=124", src: "canciones/party.mp3" },
+            { id: 125, title: "Tarot", artist: "Bad Bunny ft. Jhayco", cover: "https://picsum.photos/300/300?random=125", src: "canciones/tarot.mp3" },
+            { id: 126, title: "Andrea", artist: "Bad Bunny ft. Buscabulla", cover: "https://picsum.photos/300/300?random=126", src: "canciones/andrea.mp3" },
+            { id: 127, title: "Agua", artist: "Tainy ft. J Balvin, Bad Bunny", cover: "https://picsum.photos/300/300?random=127", src: "canciones/agua.mp3" },
+            { id: 128, title: "WHERE SHE GOES", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=128", src: "canciones/where-she-goes.mp3" },
+            { id: 129, title: "Nadie Sabe", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=129", src: "canciones/nadie-sabe.mp3" },
+            { id: 130, title: "Bichagota", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=130", src: "canciones/bichagota.mp3" },
+            { id: 131, title: "Seda", artist: "Bad Bunny ft. Bryant Myers", cover: "https://picsum.photos/300/300?random=131", src: "canciones/seda.mp3" },
+            { id: 132, title: "Hibiki", artist: "Bad Bunny ft. Mora", cover: "https://picsum.photos/300/300?random=132", src: "canciones/hibiki.mp3" },
+            { id: 133, title: "MR. OCTOBER", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=133", src: "canciones/mr-october.mp3" },
+            { id: 134, title: "Gracias Por Nada", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=134", src: "canciones/gracias-por-nada.mp3" },
+            { id: 135, title: "La Difícil", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=135", src: "canciones/la-dificil.mp3" },
+            { id: 136, title: "Hablamos Mañana", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=136", src: "canciones/hablamos-manana.mp3" },
+            { id: 137, title: "25/08", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=137", src: "canciones/25-08.mp3" },
+            { id: 138, title: "Ignorantes", artist: "Bad Bunny ft. Sech", cover: "https://picsum.photos/300/300?random=138", src: "canciones/ignorantes.mp3" },
+            { id: 139, title: "Otra Noche en Miami", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=139", src: "canciones/otra-noche-en-miami.mp3" },
+            { id: 140, title: "Estamos Bien", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=140", src: "canciones/estamos-bien.mp3" },
+            { id: 141, title: "Si Estuviésemos Juntos", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=141", src: "canciones/si-estuvisemos-juntos.mp3" },
+            { id: 142, title: "Como Un Bebe", artist: "Benny Blanco, Tainy, J Balvin, Bad Bunny", cover: "https://picsum.photos/300/300?random=142", src: "canciones/como-un-bebe.mp3" },
+            { id: 143, title: "La Romana", artist: "Bad Bunny ft. El Alfa", cover: "https://picsum.photos/300/300?random=143", src: "canciones/la-romana.mp3" },
+            { id: 144, title: "2 1 AM", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=144", src: "canciones/2-1-am.mp3" },
+            { id: 145, title: "Caro", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=145", src: "canciones/caro.mp3" },
+            { id: 146, title: "RLNDT", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=146", src: "canciones/rlndt.mp3" },
+            { id: 147, title: "Solo de Mí", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=147", src: "canciones/solo-de-mi.mp3" },
+            { id: 148, title: "Chambea", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=148", src: "canciones/chambea.mp3" },
+            { id: 149, title: "Diles", artist: "Bad Bunny ft. Ozuna, Farruko, Arcangel", cover: "https://picsum.photos/300/300?random=149", src: "canciones/diles.mp3" },
+            { id: 150, title: "Tú No Metes Cabra", artist: "Bad Bunny", cover: "https://picsum.photos/300/300?random=150", src: "canciones/tu-no-metes-cabra.mp3" },
+
+            // GRUPO FRONTERA (30 canciones)
+            { id: 151, title: "Un X100to", artist: "Grupo Frontera ft. Bad Bunny", cover: "https://picsum.photos/300/300?random=151", src: "canciones/un-x100to.mp3" },
+            { id: 152, title: "No Se Va", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=152", src: "canciones/no-se-va.mp3" },
+            { id: 153, title: "Tulum", artist: "Peso Pluma ft. Grupo Frontera", cover: "https://picsum.photos/300/300?random=153", src: "canciones/tulum.mp3" },
+            { id: 154, title: "Frágil", artist: "Yahritza Y Su Esencia ft. Grupo Frontera", cover: "https://picsum.photos/300/300?random=154", src: "canciones/fragil.mp3" },
+            { id: 155, title: "Que Vuelvas", artist: "Grupo Frontera ft. Carin Leon", cover: "https://picsum.photos/300/300?random=155", src: "canciones/que-vuelvas.mp3" },
+            { id: 156, title: "Di Que Sí", artist: "Grupo Frontera ft. Grupo Marca Registrada", cover: "https://picsum.photos/300/300?random=156", src: "canciones/di-que-si.mp3" },
+            { id: 157, title: "El Amor de Su Vida", artist: "Grupo Frontera ft. Grupo Firme", cover: "https://picsum.photos/300/300?random=157", src: "canciones/el-amor-de-su-vida.mp3" },
+            { id: 158, title: "Bebé Dame", artist: "Fuerza Regida ft. Grupo Frontera", cover: "https://picsum.photos/300/300?random=158", src: "canciones/bebe-dame.mp3" },
+            { id: 159, title: "Ojitos Rojos", artist: "Grupo Frontera ft. Ke Personajes", cover: "https://picsum.photos/300/300?random=159", src: "canciones/ojitos-rojos.mp3" },
+            { id: 160, title: "Le Va A Doler", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=160", src: "canciones/le-va-a-doler.mp3" },
+            { id: 161, title: "COSAS DE LA PEDA", artist: "Grupo Frontera ft. Enanitos Verdes", cover: "https://picsum.photos/300/300?random=161", src: "canciones/cosas-de-la-peda.mp3" },
+            { id: 162, title: "Por Qué Será", artist: "Grupo Frontera ft. Maluma", cover: "https://picsum.photos/300/300?random=162", src: "canciones/por-que-sera.mp3" },
+            { id: 163, title: "Mejor Que Te Enamores", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=163", src: "canciones/mejor-que-te-enamores.mp3" },
+            { id: 164, title: "CHINITA", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=164", src: "canciones/chinita.mp3" },
+            { id: 165, title: "Hata Mañana", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=165", src: "canciones/hata-manana.mp3" },
+            { id: 166, title: "Bebe", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=166", src: "canciones/bebe.mp3" },
+            { id: 167, title: "Ya Acabó", artist: "Fuerza Regida ft. Grupo Frontera", cover: "https://picsum.photos/300/300?random=167", src: "canciones/ya-acabo.mp3" },
+            { id: 168, title: "La Pareja Del Año", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=168", src: "canciones/la-pareja-del-ano.mp3" },
+            { id: 169, title: "No Se Manda Solo", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=169", src: "canciones/no-se-manda-solo.mp3" },
+            { id: 170, title: "Disculpe Usted", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=170", src: "canciones/disculpe-usted.mp3" },
+            { id: 171, title: "Los Consejos", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=171", src: "canciones/los-consejos.mp3" },
+            { id: 172, title: "Loras", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=172", src: "canciones/lloras.mp3" },
+            { id: 173, title: "Vete", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=173", src: "canciones/vete-frontera.mp3" },
+            { id: 174, title: "En Esta Despedida", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=174", src: "canciones/en-esta-despedida.mp3" },
+            { id: 175, title: "Borracho y Loco", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=175", src: "canciones/borracho-y-loco.mp3" },
+            { id: 176, title: "Al Valerio", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=176", src: "canciones/al-valerio.mp3" },
+            { id: 177, title: "Me Enamoré", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=177", src: "canciones/me-enamore.mp3" },
+            { id: 178, title: "Ojitos", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=178", src: "canciones/ojitos.mp3" },
+            { id: 179, title: "Cumbia Con G", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=179", src: "canciones/cumbia-con-g.mp3" },
+            { id: 180, title: "No Te Voy A Rogar", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=180", src: "canciones/no-te-voy-a-rogar.mp3" }
+        ];
         let isPlaying = false;
         let currentTrackIndex = -1;
         let currentSongObject = null;
-        let listaClientes = [];
         let currentSongsDisplayed = [...database];
         const audioEngine = document.getElementById('audioEngine');
         audioEngine.volume = 1.0;
 
-        function checkSubscription() {
-            if (!navigator.onLine) {
-                document.getElementById('paywallModal').style.display = 'none';
-                return;
-            }
-            let activeUser = JSON.parse(localStorage.getItem('at_active_session') || 'null');
-            if (activeUser && activeUser.id === "admin_master_session") {
-                document.getElementById('paywallModal').style.display = 'none';
-                return;
-            }
-            document.getElementById('paywallModal').style.display = 'none';
-        }
-
-        function pedirPasswordAdmin() {
-            document.getElementById('adminPasswordInput').value = '';
-            document.getElementById('adminPasswordModal').style.display = 'flex';
-        }
-
-        function cerrarModalPassword() {
-            document.getElementById('adminPasswordModal').style.display = 'none';
-        }
-
-        function verificarPasswordAdmin() {
-            const pass = document.getElementById('adminPasswordInput').value.trim();
-            if (pass === "araujo1234") {
-                cerrarModalPassword();
-                const adminSession = { id: "admin_master_session", cliente: "Administrador", paid: true };
-                localStorage.setItem('at_active_session', JSON.stringify(adminSession));
-                abrirModalUsuario();
-            } else {
-                alert("Contraseña incorrecta.");
-            }
-        }
-
-        function cerrarModalUsuario() {
-            document.getElementById('userModal').style.display = 'none';
-        }
-
-        function abrirModalUsuario() {
-            document.getElementById('userModal').style.display = 'flex';
-        }
-
-        function intentarIngresarCode() {
-            document.getElementById('paywallModal').style.display = 'none';
-        }
-
-        function enviarComprobanteWhatsApp() {
-            const nombre = document.getElementById('clientRegName').value.trim();
-            const dni = document.getElementById('clientRegDni').value.trim();
-            if (!nombre || !dni) { alert("Completa tus datos."); return; }
-            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}`);
-            window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
-        }
-
         window.addEventListener('DOMContentLoaded', () => {
-            checkSubscription();
             renderSongsTable('allSongsTableBody', database);
         });
+
+        function switchTab(tabName) {
+            document.getElementById('viewHome').classList.add('hidden');
+            document.getElementById('viewSearch').classList.add('hidden');
+            document.getElementById('viewLibrary').classList.add('hidden');
+
+            document.getElementById('navHome').style.color = '#94a3b8';
+            document.getElementById('navSearch').style.color = '#94a3b8';
+            document.getElementById('navLibrary').style.color = '#94a3b8';
+
+            if (tabName === 'home') {
+                document.getElementById('viewHome').classList.remove('hidden');
+                document.getElementById('navHome').style.color = '#ffffff';
+            } else if (tabName === 'search') {
+                document.getElementById('viewSearch').classList.remove('hidden');
+                document.getElementById('navSearch').style.color = '#ffffff';
+            } else if (tabName === 'library') {
+                document.getElementById('viewLibrary').classList.remove('hidden');
+                document.getElementById('navLibrary').style.color = '#ffffff';
+            }
+        }
+
+        function abrirPaywallModal() {
+            document.getElementById('paywallModal').style.display = 'flex';
+        }
+
+        function filtrarBiblioteca(tipo, btn) {
+            const container = document.getElementById('libraryContentList');
+            document.querySelectorAll('#viewLibrary .spotify-chip').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (tipo === 'playlists') {
+                container.innerHTML = `
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                        <div class="w-12 h-12 rounded bg-gradient-to-br from-indigo-600 to-purple-400 flex items-center justify-center text-white"><i class="fa-solid fa-heart"></i></div>
+                        <div><div class="text-white font-bold text-xs">Tus me gusta</div><div class="text-[10px] text-slate-400">Playlist • Andreotabuadaa</div></div>
+                    </div>
+                `;
+            } else if (tipo === 'podcasts') {
+                container.innerHTML = `<div class="text-slate-400 text-xs py-4 text-center">No hay podcasts guardados todavía.</div>`;
+            } else if (tipo === 'artistas') {
+                container.innerHTML = `
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="openArtistFolder('Paulo Londra')">
+                        <img src="https://picsum.photos/100/100?random=201" class="w-12 h-12 rounded-full object-cover">
+                        <div><div class="text-white font-bold text-xs">Paulo Londra</div><div class="text-[10px] text-slate-400">Artista</div></div>
+                    </div>
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="openArtistFolder('Ozuna')">
+                        <img src="https://picsum.photos/100/100?random=202" class="w-12 h-12 rounded-full object-cover">
+                        <div><div class="text-white font-bold text-xs">Ozuna Antiguo</div><div class="text-[10px] text-slate-400">Artista</div></div>
+                    </div>
+                `;
+            }
+        }
+
+        function toggleLyricsModal() {
+            const modal = document.getElementById('lyricsModal');
+            if (modal.style.display === 'none' || !modal.style.display) {
+                modal.style.display = 'flex';
+                if (currentSongObject) {
+                    document.getElementById('modalSongTitle').innerText = currentSongObject.title;
+                    document.getElementById('modalSongArtist').innerText = currentSongObject.artist;
+                    document.getElementById('modalSongCover').src = currentSongObject.cover;
+                }
+            } else {
+                modal.style.display = 'none';
+            }
+        }
+
+        function filtrarCategoria(categoria, btnElement) {
+            switchTab('home');
+            if (btnElement) {
+                document.querySelectorAll('#viewHome .spotify-chip').forEach(b => b.classList.remove('active'));
+                btnElement.classList.add('active');
+            }
+            if (categoria === 'todas') {
+                currentSongsDisplayed = database;
+            } else {
+                currentSongsDisplayed = database.filter(s => s.artist.toLowerCase().includes(categoria.toLowerCase()));
+            }
+            renderSongsTable('allSongsTableBody', currentSongsDisplayed);
+        }
+
+        function openArtistFolder(artistName) {
+            switchTab('home');
+            currentSongsDisplayed = database.filter(s => s.artist.toLowerCase().includes(artistName.toLowerCase()));
+            renderSongsTable('allSongsTableBody', currentSongsDisplayed);
+        }
+
+        function handleSearchInput(query) {
+            const container = document.getElementById('searchResultsContainer');
+            container.innerHTML = '';
+            if(!query.trim()) return;
+            const q = query.toLowerCase();
+            const res = database.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+            res.forEach(song => {
+                const realIdx = database.findIndex(s => s.id === song.id);
+                container.innerHTML += `
+                    <div onclick="playSongIndex(${realIdx})" class="flex items-center justify-between p-2 bg-[#181818] rounded-lg cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <img src="${song.cover}" class="w-8 h-8 rounded object-cover">
+                            <div><div class="text-white font-bold text-xs">${song.title}</div><div class="text-[10px] text-slate-400">${song.artist}</div></div>
+                        </div>
+                        <i class="fa-solid fa-play text-[#1ed760] text-xs"></i>
+                    </div>
+                `;
+            });
+        }
+
+        // Renderizado de tabla con icono animado de reproducción y botón de menú de opciones
+        function renderSongsTable(tableBodyId, songsList) {
+            const tbody = document.getElementById(tableBodyId);
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            songsList.forEach((song) => {
+                const realIdx = database.findIndex(s => s.id === song.id);
+                const isCurrent = (currentSongObject && currentSongObject.id === song.id && isPlaying);
+
+                let indicatorHTML = isCurrent ? `
+                    <div class="playing-icon">
+                        <div class="playing-bar"></div>
+                        <div class="playing-bar"></div>
+                        <div class="playing-bar"></div>
+                    </div>
+                ` : `<i class="fa-solid fa-play text-slate-400 text-xs"></i>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-[#282828] cursor-pointer transition">
+                        <td class="py-2.5 px-2 flex items-center gap-3" onclick="playSongIndex(${realIdx})">
+                            <div class="w-5 flex justify-center">${indicatorHTML}</div>
+                            <img src="${song.cover}" class="w-10 h-10 rounded object-cover">
+                            <div>
+                                <div class="${isCurrent ? 'text-[#1ed760]' : 'text-white'} font-bold text-xs truncate">${song.title}</div>
+                                <div class="text-[10px] text-slate-400 truncate">${song.artist}</div>
+                            </div>
+                        </td>
+                        <td class="text-right pr-2">
+                            <button onclick="event.stopPropagation(); abrirMenuOpciones(event, '${song.title}')" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-ellipsis-vertical text-xs"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Lógica del Menú Flotante de Opciones (Primera Imagen)
+        function abrirMenuOpciones(e, titulo) {
+            const menu = document.getElementById('spotifyContextMenu');
+            menu.style.display = 'block';
+            menu.style.left = Math.min(e.clientX - 180, window.innerWidth - 250) + 'px';
+            menu.style.top = Math.min(e.clientY, window.innerHeight - 300) + 'px';
+        }
+
+        window.addEventListener('click', () => {
+            document.getElementById('spotifyContextMenu').style.display = 'none';
+        });
+
+        function menuAccion(accion) {
+            alert(`Acción seleccionada: ${accion}`);
+        }
+
+        function toggleLikeCurrentSong() {
+            const btn = document.getElementById('playerLikeBtn');
+            btn.innerHTML = btn.innerHTML.includes('fa-circle-plus') ? '<i class="fa-solid fa-circle-check text-[#1ed760] text-base"></i>' : '<i class="fa-solid fa-circle-plus text-base"></i>';
+        }
+
+        function playSongIndex(idx) {
+            currentTrackIndex = idx;
+            currentSongObject = database[idx];
+            audioEngine.src = currentSongObject.src;
+            audioEngine.play().then(() => {
+                isPlaying = true;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+                document.getElementById('playerTitle').innerText = currentSongObject.title;
+                document.getElementById('playerArtist').innerText = currentSongObject.artist;
+                document.getElementById('playerCover').src = currentSongObject.cover;
+                
+                document.getElementById('modalSongTitle').innerText = currentSongObject.title;
+                document.getElementById('modalSongArtist').innerText = currentSongObject.artist;
+                document.getElementById('modalSongCover').src = currentSongObject.cover;
+
+                renderKaraokeLines();
+                renderSongsTable('allSongsTableBody', currentSongsDisplayed);
+            }).catch(e => console.log("Error al reproducir audio:", e));
+        }
+
+        function togglePlay() {
+            if (!currentSongObject) { playSongIndex(0); return; }
+            if (isPlaying) {
+                audioEngine.pause();
+                isPlaying = false;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
+            } else {
+                audioEngine.play();
+                isPlaying = true;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+            }
+            renderSongsTable('allSongsTableBody', currentSongsDisplayed);
+        }
+
+        function nextSong() {
+            playSongIndex((currentTrackIndex + 1) % database.length);
+        }
+
+        function prevSong() {
+            playSongIndex((currentTrackIndex - 1 + database.length) % database.length);
+        }
+
+        let isShuffle = false;
+        function toggleShuffle() {
+            isShuffle = !isShuffle;
+            document.getElementById('shuffleBtn').style.color = isShuffle ? '#1ed760' : '#94a3b8';
+        }
+
+        let isRepeat = false;
+        function toggleRepeat() {
+            isRepeat = !isRepeat;
+            document.getElementById('repeatBtn').style.color = isRepeat ? '#1ed760' : '#94a3b8';
+        }
+
+        audioEngine.addEventListener('ended', () => {
+            if (isRepeat) {
+                audioEngine.play();
+            } else if (isShuffle) {
+                let randomIdx = Math.floor(Math.random() * database.length);
+                playSongIndex(randomIdx);
+            } else {
+                nextSong();
+            }
+        });
+
+        audioEngine.addEventListener('timeupdate', () => {
+            if (audioEngine.duration) {
+                let progress = (audioEngine.currentTime / audioEngine.duration) * 100;
+                document.getElementById('progressBar').value = progress;
+                
+                let mins = Math.floor(audioEngine.currentTime / 60);
+                let secs = Math.floor(audioEngine.currentTime % 60);
+                document.getElementById('currentTime').innerText = `${mins}:${secs < 10 ? '0':''}${secs}`;
+
+                let totMins = Math.floor(audioEngine.duration / 60);
+                let totSecs = Math.floor(audioEngine.duration % 60);
+                document.getElementById('totalDuration').innerText = `${totMins}:${totSecs < 10 ? '0':''}${totSecs}`;
+
+                if (currentSongObject && currentSongObject.computedLyrics) {
+                    let ct = audioEngine.currentTime;
+                    let activeIdx = -1;
+                    currentSongObject.computedLyrics.forEach((l, i) => { if (ct >= l.time) activeIdx = i; });
+                    currentSongObject.computedLyrics.forEach((_, idx) => {
+                        const el = document.getElementById(`lyric-line-${idx}`);
+                        if (el) {
+                            el.classList.remove('active', 'passed');
+                            if (idx === activeIdx) { el.classList.add('active'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                            else if (idx < activeIdx) { el.classList.add('passed'); }
+                        }
+                    });
+                }
+            }
+        });
+
+        function seekAudio(val) {
+            if(audioEngine.duration) {
+                audioEngine.currentTime = (val / 100) * audioEngine.duration;
+            }
+        }
 
         function buscarLetraGoogle() {
             if (!currentSongObject) return;
@@ -448,7 +944,7 @@
             } else {
                 editorPanel.classList.add('hidden');
                 viewPanel.classList.remove('hidden');
-                editLabel.innerText = "Ver";
+                editLabel.innerText = "Editar / Pegar";
                 renderKaraokeLines();
             }
         }
@@ -467,7 +963,7 @@
             if (!currentSongObject) return;
             let customLines = obtenerLetraGuardada(currentSongObject.id);
             if (!customLines) {
-                container.innerHTML = `<div class="text-slate-400 text-xs py-4">Haz clic en Google para buscar la letra y pégala aquí.</div>`;
+                container.innerHTML = `<div class="text-slate-400 text-xs py-8">Haz clic en "Buscar Letra" y pégala aquí usando el botón de editar.</div>`;
                 return;
             }
             const duracion = audioEngine.duration || 180;
@@ -478,97 +974,120 @@
             });
         }
 
-        audioEngine.addEventListener('timeupdate', () => {
-            if (audioEngine.duration && currentSongObject && currentSongObject.computedLyrics) {
-                let ct = audioEngine.currentTime;
-                let activeIdx = -1;
-                currentSongObject.computedLyrics.forEach((l, i) => { if (ct >= l.time) activeIdx = i; });
-                currentSongObject.computedLyrics.forEach((_, idx) => {
-                    const el = document.getElementById(`lyric-line-${idx}`);
-                    if (el) {
-                        el.classList.remove('active', 'passed');
-                        if (idx === activeIdx) { el.classList.add('active'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-                        else if (idx < activeIdx) { el.classList.add('passed'); }
-                    }
+        // Admin Modals & Acciones
+        function pedirPasswordAdmin() {
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminPasswordModal').style.display = 'flex';
+        }
+        function cerrarModalPassword() {
+            document.getElementById('adminPasswordModal').style.display = 'none';
+        }
+        function verificarPasswordAdmin() {
+            const pass = document.getElementById('adminPasswordInput').value.trim();
+            if (pass === "araujo1234") {
+                cerrarModalPassword();
+                document.getElementById('userModal').style.display = 'flex';
+                cargarClientesAdmin();
+            } else {
+                alert("Contraseña incorrecta.");
+            }
+        }
+        function cerrarModalUsuario() {
+            document.getElementById('userModal').style.display = 'none';
+        }
+        function cargarClientesAdmin() {
+            if(!db) return;
+            db.collection("clientes").get().then((snap) => {
+                const tbody = document.getElementById('clientesTableBody');
+                tbody.innerHTML = '';
+                snap.forEach(doc => {
+                    let d = doc.data();
+                    let estadoTexto = d.paid ? '<span class="text-emerald-600 font-bold">Activo</span>' : '<span class="text-amber-600 font-bold">Pendiente</span>';
+                    tbody.innerHTML += `
+                        <tr class="border-b">
+                            <td class="p-2 font-bold">${d.cliente || 'Sin nombre'}</td>
+                            <td class="p-2">${d.dni || '-'}</td>
+                            <td class="p-2">${estadoTexto}</td>
+                            <td class="p-2 font-mono">${d.fechaVencimiento || '-'}</td>
+                            <td class="p-2 text-center flex gap-1 justify-center">
+                                <button onclick="activarCliente('${doc.id}')" class="bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-bold">Activar</button>
+                                <button onclick="desactivarCliente('${doc.id}')" class="bg-amber-600 text-white px-2 py-1 rounded text-[10px] font-bold">Desactivar</button>
+                                <button onclick="eliminarCliente('${doc.id}')" class="bg-rose-600 text-white px-2 py-1 rounded text-[10px] font-bold">Eliminar</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+        function activarCliente(id) {
+            if(!db) return;
+            let now = new Date();
+            let venc = new Date();
+            venc.setMonth(venc.getMonth() + 1);
+            db.collection("clientes").doc(id).update({
+                paid: true,
+                fechaActivacion: now.toISOString().split('T')[0],
+                fechaVencimiento: venc.toISOString().split('T')[0]
+            }).then(() => {
+                alert("¡Membresía activada por 1 mes!");
+                cargarClientesAdmin();
+            });
+        }
+        function desactivarCliente(id) {
+            if(!db) return;
+            db.collection("clientes").doc(id).update({ paid: false }).then(() => {
+                alert("Usuario desactivado correctamente. Ya no podrá ingresar.");
+                cargarClientesAdmin();
+            });
+        }
+        function eliminarCliente(id) {
+            if(!db) return;
+            if(confirm("¿Estás seguro de eliminar este registro permanentemente?")) {
+                db.collection("clientes").doc(id).delete().then(() => {
+                    alert("Cliente eliminado.");
+                    cargarClientesAdmin();
                 });
             }
-        });
-
-        function openArtistFolder(artistName) {
-            document.getElementById('homeView').classList.add('hidden');
-            document.getElementById('artistView').classList.remove('hidden');
-            document.getElementById('artistViewTitle').innerText = artistName;
-            const songs = database.filter(s => s.artist.toLowerCase().includes(artistName.toLowerCase()));
-            currentSongsDisplayed = songs;
-            renderSongsTable('artistSongsTableBody', songs);
         }
-
-        function renderSongsTable(tableBodyId, songsList) {
-            const tbody = document.getElementById(tableBodyId);
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            songsList.forEach((song, idx) => {
-                const realIdx = database.findIndex(s => s.id === song.id);
-                const isCurrent = (currentSongObject && currentSongObject.id === song.id && isPlaying);
-                tbody.innerHTML += `
-                    <tr class="hover:bg-[#282828] cursor-pointer transition" onclick="playSongIndex(${realIdx})">
-                        <td class="py-2.5 px-2">
-                            <div class="flex items-center gap-2.5">
-                                <img src="${song.cover}" class="w-10 h-10 rounded object-cover">
-                                <div>
-                                    <div class="${isCurrent ? 'text-[#1ed760]' : 'text-white'} font-bold text-xs truncate">${song.title}</div>
-                                    <div class="text-[10px] text-slate-400 truncate">${song.artist}</div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+        function intentarIngresarCode() {
+            const inputVal = document.getElementById('clientRegDni').value.trim();
+            if(!inputVal) { alert("Ingresa tu DNI o Código."); return; }
+            if(!db) { alert("Sin conexión."); return; }
+            db.collection("clientes").where("dni", "==", inputVal).get().then((snapDni) => {
+                if (!snapDni.empty) {
+                    validarEstadoCliente(snapDni.docs[0]);
+                } else {
+                    db.collection("clientes").where("codigo", "==", inputVal).get().then((snapCode) => {
+                        if (!snapCode.empty) { validarEstadoCliente(snapCode.docs[0]); }
+                        else { alert("No se encontró ningún registro."); }
+                    });
+                }
             });
         }
-
-        function playSongIndex(idx) {
-            currentTrackIndex = idx;
-            currentSongObject = database[idx];
-            audioEngine.src = currentSongObject.src;
-            audioEngine.play().then(() => {
-                isPlaying = true;
-                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
-                document.getElementById('playerTitle').innerText = currentSongObject.title;
-                document.getElementById('playerArtist').innerText = currentSongObject.artist;
-                document.getElementById('playerCover').src = currentSongObject.cover;
-                renderKaraokeLines();
-                actualizarTablas();
-            });
-        }
-
-        function togglePlay() {
-            if (!currentSongObject) { playSongIndex(0); return; }
-            if (isPlaying) {
-                audioEngine.pause();
-                isPlaying = false;
-                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
+        function validarEstadoCliente(docSnap) {
+            let data = docSnap.data();
+            if (data.paid === true) {
+                document.getElementById('paywallModal').style.display = 'none';
+                alert(`¡Bienvenido, ${data.cliente || 'Cliente'}!`);
             } else {
-                audioEngine.play();
-                isPlaying = true;
-                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
-            }
-            actualizarTablas();
-        }
-
-        function actualizarTablas() {
-            if (!document.getElementById('homeView').classList.contains('hidden')) {
-                renderSongsTable('allSongsTableBody', currentSongsDisplayed);
+                alert("Tu cuenta está pendiente de activación o fue desactivada.");
             }
         }
-
-        function nextSong() {
-            playSongIndex((currentTrackIndex + 1) % database.length);
-        }
-
-        function showView(view) {
-            document.getElementById('homeView').classList.add('hidden');
-            document.getElementById('artistView').classList.add('hidden');
-            if (view === 'home') document.getElementById('homeView').classList.remove('hidden');
+        function enviarComprobanteWhatsApp() {
+            const nombre = document.getElementById('clientRegName').value.trim();
+            const dni = document.getElementById('clientRegDni').value.trim();
+            if (!nombre || !dni) { alert("Completa tus datos."); return; }
+            if(!db) { alert("Sin conexión a Firebase."); return; }
+            db.collection("clientes").add({
+                cliente: nombre, dni: dni, codigo: dni, paid: false,
+                fechaActivacion: "", fechaVencimiento: "", fechaRegistro: new Date().toISOString()
+            }).then(() => {
+                const mensaje = encodeURIComponent(`Hola Andreo, realicé mi pago Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}`);
+                window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
+                alert("¡Registro enviado con éxito! Ya aparece en el panel del administrador.");
+                document.getElementById('clientRegName').value = '';
+                document.getElementById('clientRegDni').value = '';
+            });
         }
     </script>
 </body>
