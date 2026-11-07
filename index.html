@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AT – Tu Música Sin Límites</title>
+    <title>AT – Tu Música</title>
     <!-- Tailwind CSS desde CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome para iconos -->
@@ -11,76 +11,75 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         :root {
-            --at-purple: #8b5cf6;
-            --at-cyan: #06b6d4;
-            --at-pink: #ec4899;
-            --at-dark: #0b0f19;
-            --at-card: #151c2c;
-            --at-hover: #1e293b;
+            --spotify-green: #1ed760;
+            --spotify-dark: #121212;
+            --spotify-card: #181818;
+            --spotify-card-hover: #282828;
+            --spotify-gray: #b3b3b3;
         }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--at-dark);
-            color: #e2e8f0;
+            background-color: var(--spotify-dark);
+            color: #ffffff;
             user-select: none;
             -webkit-user-select: none;
             overflow: hidden;
-            zoom: 0.90;
         }
         ::-webkit-scrollbar {
-            width: 5px;
-            height: 5px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #0b0f19;
+            background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-            background: #334155;
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 4px;
         }
-        .at-gradient-text {
-            background: linear-gradient(135deg, #a78bfa, #38bdf8);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
         }
-        .at-card {
-            background: rgba(21, 28, 44, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.3s ease;
+        .spotify-card {
+            background-color: #242424;
+            transition: background-color 0.3s ease;
         }
-        .at-btn-primary {
-            background: linear-gradient(135deg, #7c3aed, #0284c7);
-            transition: all 0.2s ease;
+        .spotify-card:hover {
+            background-color: #383838;
         }
-        .at-btn-primary:active {
-            transform: scale(0.95);
+        .spotify-pill {
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: background-color 0.2s ease;
+        }
+        .spotify-pill:hover, .spotify-pill.active {
+            background-color: #ffffff;
+            color: #000000;
         }
         input[type="range"] {
-            accent-color: #38bdf8;
+            accent-color: #ffffff;
+        }
+        input[type="range"]:hover {
+            accent-color: var(--spotify-green);
         }
         
         .karaoke-line {
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             padding: 8px 8px;
-            opacity: 0.35;
+            opacity: 0.4;
             font-size: 1.2rem;
             font-weight: 700;
             line-height: 1.3;
         }
         .karaoke-line.active {
-            color: #38bdf8 !important;
-            font-size: 1.8rem !important;
+            color: #ffffff !important;
+            font-size: 1.7rem !important;
             font-weight: 800 !important;
             opacity: 1 !important;
-            text-shadow: 0 0 35px rgba(56, 189, 248, 0.95);
-            transform: scale(1.02);
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
         }
         .karaoke-line.passed {
-            color: #94a3b8;
-            opacity: 0.55;
+            color: var(--spotify-gray);
+            opacity: 0.6;
             font-size: 1.05rem;
         }
 
@@ -92,7 +91,7 @@
             width: 14px;
         }
         .playing-bar {
-            background-color: #22c55e;
+            background-color: var(--spotify-green);
             width: 3px;
             border-radius: 1px;
             animation: bounce 1.2s ease-in-out infinite alternate;
@@ -106,72 +105,72 @@
         }
     </style>
 </head>
-<body class="h-screen w-full flex flex-col bg-[#0b0f19] text-xs sm:text-sm overflow-hidden">
+<body class="h-screen w-full flex flex-col bg-[#121212] text-xs sm:text-sm overflow-hidden pb-20">
     <!-- MODAL DE CONFIRMACIÓN -->
-    <div id="customConfirmModal" style="display: none;" class="fixed inset-0 bg-[#0b0f19]/90 z-[70] flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl space-y-4">
+    <div id="customConfirmModal" style="display: none;" class="fixed inset-0 bg-black/80 z-[70] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-[#181818] border border-white/10 rounded-2xl p-5 max-w-sm w-full text-center shadow-2xl space-y-4">
             <h3 id="confirmModalTitle" class="text-sm font-bold text-white uppercase tracking-wider">Confirmación</h3>
-            <p id="confirmModalText" class="text-xs text-slate-300">¿Estás seguro de realizar esta acción?</p>
+            <p id="confirmModalText" class="text-xs text-stone-300">¿Estás seguro de realizar esta acción?</p>
             <div class="flex gap-2 justify-center pt-2">
-                <button id="confirmModalCancelBtn" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Cancelar</button>
-                <button id="confirmModalOkBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Aceptar</button>
+                <button id="confirmModalCancelBtn" class="bg-stone-800 hover:bg-stone-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Cancelar</button>
+                <button id="confirmModalOkBtn" class="bg-[#1ed760] hover:bg-[#1db954] text-black font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Aceptar</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL DE CONTRASEÑA DE ADMINISTRADOR -->
-    <div id="adminPasswordModal" style="display: none;" class="fixed inset-0 bg-[#0b0f19]/95 z-[65] flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl space-y-4">
-            <div class="w-12 h-12 bg-purple-600/20 text-purple-400 rounded-full flex items-center justify-center mx-auto text-xl">
+    <div id="adminPasswordModal" style="display: none;" class="fixed inset-0 bg-black/85 z-[65] flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-[#181818] border border-white/10 rounded-2xl p-6 max-w-sm w-full text-center shadow-2xl space-y-4">
+            <div class="w-12 h-12 bg-[#1ed760]/20 text-[#1ed760] rounded-full flex items-center justify-center mx-auto text-xl">
                 <i class="fa-solid fa-lock"></i>
             </div>
             <h3 class="text-sm font-bold text-white uppercase tracking-wider">Acceso de Administrador</h3>
-            <p class="text-xs text-slate-400">Ingresa la contraseña maestra para ver los registros.</p>
-            <input type="password" id="adminPasswordInput" placeholder="Contraseña..." class="w-full bg-slate-950 text-white px-3.5 py-2.5 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none text-center tracking-widest">
+            <p class="text-xs text-stone-400">Ingresa la contraseña maestra para ver los registros.</p>
+            <input type="password" id="adminPasswordInput" placeholder="Contraseña..." class="w-full bg-black text-white px-3.5 py-2.5 rounded-xl border border-white/10 text-xs focus:border-[#1ed760] focus:outline-none text-center tracking-widest">
             <div class="flex gap-2 justify-center pt-1">
-                <button onclick="cerrarModalPassword()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Cancelar</button>
-                <button onclick="verificarPasswordAdmin()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Ingresar</button>
+                <button onclick="cerrarModalPassword()" class="bg-stone-800 hover:bg-stone-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Cancelar</button>
+                <button onclick="verificarPasswordAdmin()" class="bg-[#1ed760] hover:bg-[#1db954] text-black font-bold px-4 py-2 rounded-xl text-xs transition flex-1">Ingresar</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL DE BLOQUEO / PAGO YAPE -->
-    <div id="paywallModal" style="display: none;" class="fixed inset-0 bg-[#0b0f19]/98 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-2xl overflow-y-auto">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-8 max-w-xl w-full text-center shadow-2xl relative my-auto">
-            <button onclick="pedirPasswordAdmin()" class="absolute top-4 right-4 bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition">
-                <i class="fa-solid fa-user-shield text-cyan-400"></i> Admin
+    <div id="paywallModal" style="display: none;" class="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-3 sm:p-4 backdrop-blur-md overflow-y-auto">
+        <div class="bg-[#181818] border border-white/10 rounded-3xl p-4 sm:p-8 max-w-xl w-full text-center shadow-2xl relative my-auto">
+            <button onclick="pedirPasswordAdmin()" class="absolute top-4 right-4 bg-stone-800 hover:bg-stone-700 text-stone-300 border border-white/10 px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-user-shield text-[#1ed760]"></i> Admin
             </button>
             <h2 class="text-xl sm:text-2xl font-black text-white mb-1 pt-2">¡Membresía Requerida o Vencida!</h2>
-            <p class="text-[11px] sm:text-xs text-slate-400 mb-4">Escanea el QR para pagar con Yape (S/ 20.00 por 1 mes), regístrese y envíe sus datos por WhatsApp para su activación.</p>
+            <p class="text-[11px] sm:text-xs text-stone-400 mb-4">Escanea el QR para pagar con Yape (S/ 20.00 por 1 mes), regístrese y envíe sus datos por WhatsApp para su activación.</p>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 flex flex-col items-center justify-center space-y-2">
-                    <span class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Escanea para pagar S/ 20.00</span>
+                <div class="bg-black/60 border border-white/10 rounded-2xl p-3 flex flex-col items-center justify-center space-y-2">
+                    <span class="text-[10px] text-[#1ed760] font-bold uppercase tracking-wider">Escanea para pagar S/ 20.00</span>
                     <div class="bg-white p-2 rounded-xl w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center border shadow-md">
                         <img src="imagen/qr-yape.jpeg" alt="QR Yape" class="w-full h-full object-contain rounded-lg">
                     </div>
-                    <div class="text-[11px] text-emerald-400 font-extrabold">Monto: S/ 20.00 (1 Mes)</div>
-                    <div class="text-[10px] text-slate-300">Titular: <span class="text-white font-bold">Andreo Araujo Taboada</span></div>
-                    <div class="text-[10px] text-slate-300">Yape: <span class="text-cyan-400 font-bold">920484815</span></div>
+                    <div class="text-[11px] text-[#1ed760] font-extrabold">Monto: S/ 20.00 (1 Mes)</div>
+                    <div class="text-[10px] text-stone-300">Titular: <span class="text-white font-bold">Andreo Araujo Taboada</span></div>
+                    <div class="text-[10px] text-stone-300">Yape: <span class="text-[#1ed760] font-bold">920484815</span></div>
                 </div>
-                <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 text-left flex flex-col justify-between space-y-3">
+                <div class="bg-black/60 border border-white/10 rounded-2xl p-3 text-left flex flex-col justify-between space-y-3">
                     <div>
                         <h3 class="text-[11px] font-bold text-white mb-1.5 uppercase">Regístrese o Ingrese</h3>
                         <div class="space-y-2">
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-0.5">Nombres y Apellidos</label>
-                                <input type="text" id="clientRegName" placeholder="Ej. Juan Pérez" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none">
+                                <label class="text-[10px] text-stone-400 block mb-0.5">Nombres y Apellidos</label>
+                                <input type="text" id="clientRegName" placeholder="Ej. Juan Pérez" class="w-full bg-[#181818] text-white px-3 py-2 rounded-xl border border-white/10 text-xs focus:border-[#1ed760] focus:outline-none">
                             </div>
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-0.5">DNI / Código</label>
-                                <input type="text" id="clientRegDni" placeholder="Ej. 70259930" class="w-full bg-slate-900 text-white px-3 py-2 rounded-xl border border-slate-700 text-xs focus:border-cyan-400 focus:outline-none">
+                                <label class="text-[10px] text-stone-400 block mb-0.5">DNI / Código</label>
+                                <input type="text" id="clientRegDni" placeholder="Ej. 70259930" class="w-full bg-[#181818] text-white px-3 py-2 rounded-xl border border-white/10 text-xs focus:border-[#1ed760] focus:outline-none">
                             </div>
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
+                        <button onclick="enviarComprobanteWhatsApp()" class="w-full bg-[#25D366] hover:bg-[#22bf5b] text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
                             <i class="fa-brands fa-whatsapp text-sm"></i> Enviar Comprobante y Registrarse
                         </button>
-                        <button onclick="intentarIngresarCode()" class="w-full at-btn-primary text-white font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
+                        <button onclick="intentarIngresarCode()" class="w-full bg-[#1ed760] hover:bg-[#1db954] text-black font-bold py-2 rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
                             <i class="fa-solid fa-right-to-bracket"></i> Ingresar (Ya Activado)
                         </button>
                     </div>
@@ -181,22 +180,22 @@
     </div>
 
     <!-- PANEL PRIVADO DE ADMINISTRACIÓN -->
-    <div id="userModal" style="display: none;" class="fixed inset-0 bg-[#0b0f19]/95 z-[55] flex items-center justify-center p-2 sm:p-4 backdrop-blur-xl overflow-y-auto">
-        <div class="bg-white text-slate-900 rounded-2xl p-4 sm:p-6 w-full max-w-5xl shadow-2xl relative flex flex-col max-h-[95vh]">
-            <div class="flex justify-between items-center pb-2 mb-3 border-b">
+    <div id="userModal" style="display: none;" class="fixed inset-0 bg-black/90 z-[55] flex items-center justify-center p-2 sm:p-4 backdrop-blur-md overflow-y-auto">
+        <div class="bg-[#181818] border border-white/10 text-white rounded-2xl p-4 sm:p-6 w-full max-w-5xl shadow-2xl relative flex flex-col max-h-[95vh]">
+            <div class="flex justify-between items-center pb-2 mb-3 border-b border-white/10">
                 <div>
-                    <h2 class="text-base sm:text-lg font-black text-slate-900">Panel Privado de Administración</h2>
-                    <p class="text-[10px] sm:text-xs text-slate-500">Control de activaciones por 1 mes y fechas de vencimiento</p>
+                    <h2 class="text-base sm:text-lg font-black text-white">Panel Privado de Administración</h2>
+                    <p class="text-[10px] sm:text-xs text-stone-400">Control de activaciones por 1 mes y fechas de vencimiento</p>
                 </div>
-                <button onclick="cerrarModalUsuario()" class="text-slate-400 hover:text-slate-700 text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="cerrarModalUsuario()" class="text-stone-400 hover:text-white text-lg p-2"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="bg-purple-100 border border-purple-300 p-3 rounded-xl mb-3 flex items-center justify-between">
+            <div class="bg-[#242424] border border-white/10 p-3 rounded-xl mb-3 flex items-center justify-between">
                 <div>
-                    <div class="font-bold text-xs text-purple-900">Acceso Maestro Activo</div>
-                    <div class="text-[10px] text-purple-700">Al activar un cliente se programa automáticamente su vigencia por 1 mes.</div>
+                    <div class="font-bold text-xs text-white">Acceso Maestro Activo</div>
+                    <div class="text-[10px] text-stone-400">Al activar un cliente se programa automáticamente su vigencia por 1 mes.</div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="cargarClientesDesdeFirestore()" class="bg-purple-700 hover:bg-purple-800 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1.5">
+                    <button onclick="cargarClientesDesdeFirestore()" class="bg-stone-800 hover:bg-stone-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1.5">
                         <i class="fa-solid fa-rotate"></i> Actualizar
                     </button>
                     <button onclick="cerrarSesionAdmin()" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-2 rounded-lg text-xs shadow transition flex items-center gap-1.5">
@@ -204,10 +203,10 @@
                     </button>
                 </div>
             </div>
-            <h3 class="font-bold text-slate-800 text-xs mb-2">Clientes Registrados en la Plataforma</h3>
-            <div class="flex-1 overflow-x-auto border border-slate-200 rounded-lg max-h-[50vh]">
+            <h3 class="font-bold text-stone-300 text-xs mb-2">Clientes Registrados en la Plataforma</h3>
+            <div class="flex-1 overflow-x-auto border border-white/10 rounded-lg max-h-[50vh]">
                 <table class="w-full text-left border-collapse text-xs min-w-[700px]">
-                    <thead class="sticky top-0 bg-slate-800 text-white z-10">
+                    <thead class="sticky top-0 bg-[#121212] text-stone-300 z-10">
                         <tr>
                             <th class="p-2.5">Cliente</th>
                             <th class="p-2.5">DNI</th>
@@ -218,215 +217,207 @@
                             <th class="p-2.5 text-center">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="clientesTableBody" class="divide-y divide-slate-200"></tbody>
+                    <tbody id="clientesTableBody" class="divide-y divide-white/5"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- BARRA SUPERIOR -->
-    <header class="h-14 sm:h-16 bg-[#0f172a]/95 border-b border-slate-800 flex items-center justify-between px-3 sm:px-6 z-20 gap-2 flex-shrink-0">
-        <div class="flex items-center gap-2 sm:gap-3">
-            <div onclick="showView('home')" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-400 flex items-center justify-center text-white font-extrabold text-base sm:text-xl shadow-lg cursor-pointer">
+    <!-- BARRA SUPERIOR (ESTILO SPOTIFY) -->
+    <header class="h-14 bg-[#121212] flex items-center justify-between px-3 sm:px-6 z-20 gap-3 flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <div onclick="showView('home')" class="w-8 h-8 rounded-full bg-[#1ed760] text-black flex items-center justify-center font-black text-sm shadow cursor-pointer">
                 AT
             </div>
-            <span class="at-gradient-text font-black text-lg sm:text-xl tracking-wider cursor-pointer hidden xs:inline" onclick="showView('home')">MUSIC</span>
-            <button onclick="showView('home')" class="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center text-sm shadow">
+            <button onclick="showView('home')" class="w-9 h-9 rounded-full bg-[#242424] hover:bg-[#383838] text-white flex items-center justify-center text-sm transition">
                 <i class="fa-solid fa-house"></i>
             </button>
         </div>
 
-        <div class="flex-1 max-w-xs sm:max-w-md relative mx-auto">
+        <div class="flex-1 max-w-md relative">
             <div class="relative flex items-center">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 text-cyan-400 text-xs"></i>
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-stone-400 text-xs"></i>
                 <input type="text" id="searchInput" oninput="handleSearchInput(this.value)" onfocus="showSearchDropdown()"
-                    placeholder="Buscar canción..." 
-                    class="w-full bg-slate-900 text-slate-100 pl-9 pr-6 py-2 rounded-xl border border-slate-700 text-xs focus:outline-none focus:border-cyan-400">
-                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2 text-slate-400 text-xs"><i class="fa-solid fa-xmark"></i></button>
+                    placeholder="¿Qué quieres reproducir?" 
+                    class="w-full bg-[#242424] hover:bg-[#2a2a2a] focus:bg-[#181818] text-white pl-10 pr-8 py-2 rounded-full border border-transparent focus:border-white/20 text-xs focus:outline-none transition">
+                <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 text-stone-400 text-xs"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div id="searchDropdown" class="hidden absolute top-11 left-0 w-full bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-2 z-50 max-h-60 overflow-y-auto">
+            <div id="searchDropdown" class="hidden absolute top-12 left-0 w-full bg-[#282828] border border-white/10 rounded-2xl shadow-2xl p-2 z-50 max-h-60 overflow-y-auto">
                 <div id="dropdownResults" class="space-y-1"></div>
             </div>
         </div>
         
         <div class="flex items-center gap-2 flex-shrink-0">
             <div id="adminNavBtn" style="display: none;" class="items-center">
-                <div onclick="pedirPasswordAdmin()" class="bg-slate-800 border border-slate-700 p-2 sm:px-3.5 sm:py-2 rounded-xl cursor-pointer flex items-center gap-2 shadow">
-                    <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-white text-xs">
-                        <i class="fa-solid fa-user-shield"></i>
-                    </div>
-                    <span id="navUserName" class="text-white font-bold text-xs hidden md:inline truncate max-w-[120px]">Administrador</span>
+                <div onclick="pedirPasswordAdmin()" class="bg-[#242424] hover:bg-[#383838] px-3 py-1.5 rounded-full cursor-pointer flex items-center gap-2 transition">
+                    <i class="fa-solid fa-user-shield text-[#1ed760] text-xs"></i>
+                    <span id="navUserName" class="text-white font-bold text-xs hidden md:inline">Admin</span>
                 </div>
             </div>
-            <button onclick="cerrarSesionGeneral()" class="bg-rose-600/80 hover:bg-rose-600 text-white px-3 py-2 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5" title="Cerrar Sesión">
+            <button onclick="cerrarSesionGeneral()" class="bg-stone-800 hover:bg-stone-700 text-white px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5" title="Cerrar Sesión">
                 <i class="fa-solid fa-power-off"></i> <span class="hidden sm:inline">Salir</span>
             </button>
         </div>
     </header>
 
     <!-- CONTENEDOR PRINCIPAL -->
-    <div class="flex-1 flex w-full p-2 sm:p-3 gap-2 sm:gap-3 relative overflow-hidden">
-        <aside id="sidebarLibrary" class="hidden lg:flex w-60 bg-[#0f172a]/80 border border-slate-800 rounded-2xl flex-col overflow-hidden flex-shrink-0">
-            <div class="p-3 border-b border-slate-800 font-bold text-slate-200 flex items-center gap-2">
-                <i class="fa-solid fa-book-open text-purple-400"></i> Biblioteca
+    <div class="flex-1 flex w-full p-2 gap-2 relative overflow-hidden">
+        <!-- BARRA LATERAL (BIBLIOTECA) -->
+        <aside id="sidebarLibrary" class="hidden lg:flex w-64 bg-[#121212] rounded-xl flex-col overflow-hidden flex-shrink-0 p-2 space-y-2">
+            <div class="bg-[#242424] rounded-xl p-3 flex flex-col gap-2">
+                <div class="flex items-center gap-2 font-bold text-stone-300 text-xs">
+                    <i class="fa-solid fa-book text-stone-400"></i> Tu Biblioteca
+                </div>
+                <div class="flex gap-1 pt-1">
+                    <button onclick="renderLibrary('playlists')" class="spotify-pill px-3 py-1 rounded-full text-[11px] font-semibold active">Playlists</button>
+                    <button onclick="renderLibrary('artists')" class="spotify-pill px-3 py-1 rounded-full text-[11px] font-semibold">Artistas</button>
+                </div>
             </div>
-            <div class="p-2 flex gap-1">
-                <button onclick="renderLibrary('playlists')" class="flex-1 bg-purple-600/20 text-purple-300 py-1.5 rounded-lg text-xs font-semibold">Playlists</button>
-                <button onclick="renderLibrary('artists')" class="flex-1 bg-slate-800 text-slate-300 py-1.5 rounded-lg text-xs font-semibold">Artistas</button>
+            <div class="flex-1 overflow-y-auto space-y-1 pr-1" id="libraryList">
+                <div class="spotify-card p-2.5 rounded-xl cursor-pointer flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white font-bold"><i class="fa-solid fa-music"></i></div>
+                    <div>
+                        <div class="text-white font-bold text-xs">Tus Me Gusta</div>
+                        <div class="text-[10px] text-stone-400">Playlist • 11 canciones</div>
+                    </div>
+                </div>
             </div>
-            <div class="flex-1 overflow-y-auto p-2 space-y-1" id="libraryList"></div>
         </aside>
 
-        <main class="flex-1 bg-[#0f172a]/60 border border-slate-800 rounded-2xl overflow-y-auto relative flex flex-col transition-all duration-300" id="mainContentArea">
-            <div id="homeView" class="p-3 sm:p-6 space-y-4">
-                <div>
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">Artistas</h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                        <div onclick="openArtistFolder('Paulo Londra')" class="at-card p-3 rounded-xl flex items-center gap-2.5 cursor-pointer hover:border-cyan-500 shadow">
-                            <img src="https://picsum.photos/100/100?random=201" class="w-9 h-9 rounded-full object-cover">
-                            <div class="overflow-hidden"><h3 class="text-white font-bold text-xs truncate">Paulo Londra</h3></div>
-                        </div>
-                        <div onclick="openArtistFolder('Ozuna')" class="at-card p-3 rounded-xl flex items-center gap-2.5 cursor-pointer hover:border-cyan-500 shadow">
-                            <img src="https://picsum.photos/100/100?random=202" class="w-9 h-9 rounded-full object-cover">
-                            <div class="overflow-hidden"><h3 class="text-white font-bold text-xs truncate">Ozuna</h3></div>
-                        </div>
-                        <div onclick="openArtistFolder('Bad Bunny')" class="at-card p-3 rounded-xl flex items-center gap-2.5 cursor-pointer hover:border-cyan-500 shadow">
-                            <img src="https://picsum.photos/100/100?random=203" class="w-9 h-9 rounded-full object-cover">
-                            <div class="overflow-hidden"><h3 class="text-white font-bold text-xs truncate">Bad Bunny</h3></div>
-                        </div>
-                        <div onclick="openArtistFolder('Grupo Frontera')" class="at-card p-3 rounded-xl flex items-center gap-2.5 cursor-pointer hover:border-cyan-500 shadow">
-                            <img src="https://picsum.photos/100/100?random=204" class="w-9 h-9 rounded-full object-cover">
-                            <div class="overflow-hidden"><h3 class="text-white font-bold text-xs truncate">Grupo Frontera</h3></div>
-                        </div>
+        <!-- CONTENIDO CENTRAL -->
+        <main class="flex-1 bg-[#121212] lg:bg-[#121212] rounded-xl overflow-y-auto relative flex flex-col p-3 sm:p-4 space-y-4" id="mainContentArea">
+            <!-- FILTROS SUPERIORES (PILLS) -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 flex-shrink-0 no-scrollbar">
+                <button class="spotify-pill px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap active">Todo</button>
+                <button class="spotify-pill px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">Música</button>
+                <button class="spotify-pill px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">Podcasts</button>
+                <button class="spotify-pill px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">Paulo Londra</button>
+                <button class="spotify-pill px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap">Bad Bunny</button>
+            </div>
+
+            <!-- TARJETAS DE ACCESO RÁPIDO (GRID 2x4) -->
+            <div id="homeView" class="space-y-4">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div onclick="openArtistFolder('Paulo Londra')" class="spotify-card rounded-md overflow-hidden flex items-center gap-3 cursor-pointer group">
+                        <img src="https://picsum.photos/100/100?random=201" class="w-12 h-12 object-cover">
+                        <span class="text-white font-bold text-xs truncate pr-2">Paulo Londra</span>
+                    </div>
+                    <div onclick="openArtistFolder('Ozuna')" class="spotify-card rounded-md overflow-hidden flex items-center gap-3 cursor-pointer group">
+                        <img src="https://picsum.photos/100/100?random=202" class="w-12 h-12 object-cover">
+                        <span class="text-white font-bold text-xs truncate pr-2">Ozuna</span>
+                    </div>
+                    <div onclick="openArtistFolder('Bad Bunny')" class="spotify-card rounded-md overflow-hidden flex items-center gap-3 cursor-pointer group">
+                        <img src="https://picsum.photos/100/100?random=203" class="w-12 h-12 object-cover">
+                        <span class="text-white font-bold text-xs truncate pr-2">Bad Bunny</span>
+                    </div>
+                    <div onclick="openArtistFolder('Grupo Frontera')" class="spotify-card rounded-md overflow-hidden flex items-center gap-3 cursor-pointer group">
+                        <img src="https://picsum.photos/100/100?random=204" class="w-12 h-12 object-cover">
+                        <span class="text-white font-bold text-xs truncate pr-2">Grupo Frontera</span>
                     </div>
                 </div>
-                <div>
-                    <h2 id="catalogTitle" class="text-sm sm:text-lg font-bold text-white mb-3">Catálogo</h2>
-                    <div class="bg-slate-900/80 rounded-xl border border-slate-800 p-2.5 overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[280px]">
-                            <thead>
-                                <tr class="text-slate-400 border-b border-slate-800 text-[11px]">
-                                    <th class="pb-2.5 pl-2 w-8">#</th>
-                                    <th class="pb-2.5">Título</th>
-                                    <th class="pb-2.5 text-center w-20">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="allSongsTableBody" class="divide-y divide-slate-800/40 text-xs"></tbody>
-                        </table>
-                    </div>
+
+                <!-- CATÁLOGO DE CANCIONES -->
+                <div class="pt-2">
+                    <h2 id="catalogTitle" class="text-sm sm:text-base font-bold text-white mb-3">Sigue reproduciendo</h2>
+                    <div class="space-y-1" id="allSongsTableBody"></div>
                 </div>
             </div>
 
-            <div id="artistView" class="hidden p-3 sm:p-6 space-y-4">
+            <div id="artistView" class="hidden space-y-4">
                 <div class="flex items-center justify-between">
-                    <button onclick="showView('home')" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3.5 py-2 rounded-xl flex items-center gap-2 shadow">
-                        <i class="fa-solid fa-arrow-left"></i> Volver al Catálogo
+                    <button onclick="showView('home')" class="text-xs bg-[#242424] hover:bg-[#383838] text-white px-3.5 py-1.5 rounded-full flex items-center gap-2 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Volver
                     </button>
                 </div>
                 <div>
                     <h2 id="artistViewTitle" class="text-base sm:text-xl font-extrabold text-white mb-3">Artista</h2>
-                    <div class="bg-slate-900/80 rounded-xl border border-slate-800 p-2.5 overflow-x-auto">
-                        <table class="w-full text-left border-collapse min-w-[280px]">
-                            <thead>
-                                <tr class="text-slate-400 border-b border-slate-800 text-[11px]">
-                                    <th class="pb-2.5 pl-2 w-8">#</th>
-                                    <th class="pb-2.5">Título</th>
-                                    <th class="pb-2.5 text-center w-20">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="artistSongsTableBody" class="divide-y divide-slate-800/40 text-xs"></tbody>
-                        </table>
-                    </div>
+                    <div class="space-y-1" id="artistSongsTableBody"></div>
                 </div>
             </div>
         </main>
 
-        <!-- COLUMNA DERECHA: PANEL LATERAL "LETRA EN VIVO" -->
-        <aside id="lyricsPanelContainer" class="flex w-80 bg-slate-900/95 border border-slate-800 rounded-2xl flex-col p-4 flex-shrink-0 shadow-2xl overflow-hidden transition-all duration-300">
-            <div class="flex items-center justify-between pb-3.5 border-b border-slate-800 mb-3 flex-shrink-0">
-                <div class="flex items-center gap-2 text-cyan-400 font-extrabold text-xs tracking-wider">
+        <!-- PANEL LATERAL "LETRA EN VIVO" -->
+        <aside id="lyricsPanelContainer" class="flex w-80 bg-[#181818] border border-white/5 rounded-2xl flex-col p-4 flex-shrink-0 shadow-2xl overflow-hidden transition-all duration-300">
+            <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-3 flex-shrink-0">
+                <div class="flex items-center gap-2 text-[#1ed760] font-bold text-xs">
                     <i class="fa-solid fa-microphone text-sm"></i>
                     <span class="text-white uppercase text-xs">LETRA EN VIVO</span>
                 </div>
                 
-                <div class="flex items-center gap-2">
-                    <button onclick="buscarLetraGoogle()" class="bg-purple-600 hover:bg-purple-500 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow" title="Buscar letra en Google">
-                        <i class="fa-brands fa-google text-xs"></i> Google
+                <div class="flex items-center gap-1.5">
+                    <button onclick="buscarLetraGoogle()" class="bg-[#242424] hover:bg-[#383838] text-white px-2.5 py-1 rounded-md text-[11px] font-bold transition flex items-center gap-1" title="Buscar letra en Google">
+                        <i class="fa-brands fa-google text-[10px]"></i> Google
                     </button>
-                    <button onclick="toggleEditMode()" id="editModeBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow">
-                        <i class="fa-solid fa-pen text-xs"></i> <span id="editTextLabel">Ver</span>
+                    <button onclick="toggleEditMode()" id="editModeBtn" class="bg-[#242424] hover:bg-[#383838] text-white px-2.5 py-1 rounded-md text-[11px] font-bold transition">
+                        Ver
                     </button>
-                    
-                    <button onclick="toggleFullScreenLyrics()" id="expandFullScreenBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 w-8 h-8 rounded-lg flex items-center justify-center text-xs transition shadow" title="Pantalla Completa">
-                        <i class="fa-solid fa-expand text-xs"></i>
+                    <button onclick="toggleFullScreenLyrics()" id="expandFullScreenBtn" class="bg-[#242424] hover:bg-[#383838] text-stone-300 w-7 h-7 rounded-md flex items-center justify-center text-xs transition" title="Pantalla Completa">
+                        <i class="fa-solid fa-expand text-[10px]"></i>
                     </button>
-                    <button onclick="toggleHalfScreenLyrics()" id="expandHalfScreenBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 w-8 h-8 rounded-lg flex items-center justify-center text-xs transition shadow hidden" title="Media Plataforma">
-                        <i class="fa-solid fa-compress text-xs"></i>
-                    </button>
-                    <button onclick="closeFullScreenLyrics()" id="closeFullScreenBtn" class="bg-rose-600/80 hover:bg-rose-600 text-white w-8 h-8 rounded-lg flex items-center justify-center text-xs transition shadow hidden" title="Salir / Minimizar">
+                    <button onclick="closeFullScreenLyrics()" id="closeFullScreenBtn" class="bg-rose-600/80 hover:bg-rose-600 text-white w-7 h-7 rounded-md flex items-center justify-center text-xs transition hidden">
                         <i class="fa-solid fa-xmark text-sm font-black"></i>
                     </button>
                 </div>
             </div>
 
-            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 mb-3 flex items-center gap-3 flex-shrink-0 shadow">
-                <img id="sidebarSongCover" src="https://picsum.photos/300/300?random=1" class="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-slate-700 shadow">
+            <div class="bg-[#242424] rounded-xl p-2.5 mb-2 flex items-center gap-3 flex-shrink-0">
+                <img id="sidebarSongCover" src="https://picsum.photos/300/300?random=1" class="w-10 h-10 rounded-md object-cover flex-shrink-0">
                 <div class="overflow-hidden">
-                    <h3 id="sidebarSongTitle" class="text-white font-extrabold text-xs truncate">Selecciona canción</h3>
-                    <p id="sidebarSongArtist" class="text-slate-400 text-[10px] truncate">AT Music</p>
+                    <h3 id="sidebarSongTitle" class="text-white font-bold text-xs truncate">Selecciona canción</h3>
+                    <p id="sidebarSongArtist" class="text-stone-400 text-[10px] truncate">AT Music</p>
                 </div>
             </div>
 
-            <div id="lyricsViewPanel" class="flex-1 overflow-y-auto relative py-2 px-3 text-center select-none flex flex-col justify-start">
+            <div id="lyricsViewPanel" class="flex-1 overflow-y-auto relative py-2 px-2 text-center select-none flex flex-col justify-start">
                 <div id="karaokeContainer" class="space-y-3 px-1 pt-1">
-                    <div class="text-slate-500 text-xs py-4">Reproduce una canción para ver la letra sincronizada aquí.</div>
+                    <div class="text-stone-500 text-xs py-4">Reproduce una canción para ver la letra sincronizada aquí.</div>
                 </div>
             </div>
 
             <div id="lyricsEditorPanel" class="hidden flex-1 flex flex-col space-y-2 text-left">
-                <p class="text-[11px] text-slate-300">Pega aquí la letra copiada de Google o escríbela a mano:</p>
-                <textarea id="manualLyricsInput" class="w-full flex-1 bg-slate-950 text-slate-100 p-3.5 rounded-xl border border-cyan-500/50 text-xs focus:outline-none focus:border-cyan-400 font-mono leading-relaxed resize-none shadow-inner" placeholder="Pega la letra aquí..."></textarea>
+                <p class="text-[11px] text-stone-300">Pega aquí la letra copiada de Google:</p>
+                <textarea id="manualLyricsInput" class="w-full flex-1 bg-black text-stone-100 p-3 rounded-xl border border-white/10 text-xs focus:outline-none focus:border-[#1ed760] font-mono leading-relaxed resize-none shadow-inner" placeholder="Pega la letra aquí..."></textarea>
                 <div class="flex gap-2 pt-1">
-                    <button onclick="toggleEditMode()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex-1 shadow">Cancelar</button>
-                    <button onclick="guardarLetraManual()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl flex-1 shadow">Guardar</button>
+                    <button onclick="toggleEditMode()" class="bg-[#242424] hover:bg-[#383838] text-white text-xs font-bold px-3 py-2 rounded-xl flex-1">Cancelar</button>
+                    <button onclick="guardarLetraManual()" class="bg-[#1ed760] hover:bg-[#1db954] text-black text-xs font-bold px-3 py-2 rounded-xl flex-1">Guardar</button>
                 </div>
             </div>
             
-            <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 text-center flex-shrink-0">
-                AT Music • Sincronización Automática al Ritmo
+            <div class="pt-2 border-t border-white/5 text-[9px] text-stone-500 text-center flex-shrink-0">
+                AT Music • Sincronización Automática
             </div>
         </aside>
     </div>
 
-    <!-- REPRODUCTOR INFERIOR FIJO -->
-    <footer class="fixed bottom-0 left-0 w-full h-16 sm:h-20 bg-[#0f172a] border-t border-slate-800 px-2 sm:px-6 flex items-center justify-between z-40 gap-2 shadow-2xl flex-shrink-0">
-        <div class="flex items-center gap-2 w-1/3 sm:w-1/4 overflow-hidden">
-            <img id="playerCover" src="https://picsum.photos/100/100?random=11" class="w-9 h-9 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0 border border-slate-700 shadow">
+    <!-- REPRODUCTOR INFERIOR FLOTANTE (ESTILO SPOTIFY) -->
+    <footer class="fixed bottom-0 left-0 w-full h-20 bg-black border-t border-white/10 px-3 sm:px-4 flex items-center justify-between z-40 gap-3 shadow-2xl flex-shrink-0">
+        <div class="flex items-center gap-3 w-1/3 sm:w-1v4 overflow-hidden">
+            <img id="playerCover" src="https://picsum.photos/100/100?random=11" class="w-12 h-12 rounded-md object-cover flex-shrink-0 shadow">
             <div class="overflow-hidden">
-                <div id="playerTitle" class="text-white font-semibold text-[11px] sm:text-xs truncate">Música</div>
-                <div id="playerArtist" class="text-slate-400 text-[9px] sm:text-[11px] truncate">AT Music</div>
+                <div id="playerTitle" class="text-white font-semibold text-xs truncate">Música</div>
+                <div id="playerArtist" class="text-stone-400 text-[11px] truncate">AT Music</div>
             </div>
         </div>
 
-        <div class="flex flex-col items-center gap-1 w-1/3 sm:w-2/4 max-w-md">
-            <div class="flex items-center gap-3.5 text-slate-200 text-sm sm:text-base">
-                <button onclick="prevSong()" class="hover:text-cyan-400 transition p-1"><i class="fa-solid fa-backward-step"></i></button>
-                <button onclick="togglePlay()" id="playPauseBtn" class="at-btn-primary w-9 h-9 sm:w-10 sm:h-10 rounded-full text-white flex items-center justify-center text-xs shadow-md"><i class="fa-solid fa-play"></i></button>
-                <button onclick="nextSong()" class="hover:text-cyan-400 transition p-1"><i class="fa-solid fa-forward-step"></i></button>
+        <div class="flex flex-col items-center gap-1.5 w-1/3 sm:w-2/4 max-w-md">
+            <div class="flex items-center gap-4 text-stone-300 text-sm sm:text-base">
+                <button onclick="prevSong()" class="hover:text-white transition p-1"><i class="fa-solid fa-backward-step"></i></button>
+                <button onclick="togglePlay()" id="playPauseBtn" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white hover:scale-105 text-black flex items-center justify-center text-xs shadow-md transition"><i class="fa-solid fa-play"></i></button>
+                <button onclick="nextSong()" class="hover:text-white transition p-1"><i class="fa-solid fa-forward-step"></i></button>
             </div>
-            <div class="w-full flex items-center gap-2 text-[10px] text-slate-300 font-medium">
+            <div class="w-full flex items-center gap-2 text-[10px] text-stone-400 font-medium">
                 <span id="currentTime">0:00</span>
-                <input type="range" id="progressBar" value="0" min="0" max="100" class="w-full cursor-pointer h-1.5" oninput="seekAudio(this.value)">
+                <input type="range" id="progressBar" value="0" min="0" max="100" class="w-full cursor-pointer h-1 rounded-lg bg-stone-700">
                 <span id="totalDuration">0:00</span>
             </div>
         </div>
 
         <div class="flex items-center justify-end gap-3 w-1/4">
-            <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800 px-2.5 py-1.5 rounded-xl shadow">
-                <button onclick="toggleMute()" id="muteBtn" class="text-slate-300 hover:text-white text-xs">
+            <div class="flex items-center gap-2 px-2 py-1 rounded-lg">
+                <button onclick="toggleMute()" id="muteBtn" class="text-stone-400 hover:text-white text-xs">
                     <i class="fa-solid fa-volume-high"></i>
                 </button>
-                <input type="range" id="volumeBar" value="100" min="0" max="100" class="w-16 sm:w-20 cursor-pointer h-1.5" oninput="changeVolume(this.value)">
+                <input type="range" id="volumeBar" value="100" min="0" max="100" class="w-16 sm:w-20 cursor-pointer h-1 rounded-lg bg-stone-700" oninput="changeVolume(this.value)">
             </div>
         </div>
     </footer>
@@ -454,7 +445,7 @@
             console.log("Modo offline o sin conexión a Firebase.");
         }
 
-         const database = [
+        const database = [
             // PAULO LONDRA (50 CANCIONES)
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
             { id: 2, title: "Adán y Eva", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=2", src: "canciones/adan-y-eva.mp3" },
@@ -652,24 +643,19 @@
         const audioEngine = document.getElementById('audioEngine');
         audioEngine.volume = 1.0;
 
-        // --- VERIFICACIÓN DE SUSCRIPCIÓN (COMPATIBLE OFFLINE) ---
         function checkSubscription() {
             let activeUser = JSON.parse(localStorage.getItem('at_active_session') || 'null');
-            
-            // Si no hay internet, permitimos usar la plataforma localmente para no bloquear al usuario
             if (!navigator.onLine) {
                 document.getElementById('paywallModal').style.display = 'none';
                 return;
             }
-
             if (activeUser && activeUser.id === "admin_master_session") {
                 document.getElementById('paywallModal').style.display = 'none';
                 let adminBtn = document.getElementById('adminNavBtn');
                 adminBtn.style.display = 'flex';
-                document.getElementById('navUserName').innerText = "Administrador";
+                document.getElementById('navUserName').innerText = "Admin";
                 return;
             }
-
             if (activeUser && activeUser.firestoreId && db) {
                 db.collection("clientes").doc(activeUser.firestoreId).get().then((doc) => {
                     if (!doc.exists) {
@@ -680,7 +666,6 @@
                     }
                     let data = doc.data();
                     let hoy = new Date().toISOString().split('T')[0];
-
                     if (!data.paid || (data.fechaVencimiento && data.fechaVencimiento < hoy)) {
                         if (data.paid) {
                             db.collection("clientes").doc(activeUser.firestoreId).update({ paid: false });
@@ -696,7 +681,6 @@
                     document.getElementById('paywallModal').style.display = 'none';
                 });
             } else {
-                // Si no hay sesión previa y hay internet, mostramos el paywall
                 if (navigator.onLine) {
                     document.getElementById('paywallModal').style.display = 'flex';
                     document.getElementById('adminNavBtn').style.display = 'none';
@@ -704,7 +688,6 @@
             }
         }
 
-        // --- CONTRASEÑA DE ADMINISTRADOR ---
         function pedirPasswordAdmin() {
             document.getElementById('adminPasswordInput').value = '';
             document.getElementById('adminPasswordModal').style.display = 'flex';
@@ -723,7 +706,7 @@
                 checkSubscription();
                 abrirModalUsuario();
             } else {
-                alert("Contraseña incorrecta. Solo el administrador puede ingresar.");
+                alert("Contraseña incorrecta.");
             }
         }
 
@@ -738,7 +721,6 @@
             checkSubscription();
         }
 
-        // --- INGRESO DE CLIENTES CON DNI / CÓDIGO ---
         function intentarIngresarCode() {
             const inputVal = document.getElementById('clientRegDni').value.trim();
             if(!inputVal) {
@@ -746,7 +728,7 @@
                 return;
             }
             if(!db) {
-                alert("No hay conexión con la base de datos.");
+                alert("Sin conexión.");
                 return;
             }
             db.collection("clientes").where("dni", "==", inputVal).get().then((querySnapshot) => {
@@ -757,13 +739,10 @@
                         if(!snapCode.empty) {
                             verificarYPermitirIngreso(snapCode.docs[0]);
                         } else {
-                            alert("No se encontró ningún registro con ese DNI o Código.");
+                            alert("No se encontró ningún registro.");
                         }
                     });
                 }
-            }).catch(err => {
-                console.error("Error al ingresar:", err);
-                alert("Error de conexión con Firebase.");
             });
         }
 
@@ -771,72 +750,47 @@
             let docId = docSnap.id;
             let docData = docSnap.data();
             let hoy = new Date().toISOString().split('T')[0];
-
             if (docData.paid && (!docData.fechaVencimiento || docData.fechaVencimiento >= hoy)) {
                 localStorage.setItem('at_active_session', JSON.stringify({ firestoreId: docId, ...docData }));
                 document.getElementById('paywallModal').style.display = 'none';
                 checkSubscription();
-            } else if (docData.fechaVencimiento && docData.fechaVencimiento < hoy) {
-                db.collection("clientes").doc(docId).update({ paid: false });
-                alert("Tu membresía venció hoy. Por favor renueva tu suscripción.");
             } else {
-                alert("Tu cuenta está registrada pero pendiente de activación por el administrador.");
+                alert("Membresía pendiente o vencida.");
             }
-        }
-
-        function generarCodigoAleatorio() {
-            return Math.floor(10000 + Math.random() * 90000).toString();
         }
 
         function enviarComprobanteWhatsApp() {
             const nombre = document.getElementById('clientRegName').value.trim();
             const dni = document.getElementById('clientRegDni').value.trim();
             if (!nombre || !dni) {
-                alert("Por favor completa tu nombre y DNI.");
+                alert("Completa tu nombre y DNI.");
                 return;
             }
-            if(!db) {
-                alert("Sin conexión para registrar en la nube.");
-                return;
+            const codigoUnico = Math.floor(10000 + Math.random() * 90000).toString();
+            if(db) {
+                db.collection("clientes").add({
+                    cliente: nombre,
+                    dni: dni,
+                    codigo: codigoUnico,
+                    paid: false,
+                    fechaActivacion: "",
+                    fechaVencimiento: "",
+                    fechaRegistro: new Date().toISOString()
+                });
             }
-            const codigoUnico = generarCodigoAleatorio();
-            db.collection("clientes").add({
-                cliente: nombre,
-                dni: dni,
-                codigo: codigoUnico,
-                paid: false,
-                fechaActivacion: "",
-                fechaVencimiento: "",
-                fechaRegistro: new Date().toISOString()
-            }).then(() => {
-                const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00 para AT Music.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Mi código de seguridad: ${codigoUnico}`);
-                window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
-                alert("¡Registro enviado! Ya aparece en la plataforma del administrador.");
-                cargarClientesDesdeFirestore();
-            }).catch(err => {
-                console.error(err);
-                alert("Error al guardar en Firebase.");
-            });
+            const mensaje = encodeURIComponent(`Hola Andreo, realicé mi Yape de S/ 20.00.\n- Nombre: ${nombre}\n- DNI: ${dni}\n- Código: ${codigoUnico}`);
+            window.open(`https://wa.me/51920484815?text=${mensaje}`, '_blank');
+            alert("¡Registro enviado!");
         }
 
-        // --- CARGA DE CLIENTES ---
         function cargarClientesDesdeFirestore() {
             if(!db) return;
             db.collection("clientes").get().then((querySnapshot) => {
                 listaClientes = [];
-                let hoy = new Date().toISOString().split('T')[0];
-
                 querySnapshot.forEach((doc) => {
-                    let data = doc.data();
-                    if(data && data.paid && data.fechaVencimiento && data.fechaVencimiento < hoy) {
-                        db.collection("clientes").doc(doc.id).update({ paid: false });
-                        data.paid = false;
-                    }
-                    listaClientes.push({ id: doc.id, ...data });
+                    listaClientes.push({ id: doc.id, ...doc.data() });
                 });
                 renderClientesTable();
-            }).catch((error) => {
-                console.error("Error al obtener clientes: ", error);
             });
         }
 
@@ -844,37 +798,19 @@
             const tbody = document.getElementById('clientesTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
-            let hoy = new Date().toISOString().split('T')[0];
-
-            if (listaClientes.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">No hay clientes registrados todavía.</td></tr>`;
-                return;
-            }
-
             listaClientes.forEach((c) => {
-                let esVencidoHoy = (c.fechaVencimiento === hoy);
-                let estadoBadge = '';
-
-                if (c.paid && !esVencidoHoy) {
-                    estadoBadge = '<span class="text-emerald-600 font-bold bg-emerald-100 px-2 py-0.5 rounded">Activo</span>';
-                } else if (esVencidoHoy) {
-                    estadoBadge = '<span class="text-rose-600 font-extrabold bg-rose-100 px-2 py-0.5 rounded animate-pulse">¡Venció hoy!</span>';
-                } else {
-                    estadoBadge = '<span class="text-amber-600 font-bold bg-amber-100 px-2 py-0.5 rounded">Pendiente / Bloqueado</span>';
-                }
-
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 border-b">
-                        <td class="p-2.5 font-semibold text-slate-800">${c.cliente || 'Sin nombre'}</td>
-                        <td class="p-2.5 text-slate-600">${c.dni || '-'}</td>
-                        <td class="p-2.5 font-mono text-cyan-600 font-bold">${c.codigo || '-'}</td>
-                        <td class="p-2.5 text-[11px]">${estadoBadge}</td>
-                        <td class="p-2.5 text-slate-600 font-mono">${c.fechaActivacion || '-'}</td>
-                        <td class="p-2.5 text-slate-600 font-mono">${c.fechaVencimiento || '-'}</td>
+                    <tr class="hover:bg-white/5 border-b border-white/5">
+                        <td class="p-2.5 font-semibold text-white">${c.cliente || 'Sin nombre'}</td>
+                        <td class="p-2.5 text-stone-300">${c.dni || '-'}</td>
+                        <td class="p-2.5 font-mono text-[#1ed760] font-bold">${c.codigo || '-'}</td>
+                        <td class="p-2.5 text-[11px]">${c.paid ? '<span class="text-black font-bold bg-[#1ed760] px-2 py-0.5 rounded">Activo</span>' : '<span class="text-amber-400 font-bold bg-amber-400/20 px-2 py-0.5 rounded">Pendiente</span>'}</td>
+                        <td class="p-2.5 text-stone-300 font-mono">${c.fechaActivacion || '-'}</td>
+                        <td class="p-2.5 text-stone-300 font-mono">${c.fechaVencimiento || '-'}</td>
                         <td class="p-2.5 text-center flex gap-1.5 justify-center">
-                            <button onclick="activarMembresiaFirestore('${c.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded text-[10px] font-bold shadow">Activar (1 Mes)</button>
-                            <button onclick="desactivarMembresiaFirestore('${c.id}')" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1.5 rounded text-[10px] font-bold shadow">Bloquear</button>
-                            <button onclick="eliminarClienteFirestore('${c.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1.5 rounded text-[10px] shadow"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="activarMembresiaFirestore('${c.id}')" class="bg-[#1ed760] hover:bg-[#1db954] text-black px-2.5 py-1 rounded text-[10px] font-bold">Activar</button>
+                            <button onclick="desactivarMembresiaFirestore('${c.id}')" class="bg-amber-600 text-white px-2.5 py-1 rounded text-[10px]">Bloquear</button>
+                            <button onclick="eliminarClienteFirestore('${c.id}')" class="bg-rose-600 text-white px-2.5 py-1 rounded text-[10px]"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -883,41 +819,21 @@
 
         function activarMembresiaFirestore(id) {
             if(!db) return;
-            let fechaActual = new Date();
-            let fechaActivacionStr = fechaActual.toISOString().split('T')[0];
-
-            let fechaVencimientoObj = new Date(fechaActual);
-            fechaVencimientoObj.setMonth(fechaVencimientoObj.getMonth() + 1);
-            let fechaVencimientoStr = fechaVencimientoObj.toISOString().split('T')[0];
-
-            db.collection("clientes").doc(id).update({
-                paid: true,
-                fechaActivacion: fechaActivacionStr,
-                fechaVencimiento: fechaVencimientoStr
-            }).then(() => {
-                alert(`¡Membresía activada por 1 mes!\nActivación: ${fechaActivacionStr}\nVencimiento: ${fechaVencimientoStr}`);
-                cargarClientesDesdeFirestore();
-            });
+            let fAct = new Date().toISOString().split('T')[0];
+            let fVenObj = new Date();
+            fVenObj.setMonth(fVenObj.getMonth() + 1);
+            let fVen = fVenObj.toISOString().split('T')[0];
+            db.collection("clientes").doc(id).update({ paid: true, fechaActivacion: fAct, fechaVencimiento: fVen }).then(() => cargarClientesDesdeFirestore());
         }
 
         function desactivarMembresiaFirestore(id) {
             if(!db) return;
-            db.collection("clientes").doc(id).update({ paid: false }).then(() => {
-                cargarClientesDesdeFirestore();
-                checkSubscription();
-            });
+            db.collection("clientes").doc(id).update({ paid: false }).then(() => cargarClientesDesdeFirestore());
         }
 
         function eliminarClienteFirestore(id) {
             if(!db) return;
-            mostrarConfirmacion("¿Estás seguro de eliminar este registro permanentemente?", (confirmado) => {
-                if (confirmado) {
-                    db.collection("clientes").doc(id).delete().then(() => {
-                        cargarClientesDesdeFirestore();
-                        checkSubscription();
-                    });
-                }
-            });
+            db.collection("clientes").doc(id).delete().then(() => cargarClientesDesdeFirestore());
         }
 
         function abrirModalUsuario() {
@@ -929,30 +845,6 @@
             document.getElementById('userModal').style.display = 'none';
         }
 
-        function mostrarConfirmacion(mensaje, callbackAccion) {
-            const modal = document.getElementById('customConfirmModal');
-            const texto = document.getElementById('confirmModalText');
-            const btnOk = document.getElementById('confirmModalOkBtn');
-            const btnCancel = document.getElementById('confirmModalCancelBtn');
-
-            texto.innerText = mensaje;
-            modal.style.display = 'flex';
-
-            const nuevoBtnOk = btnOk.cloneNode(true);
-            const nuevoBtnCancel = btnCancel.cloneNode(true);
-            btnOk.parentNode.replaceChild(nuevoBtnOk, btnOk);
-            btnCancel.parentNode.replaceChild(nuevoBtnCancel, btnCancel);
-
-            nuevoBtnOk.addEventListener('click', () => {
-                modal.style.display = 'none';
-                callbackAccion(true);
-            });
-            nuevoBtnCancel.addEventListener('click', () => {
-                modal.style.display = 'none';
-                callbackAccion(false);
-            });
-        }
-
         window.addEventListener('DOMContentLoaded', () => {
             checkSubscription();
             cargarClientesDesdeFirestore();
@@ -960,113 +852,58 @@
             setInterval(checkSubscription, 2000);
         });
 
-        // Funciones de reproducción y UI
         function toggleFullScreenLyrics() {
             const panel = document.getElementById('lyricsPanelContainer');
             const mainArea = document.getElementById('mainContentArea');
-            const btnFull = document.getElementById('expandFullScreenBtn');
-            const btnHalf = document.getElementById('expandHalfScreenBtn');
-            const btnClose = document.getElementById('closeFullScreenBtn');
-
-            panel.classList.remove('w-80', 'w-1/2', 'lg:flex');
-            panel.classList.add('w-full', 'absolute', 'inset-0', 'z-30', 'm-2', 'flex');
-            mainArea.classList.add('hidden');
-            
-            btnFull.classList.add('hidden');
-            btnHalf.classList.remove('hidden');
-            btnClose.classList.remove('hidden');
-        }
-
-        function toggleHalfScreenLyrics() {
-            const panel = document.getElementById('lyricsPanelContainer');
-            const mainArea = document.getElementById('mainContentArea');
-            const btnFull = document.getElementById('expandFullScreenBtn');
-            const btnHalf = document.getElementById('expandHalfScreenBtn');
-            const btnClose = document.getElementById('closeFullScreenBtn');
-
-            panel.classList.remove('w-full', 'absolute', 'inset-0', 'z-30', 'm-2');
-            panel.classList.add('w-1/2', 'flex');
-            mainArea.classList.remove('hidden');
-
-            btnHalf.classList.add('hidden');
-            btnFull.classList.remove('hidden');
-            btnClose.classList.remove('hidden');
+            panel.classList.toggle('absolute');
+            panel.classList.toggle('inset-0');
+            panel.classList.toggle('z-30');
         }
 
         function closeFullScreenLyrics() {
-            const panel = document.getElementById('lyricsPanelContainer');
-            const mainArea = document.getElementById('mainContentArea');
-            const btnFull = document.getElementById('expandFullScreenBtn');
-            const btnHalf = document.getElementById('expandHalfScreenBtn');
-            const btnClose = document.getElementById('closeFullScreenBtn');
-
-            panel.classList.remove('w-full', 'w-1/2', 'absolute', 'inset-0', 'z-30', 'm-2');
-            panel.classList.add('w-80', 'flex');
-            mainArea.classList.remove('hidden');
-
-            btnHalf.classList.add('hidden');
-            btnClose.classList.add('hidden');
-            btnFull.classList.remove('hidden');
+            document.getElementById('lyricsPanelContainer').classList.remove('absolute', 'inset-0', 'z-30');
         }
 
         function changeVolume(val) {
             audioEngine.volume = val / 100;
-            const muteBtn = document.getElementById('muteBtn');
-            if (val == 0) {
-                muteBtn.innerHTML = '<i class="fa-solid fa-volume-xmark text-rose-400"></i>';
-            } else {
-                muteBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-            }
         }
 
         function toggleMute() {
-            if (audioEngine.volume > 0) {
-                audioEngine.volume = 0;
-                document.getElementById('volumeBar').value = 0;
-                document.getElementById('muteBtn').innerHTML = '<i class="fa-solid fa-volume-xmark text-rose-400"></i>';
-            } else {
-                audioEngine.volume = 1;
-                document.getElementById('volumeBar').value = 100;
-                document.getElementById('muteBtn').innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-            }
+            audioEngine.volume = audioEngine.volume > 0 ? 0 : 1;
         }
 
         function buscarLetraGoogle() {
             if (!currentSongObject) return;
-            const query = encodeURIComponent(`letra ${currentSongObject.title} ${currentSongObject.artist}`);
-            window.open(`https://www.google.com/search?q=${query}`, '_blank');
+            window.open(`https://www.google.com/search?q=letra+${currentSongObject.title}+${currentSongObject.artist}`, '_blank');
         }
 
         function obtenerLetraGuardada(songId) {
-            let letrasGuardadas = JSON.parse(localStorage.getItem('at_custom_lyrics') || '{}');
-            return letrasGuardadas[songId] || null;
+            let data = JSON.parse(localStorage.getItem('at_custom_lyrics') || '{}');
+            return data[songId] || null;
         }
 
         function guardarLetraLocal(songId, textoPlano) {
-            let letrasGuardadas = JSON.parse(localStorage.getItem('at_custom_lyrics') || '{}');
-            let lineasTexto = textoPlano.split('\n').filter(l => l.trim() !== "");
-            letrasGuardadas[songId] = lineasTexto;
-            localStorage.setItem('at_custom_lyrics', JSON.stringify(letrasGuardadas));
+            let data = JSON.parse(localStorage.getItem('at_custom_lyrics') || '{}');
+            data[songId] = textoPlano.split('\n').filter(l => l.trim() !== "");
+            localStorage.setItem('at_custom_lyrics', JSON.stringify(data));
         }
 
         function toggleEditMode() {
             if (!currentSongObject) return;
             const viewPanel = document.getElementById('lyricsViewPanel');
             const editorPanel = document.getElementById('lyricsEditorPanel');
-            const editLabel = document.getElementById('editTextLabel');
-            const textarea = document.getElementById('manualLyricsInput');
-
+            const btn = document.getElementById('editModeBtn');
             if (editorPanel.classList.contains('hidden')) {
                 editorPanel.classList.remove('hidden');
                 viewPanel.classList.add('hidden');
-                editLabel.innerText = "Ver";
+                btn.innerText = "Listo";
                 let saved = obtenerLetraGuardada(currentSongObject.id);
-                textarea.value = saved ? saved.join('\n') : "";
+                document.getElementById('manualLyricsInput').value = saved ? saved.join('\n') : "";
             } else {
                 editorPanel.classList.add('hidden');
                 viewPanel.classList.remove('hidden');
-                editLabel.innerText = "Ver";
-                renderKaraokeLines();
+                btn.innerText = "Ver";
+                guardarLetraManual();
             }
         }
 
@@ -1074,105 +911,62 @@
             const texto = document.getElementById('manualLyricsInput').value;
             if (!currentSongObject || !texto.trim()) return;
             guardarLetraLocal(currentSongObject.id, texto);
-            toggleEditMode();
             renderKaraokeLines();
         }
 
         function renderKaraokeLines() {
             const container = document.getElementById('karaokeContainer');
             container.innerHTML = '';
-            
             if (!currentSongObject) return;
             let customLines = obtenerLetraGuardada(currentSongObject.id);
-            
             if (!customLines || customLines.length === 0) {
-                container.innerHTML = `
-                    <div class="py-6 text-slate-400 space-y-3">
-                        <p class="text-xs font-semibold">No hay letra guardada para esta canción.</p>
-                        <p class="text-xs text-cyan-400 font-medium">💡 Haz clic en el botón <span class="text-white font-bold">Google</span> para buscarla y pégala aquí.</p>
-                        <button onclick="toggleEditMode()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition shadow mt-2">
-                            Pegar Letra Manualmente
-                        </button>
-                    </div>
-                `;
+                container.innerHTML = `<div class="text-stone-500 text-xs py-4">Sin letra guardada. Haz clic en Google para buscar y pegar.</div>`;
                 return;
             }
-
-            const duracion = audioEngine.duration && !isNaN(audioEngine.duration) ? audioEngine.duration : 180;
-            const margenInicio = 3;
-            const margenFinal = 3;
-            const tiempoUtil = Math.max(5, duracion - margenInicio - margenFinal);
-            const paso = tiempoUtil / Math.max(1, customLines.length);
-
-            currentSongObject.computedLyrics = customLines.map((textoLinea, idx) => ({
-                time: margenInicio + (idx * paso),
-                text: textoLinea
-            }));
-
+            const duracion = audioEngine.duration || 180;
+            const paso = (duracion - 6) / Math.max(1, customLines.length);
+            currentSongObject.computedLyrics = customLines.map((text, idx) => ({ time: 3 + (idx * paso), text }));
             currentSongObject.computedLyrics.forEach((line, idx) => {
-                container.innerHTML += `
-                    <div id="lyric-line-${idx}" class="karaoke-line text-slate-300 font-medium" onclick="audioEngine.currentTime = ${line.time}">
-                        ${line.text}
-                    </div>
-                `;
+                container.innerHTML += `<div id="lyric-line-${idx}" class="karaoke-line text-stone-400" onclick="audioEngine.currentTime = ${line.time}">${line.text}</div>`;
             });
         }
 
         audioEngine.addEventListener('timeupdate', () => {
             if (audioEngine.duration) {
-                let progress = (audioEngine.currentTime / audioEngine.duration) * 100;
-                document.getElementById('progressBar').value = progress;
-                
-                let mins = Math.floor(audioEngine.currentTime / 60);
-                let secs = Math.floor(audioEngine.currentTime % 60);
-                document.getElementById('currentTime').innerText = `${mins}:${secs < 10 ? '0':''}${secs}`;
-
-                let totMins = Math.floor(audioEngine.duration / 60);
-                let totSecs = Math.floor(audioEngine.duration % 60);
-                document.getElementById('totalDuration').innerText = `${totMins}:${totSecs < 10 ? '0':''}${totSecs}`;
+                document.getElementById('progressBar').value = (audioEngine.currentTime / audioEngine.duration) * 100;
+                let m = Math.floor(audioEngine.currentTime / 60), s = Math.floor(audioEngine.currentTime % 60);
+                document.getElementById('currentTime').innerText = `${m}:${s < 10 ? '0':''}${s}`;
+                let tm = Math.floor(audioEngine.duration / 60), ts = Math.floor(audioEngine.duration % 60);
+                document.getElementById('totalDuration').innerText = `${tm}:${ts < 10 ? '0':''}${ts}`;
 
                 if (currentSongObject && currentSongObject.computedLyrics) {
-                    let currentTime = audioEngine.currentTime;
                     let activeIdx = -1;
-                    
-                    for (let i = 0; i < currentSongObject.computedLyrics.length; i++) {
-                        if (currentTime >= currentSongObject.computedLyrics[i].time) {
-                            activeIdx = i;
-                        } else {
-                            break;
-                        }
-                    }
-
-                    currentSongObject.computedLyrics.forEach((_, idx) => {
-                        const lineEl = document.getElementById(`lyric-line-${idx}`);
-                        if (lineEl) {
-                            lineEl.classList.remove('active', 'passed');
-                            if (idx === activeIdx) {
-                                lineEl.classList.add('active');
-                                lineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            } else if (idx < activeIdx) {
-                                lineEl.classList.add('passed');
-                            }
+                    currentSongObject.computedLyrics.forEach((l, i) => {
+                        if (audioEngine.currentTime >= l.time) activeIdx = i;
+                    });
+                    currentSongObject.computedLyrics.forEach((_, i) => {
+                        let el = document.getElementById(`lyric-line-${i}`);
+                        if (el) {
+                            el.classList.remove('active', 'passed');
+                            if (i === activeIdx) {
+                                el.classList.add('active');
+                                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            } else if (i < activeIdx) el.classList.add('passed');
                         }
                     });
                 }
             }
         });
 
-        audioEngine.addEventListener('loadedmetadata', () => {
-            if (currentSongObject) {
-                renderKaraokeLines();
-            }
-        });
+        audioEngine.addEventListener('loadedmetadata', () => { if (currentSongObject) renderKaraokeLines(); });
 
         function openArtistFolder(artistName) {
             document.getElementById('homeView').classList.add('hidden');
             document.getElementById('artistView').classList.remove('hidden');
             document.getElementById('artistViewTitle').innerText = artistName;
-
-            const artistSongs = database.filter(song => song.artist.toLowerCase().includes(artistName.toLowerCase()));
-            currentSongsDisplayed = artistSongs;
-            renderSongsTable('artistSongsTableBody', artistSongs);
+            const songs = database.filter(s => s.artist.toLowerCase().includes(artistName.toLowerCase()));
+            currentSongsDisplayed = songs;
+            renderSongsTable('artistSongsTableBody', songs);
         }
 
         function showSearchDropdown() {
@@ -1183,8 +977,7 @@
         function handleSearchInput(query) {
             const clearBtn = document.getElementById('clearSearchBtn');
             const dropdown = document.getElementById('searchDropdown');
-            const resultsContainer = document.getElementById('dropdownResults');
-            
+            const resContainer = document.getElementById('dropdownResults');
             if (query.trim().length > 0) {
                 clearBtn.classList.remove('hidden');
                 dropdown.classList.remove('hidden');
@@ -1193,39 +986,27 @@
                 dropdown.classList.add('hidden');
                 currentSongsDisplayed = database;
                 renderSongsTable('allSongsTableBody', database);
-                document.getElementById('catalogTitle').innerText = "Catálogo";
                 return;
             }
-
             const q = query.toLowerCase();
-            const filtered = database.filter(song => 
-                song.title.toLowerCase().includes(q) || song.artist.toLowerCase().includes(q)
-            );
-
-            resultsContainer.innerHTML = '';
+            const filtered = database.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+            resContainer.innerHTML = '';
             if (filtered.length > 0) {
-                filtered.forEach((song) => {
-                    const originalIdx = database.findIndex(s => s.id === song.id);
-                    resultsContainer.innerHTML += `
-                        <div onclick="playSongIndex(${originalIdx}); clearSearch();" class="flex items-center justify-between p-2 hover:bg-slate-800 rounded-lg cursor-pointer">
+                filtered.forEach(s => {
+                    let origIdx = database.findIndex(item => item.id === s.id);
+                    resContainer.innerHTML += `
+                        <div onclick="playSongIndex(${origIdx}); clearSearch();" class="flex items-center justify-between p-2 hover:bg-white/10 rounded-xl cursor-pointer">
                             <div class="flex items-center gap-2">
-                                <img src="${song.cover}" class="w-7 h-7 rounded object-cover">
-                                <div>
-                                    <div class="text-white font-bold text-xs">${song.title}</div>
-                                    <div class="text-[10px] text-slate-400">${song.artist}</div>
-                                </div>
+                                <img src="${s.cover}" class="w-8 h-8 rounded object-cover">
+                                <div><div class="text-white font-bold text-xs">${s.title}</div><div class="text-[10px] text-stone-400">${s.artist}</div></div>
                             </div>
-                            <i class="fa-solid fa-play text-cyan-400 text-xs"></i>
-                        </div>
-                    `;
+                        </div>`;
                 });
             } else {
-                resultsContainer.innerHTML = `<div class="p-2 text-slate-400 text-xs text-center">No se encontraron canciones</div>`;
+                resContainer.innerHTML = `<div class="p-2 text-stone-400 text-xs text-center">No encontrado</div>`;
             }
-
             currentSongsDisplayed = filtered;
             renderSongsTable('allSongsTableBody', filtered);
-            document.getElementById('catalogTitle').innerText = `Resultados de búsqueda: "${query}"`;
         }
 
         function clearSearch() {
@@ -1234,55 +1015,27 @@
             document.getElementById('searchDropdown').classList.add('hidden');
             currentSongsDisplayed = database;
             renderSongsTable('allSongsTableBody', database);
-            document.getElementById('catalogTitle').innerText = "Catálogo";
         }
-
-        document.addEventListener('click', (e) => {
-            const searchContainer = document.getElementById('searchInput').parentElement.parentElement;
-            const dropdown = document.getElementById('searchDropdown');
-            if (!searchContainer.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
-        });
 
         function renderSongsTable(tableBodyId, songsList) {
             const tbody = document.getElementById(tableBodyId);
             if(!tbody) return;
             tbody.innerHTML = '';
-
             songsList.forEach((song, idx) => {
-                const realIdx = database.findIndex(s => s.id === song.id);
-                const isCurrentPlaying = (currentSongObject && currentSongObject.id === song.id && isPlaying);
-
-                const indexOrPlayingIcon = isCurrentPlaying ? `
-                    <div class="playing-icon">
-                        <div class="playing-bar"></div>
-                        <div class="playing-bar"></div>
-                        <div class="playing-bar"></div>
-                    </div>
-                ` : `<span class="text-slate-400 font-semibold text-xs">${idx + 1}</span>`;
-
-                const activeTitleColor = isCurrentPlaying ? 'text-emerald-400' : 'text-white';
-
+                let realIdx = database.findIndex(s => s.id === song.id);
+                let isPlayingNow = (currentSongObject && currentSongObject.id === song.id && isPlaying);
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/50 cursor-pointer transition group" onclick="playSongIndex(${realIdx})">
-                        <td class="py-3 pl-2 text-center w-8">${indexOrPlayingIcon}</td>
-                        <td class="py-3">
-                            <div class="flex items-center gap-3">
-                                <img src="${song.cover}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-slate-700 shadow-sm">
-                                <div class="overflow-hidden">
-                                    <div class="${activeTitleColor} font-bold text-xs sm:text-sm truncate group-hover:text-cyan-300 transition">${song.title}</div>
-                                    <div class="text-[11px] text-slate-400 truncate">${song.artist}</div>
-                                </div>
+                    <div onclick="playSongIndex(${realIdx})" class="flex items-center justify-between p-2.5 hover:bg-white/10 rounded-xl cursor-pointer transition group">
+                        <div class="flex items-center gap-3">
+                            <span class="text-stone-400 w-4 text-center text-xs">${idx + 1}</span>
+                            <img src="${song.cover}" class="w-10 h-10 rounded-md object-cover shadow">
+                            <div>
+                                <div class="${isPlayingNow ? 'text-[#1ed760]' : 'text-white'} font-bold text-xs sm:text-sm">${song.title}</div>
+                                <div class="text-[11px] text-stone-400">${song.artist}</div>
                             </div>
-                        </td>
-                        <td class="py-3 text-center">
-                            <button class="bg-purple-600/30 text-purple-300 hover:bg-purple-600 hover:text-white w-8 h-8 rounded-full flex items-center justify-center transition mx-auto shadow">
-                                <i class="fa-solid ${isCurrentPlaying ? 'fa-pause' : 'fa-play'} text-xs"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                        </div>
+                        <button class="text-stone-400 group-hover:text-white px-3 py-1"><i class="fa-solid fa-play text-xs"></i></button>
+                    </div>`;
             });
         }
 
@@ -1290,31 +1043,22 @@
             currentTrackIndex = idx;
             currentSongObject = database[idx];
             audioEngine.src = currentSongObject.src;
-            
             audioEngine.play().then(() => {
                 isPlaying = true;
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
-                
                 document.getElementById('playerTitle').innerText = currentSongObject.title;
                 document.getElementById('playerArtist').innerText = currentSongObject.artist;
                 document.getElementById('playerCover').src = currentSongObject.cover;
-                
                 document.getElementById('sidebarSongTitle').innerText = currentSongObject.title;
                 document.getElementById('sidebarSongArtist').innerText = currentSongObject.artist;
                 document.getElementById('sidebarSongCover').src = currentSongObject.cover;
-
                 renderKaraokeLines();
                 actualizarTablas();
-            }).catch(e => {
-                console.log("Audio play error:", e);
             });
         }
 
         function togglePlay() {
-            if (!currentSongObject) {
-                playSongIndex(0);
-                return;
-            }
+            if (!currentSongObject) { playSongIndex(0); return; }
             if (isPlaying) {
                 audioEngine.pause();
                 isPlaying = false;
@@ -1335,15 +1079,8 @@
             }
         }
 
-        function nextSong() {
-            let nextIdx = (currentTrackIndex + 1) % database.length;
-            playSongIndex(nextIdx);
-        }
-
-        function prevSong() {
-            let prevIdx = (currentTrackIndex - 1 + database.length) % database.length;
-            playSongIndex(prevIdx);
-        }
+        function nextSong() { playSongIndex((currentTrackIndex + 1) % database.length); }
+        function prevSong() { playSongIndex((currentTrackIndex - 1 + database.length) % database.length); }
 
         function showView(viewName) {
             document.getElementById('homeView').classList.add('hidden');
@@ -1355,11 +1092,9 @@
             }
         }
 
-        function seekAudio(val) {
-            if(audioEngine.duration) {
-                audioEngine.currentTime = (val / 100) * audioEngine.duration;
-            }
-        }
+        document.getElementById('progressBar').addEventListener('input', (e) => {
+            if (audioEngine.duration) audioEngine.currentTime = (e.target.value / 100) * audioEngine.duration;
+        });
     </script>
 </body>
 </html>
