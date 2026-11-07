@@ -25,6 +25,7 @@
             user-select: none;
             -webkit-user-select: none;
             overflow: hidden;
+            zoom: 0.90;
         }
         ::-webkit-scrollbar {
             width: 5px;
@@ -63,24 +64,24 @@
         .karaoke-line {
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
-            padding: 12px 8px;
+            padding: 8px 8px;
             opacity: 0.35;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            line-height: 1.4;
+            line-height: 1.3;
         }
         .karaoke-line.active {
             color: #38bdf8 !important;
-            font-size: 2rem !important;
+            font-size: 1.8rem !important;
             font-weight: 800 !important;
             opacity: 1 !important;
             text-shadow: 0 0 35px rgba(56, 189, 248, 0.95);
-            transform: scale(1.04);
+            transform: scale(1.02);
         }
         .karaoke-line.passed {
             color: #94a3b8;
             opacity: 0.55;
-            font-size: 1.15rem;
+            font-size: 1.05rem;
         }
 
         .playing-icon {
@@ -146,7 +147,7 @@
                 <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 flex flex-col items-center justify-center space-y-2">
                     <span class="text-[10px] text-cyan-400 font-bold uppercase tracking-wider">Escanea para pagar S/ 20.00</span>
                     <div class="bg-white p-2 rounded-xl w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center border shadow-md">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=920484815" alt="QR Yape" class="w-full h-full object-contain rounded-lg">
+                        <img src="imagen/qr-yape.jpeg" alt="QR Yape" class="w-full h-full object-contain rounded-lg">
                     </div>
                     <div class="text-[11px] text-emerald-400 font-extrabold">Monto: S/ 20.00 (1 Mes)</div>
                     <div class="text-[10px] text-slate-300">Titular: <span class="text-white font-bold">Andreo Araujo Taboada</span></div>
@@ -376,9 +377,9 @@
                 </div>
             </div>
 
-            <div id="lyricsViewPanel" class="flex-1 overflow-y-auto relative py-12 px-3 text-center select-none">
-                <div id="karaokeContainer" class="space-y-6 px-1">
-                    <div class="text-slate-500 text-xs py-12">Reproduce una canción para ver la letra sincronizada aquí.</div>
+            <div id="lyricsViewPanel" class="flex-1 overflow-y-auto relative py-2 px-3 text-center select-none flex flex-col justify-start">
+                <div id="karaokeContainer" class="space-y-3 px-1 pt-1">
+                    <div class="text-slate-500 text-xs py-4">Reproduce una canción para ver la letra sincronizada aquí.</div>
                 </div>
             </div>
 
@@ -445,10 +446,15 @@
             appId: "1:132766099243:web:fffb8ed5b5578890bfc76e"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-  // ==================== DATABASE DE CANCIONES COMPLETA ====================
-        const database = [
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+        } catch (e) {
+            console.log("Modo offline o sin conexión a Firebase.");
+        }
+
+         const database = [
             // PAULO LONDRA (50 CANCIONES)
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
             { id: 2, title: "Adán y Eva", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=2", src: "canciones/adan-y-eva.mp3" },
@@ -646,10 +652,16 @@
         const audioEngine = document.getElementById('audioEngine');
         audioEngine.volume = 1.0;
 
-        // --- VERIFICACIÓN DE SUSCRIPCIÓN Y VENCIMIENTO AUTOMÁTICO ---
+        // --- VERIFICACIÓN DE SUSCRIPCIÓN (COMPATIBLE OFFLINE) ---
         function checkSubscription() {
             let activeUser = JSON.parse(localStorage.getItem('at_active_session') || 'null');
             
+            // Si no hay internet, permitimos usar la plataforma localmente para no bloquear al usuario
+            if (!navigator.onLine) {
+                document.getElementById('paywallModal').style.display = 'none';
+                return;
+            }
+
             if (activeUser && activeUser.id === "admin_master_session") {
                 document.getElementById('paywallModal').style.display = 'none';
                 let adminBtn = document.getElementById('adminNavBtn');
@@ -658,7 +670,7 @@
                 return;
             }
 
-            if (activeUser && activeUser.firestoreId) {
+            if (activeUser && activeUser.firestoreId && db) {
                 db.collection("clientes").doc(activeUser.firestoreId).get().then((doc) => {
                     if (!doc.exists) {
                         localStorage.removeItem('at_active_session');
@@ -681,11 +693,14 @@
                         document.getElementById('adminNavBtn').style.display = 'none';
                     }
                 }).catch(() => {
-                    document.getElementById('paywallModal').style.display = 'flex';
+                    document.getElementById('paywallModal').style.display = 'none';
                 });
             } else {
-                document.getElementById('paywallModal').style.display = 'flex';
-                document.getElementById('adminNavBtn').style.display = 'none';
+                // Si no hay sesión previa y hay internet, mostramos el paywall
+                if (navigator.onLine) {
+                    document.getElementById('paywallModal').style.display = 'flex';
+                    document.getElementById('adminNavBtn').style.display = 'none';
+                }
             }
         }
 
@@ -728,6 +743,10 @@
             const inputVal = document.getElementById('clientRegDni').value.trim();
             if(!inputVal) {
                 alert("Por favor ingresa tu DNI o Código.");
+                return;
+            }
+            if(!db) {
+                alert("No hay conexión con la base de datos.");
                 return;
             }
             db.collection("clientes").where("dni", "==", inputVal).get().then((querySnapshot) => {
@@ -776,6 +795,10 @@
                 alert("Por favor completa tu nombre y DNI.");
                 return;
             }
+            if(!db) {
+                alert("Sin conexión para registrar en la nube.");
+                return;
+            }
             const codigoUnico = generarCodigoAleatorio();
             db.collection("clientes").add({
                 cliente: nombre,
@@ -796,8 +819,9 @@
             });
         }
 
-        // --- CARGA DE CLIENTES Y CÁLCULO DE 1 MES DE VENCIMIENTO ---
+        // --- CARGA DE CLIENTES ---
         function cargarClientesDesdeFirestore() {
+            if(!db) return;
             db.collection("clientes").get().then((querySnapshot) => {
                 listaClientes = [];
                 let hoy = new Date().toISOString().split('T')[0];
@@ -858,6 +882,7 @@
         }
 
         function activarMembresiaFirestore(id) {
+            if(!db) return;
             let fechaActual = new Date();
             let fechaActivacionStr = fechaActual.toISOString().split('T')[0];
 
@@ -876,6 +901,7 @@
         }
 
         function desactivarMembresiaFirestore(id) {
+            if(!db) return;
             db.collection("clientes").doc(id).update({ paid: false }).then(() => {
                 cargarClientesDesdeFirestore();
                 checkSubscription();
@@ -883,6 +909,7 @@
         }
 
         function eliminarClienteFirestore(id) {
+            if(!db) return;
             mostrarConfirmacion("¿Estás seguro de eliminar este registro permanentemente?", (confirmado) => {
                 if (confirmado) {
                     db.collection("clientes").doc(id).delete().then(() => {
@@ -1060,10 +1087,10 @@
             
             if (!customLines || customLines.length === 0) {
                 container.innerHTML = `
-                    <div class="py-12 text-slate-400 space-y-3">
+                    <div class="py-6 text-slate-400 space-y-3">
                         <p class="text-xs font-semibold">No hay letra guardada para esta canción.</p>
-                        <p class="text-xs text-cyan-400 font-medium">💡 Haz clic en el botón <span class="text-white font-bold">Google</span> para buscarla en la web y pégala aquí.</p>
-                        <button onclick="toggleEditMode()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow mt-3">
+                        <p class="text-xs text-cyan-400 font-medium">💡 Haz clic en el botón <span class="text-white font-bold">Google</span> para buscarla y pégala aquí.</p>
+                        <button onclick="toggleEditMode()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs transition shadow mt-2">
                             Pegar Letra Manualmente
                         </button>
                     </div>
@@ -1072,10 +1099,10 @@
             }
 
             const duracion = audioEngine.duration && !isNaN(audioEngine.duration) ? audioEngine.duration : 180;
-            const margenInicio = 4;
-            const margenFinal = 6;
-            const tiempoUtil = Math.max(10, duracion - margenInicio - margenFinal);
-            const paso = tiempoUtil / Math.max(1, customLines.length - 1);
+            const margenInicio = 3;
+            const margenFinal = 3;
+            const tiempoUtil = Math.max(5, duracion - margenInicio - margenFinal);
+            const paso = tiempoUtil / Math.max(1, customLines.length);
 
             currentSongObject.computedLyrics = customLines.map((textoLinea, idx) => ({
                 time: margenInicio + (idx * paso),
