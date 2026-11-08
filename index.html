@@ -258,26 +258,31 @@
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-black text-xs"></i>
                 <input type="text" id="searchInput" oninput="handleSearchInput(this.value)" placeholder="¿Qué quieres escuchar?" class="w-full bg-white text-black pl-9 pr-3 py-2.5 rounded-lg text-xs font-semibold focus:outline-none">
             </div>
-            <div class="text-xs font-bold text-white pt-1">Explorar todo</div>
-            <div class="grid grid-cols-2 gap-2.5">
-                <div onclick="filtrarCategoria('Paulo Londra', document.querySelector('.spotify-chip'))" class="bg-pink-600 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
-                    Música
-                    <img src="https://picsum.photos/80/80?random=301" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
-                </div>
-                <div onclick="filtrarCategoria('Bad Bunny', document.querySelector('.spotify-chip'))" class="bg-teal-700 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
-                    Podcasts
-                    <img src="https://picsum.photos/80/80?random=302" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
-                </div>
-                <div onclick="filtrarCategoria('Ozuna', document.querySelector('.spotify-chip'))" class="bg-indigo-700 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
-                    Audiolibros
-                    <img src="https://picsum.photos/80/80?random=303" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
-                </div>
-                <div onclick="switchTab('home')" class="bg-purple-700 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
-                    Eventos en vivo
-                    <img src="https://picsum.photos/80/80?random=304" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
+            
+            <!-- Contenedor donde se muestran los resultados de búsqueda en tiempo real -->
+            <div id="searchResultsContainer" class="space-y-1.5 pt-1"></div>
+
+            <div id="searchExploreSection">
+                <div class="text-xs font-bold text-white pt-1 pb-2">Explorar todo</div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div onclick="filtrarCategoria('Paulo Londra', document.querySelector('.spotify-chip'))" class="bg-pink-600 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
+                        Música
+                        <img src="https://picsum.photos/80/80?random=301" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
+                    </div>
+                    <div onclick="filtrarCategoria('Bad Bunny', document.querySelector('.spotify-chip'))" class="bg-teal-700 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
+                        Podcasts
+                        <img src="https://picsum.photos/80/80?random=302" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
+                    </div>
+                    <div onclick="filtrarCategoria('Ozuna', document.querySelector('.spotify-chip'))" class="bg-indigo-700 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
+                        Audiolibros
+                        <img src="https://picsum.photos/80/80?random=303" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
+                    </div>
+                    <div onclick="switchTab('home')" class="bg-purple-700 rounded-lg p-3 h-20 relative overflow-hidden font-bold text-white text-xs cursor-pointer shadow">
+                        Eventos en vivo
+                        <img src="https://picsum.photos/80/80?random=304" class="absolute -bottom-2 -right-2 w-12 h-12 rounded shadow rotate-12 object-cover">
+                    </div>
                 </div>
             </div>
-            <div id="searchResultsContainer" class="space-y-1 pt-2"></div>
         </div>
 
         <!-- VISTA 3: TU BIBLIOTECA -->
@@ -647,7 +652,6 @@
             { id: 179, title: "Cumbia Con G", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=179", src: "canciones/cumbia-con-g.mp3" },
             { id: 180, title: "No Te Voy A Rogar", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=180", src: "canciones/no-te-voy-a-rogar.mp3" }
         ];
-
         let isPlaying = false;
         let currentTrackIndex = -1;
         let currentSongObject = null;
@@ -788,19 +792,35 @@
 
         function handleSearchInput(query) {
             const container = document.getElementById('searchResultsContainer');
+            const exploreSection = document.getElementById('searchExploreSection');
             container.innerHTML = '';
-            if(!query.trim()) return;
+            
+            if(!query.trim()) {
+                exploreSection.style.display = 'block';
+                return;
+            }
+            
+            exploreSection.style.display = 'none';
             const q = query.toLowerCase();
             const res = database.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+            
+            if (res.length === 0) {
+                container.innerHTML = `<div class="text-slate-400 text-xs py-4 text-center">No se encontraron canciones.</div>`;
+                return;
+            }
+
             res.forEach(song => {
                 const realIdx = database.findIndex(s => s.id === song.id);
                 container.innerHTML += `
-                    <div onclick="playSongIndex(${realIdx})" class="flex items-center justify-between p-2 bg-[#181818] rounded-lg cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <img src="${song.cover}" class="w-8 h-8 rounded object-cover">
-                            <div><div class="text-white font-bold text-xs">${song.title}</div><div class="text-[10px] text-slate-400">${song.artist}</div></div>
+                    <div onclick="playSongIndex(${realIdx})" class="flex items-center justify-between p-2.5 bg-[#181818] rounded-xl cursor-pointer hover:bg-[#282828] transition">
+                        <div class="flex items-center gap-3">
+                            <img src="${song.cover}" class="w-10 h-10 rounded object-cover">
+                            <div>
+                                <div class="text-white font-bold text-xs">${song.title}</div>
+                                <div class="text-[10px] text-slate-400">${song.artist}</div>
+                            </div>
                         </div>
-                        <i class="fa-solid fa-play text-[#1ed760] text-xs"></i>
+                        <i class="fa-solid fa-play text-[#1ed760] text-xs pr-2"></i>
                     </div>
                 `;
             });
@@ -816,7 +836,6 @@
             }
             songsList.forEach((song) => {
                 const realIdx = database.findIndex(s => s.id === song.id);
-                // CORRECCIÓN: Compara estrictamente por el ID único de la canción en lugar de índices fijos
                 const isCurrent = (currentSongObject && currentSongObject.id === song.id && isPlaying);
 
                 let indicatorHTML = isCurrent ? `
@@ -880,8 +899,6 @@
 
                 actualizarBotonMeGustaUI(currentSongObject.id);
                 renderKaraokeLines();
-                
-                // Actualiza dinámicamente la tabla activa para mover el indicador verde correctamente
                 renderSongsTable('allSongsTableBody', currentSongsDisplayed);
             }).catch(e => console.log("Error al reproducir audio:", e));
         }
