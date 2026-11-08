@@ -62,7 +62,6 @@
             accent-color: var(--spotify-green);
         }
         
-        /* Animación de ondas verdes estilo Spotify */
         .playing-icon {
             display: flex;
             align-items: flex-end;
@@ -87,23 +86,24 @@
         .karaoke-line {
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
-            padding: 8px 8px;
+            padding: 12px 16px;
             opacity: 0.4;
-            font-size: 1.1rem;
+            font-size: 1.5rem;
             font-weight: 700;
             line-height: 1.3;
+            text-align: left;
         }
         .karaoke-line.active {
-            color: var(--spotify-green) !important;
-            font-size: 1.6rem !important;
+            color: #ffffff !important;
+            font-size: 2rem !important;
             font-weight: 800 !important;
             opacity: 1 !important;
-            text-shadow: 0 0 25px rgba(30, 215, 96, 0.6);
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
         }
         .karaoke-line.passed {
-            color: #b3b3b3;
+            color: #94a3b8;
             opacity: 0.6;
-            font-size: 1rem;
+            font-size: 1.3rem;
         }
     </style>
 </head>
@@ -120,7 +120,7 @@
         </button>
     </header>
 
-    <!-- MENÚ FLOTANTE ESTILO SPOTIFY (OPCIONES DE CANCIÓN) -->
+    <!-- MENÚ FLOTANTE DE OPCIONES -->
     <div id="spotifyContextMenu" style="display: none;" class="fixed bg-[#282828] border border-[#3e3e3e] rounded-xl shadow-2xl py-2 w-60 z-[100] text-white text-xs">
         <div onclick="menuAccion('playlist')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer flex items-center justify-between">Agregar a playlist <i class="fa-solid fa-chevron-right text-[10px]"></i></div>
         <div onclick="menuAccion('megusta')" class="px-4 py-2.5 hover:bg-[#3e3e3e] cursor-pointer flex items-center gap-2"><i class="fa-solid fa-heart text-[#1ed760]"></i> Agregar a Tus me gusta</div>
@@ -238,7 +238,7 @@
 
             <div>
                 <div class="flex items-center justify-between mb-2 pt-1">
-                    <h2 class="text-sm font-bold text-white">Sigue reproduciendo</h2>
+                    <h2 class="text-sm font-bold text-white" id="mainSectionTitle">Sigue reproduciendo</h2>
                 </div>
                 <div class="bg-[#121212] rounded-xl p-2">
                     <table class="w-full text-left border-collapse">
@@ -302,7 +302,7 @@
                 <i class="fa-solid fa-table-cells text-white"></i>
             </div>
             <div id="libraryContentList" class="space-y-2.5">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="mostrarLikedSongs()">
                     <div class="w-12 h-12 rounded bg-gradient-to-br from-indigo-600 to-purple-400 flex items-center justify-center text-white"><i class="fa-solid fa-heart"></i></div>
                     <div>
                         <div class="text-white font-bold text-xs">Tus me gusta</div>
@@ -335,73 +335,82 @@
 
     </div>
 
-    <!-- MODAL PANTALLA COMPLETA DE LETRA EN VIVO -->
-    <div id="lyricsModal" style="display: none;" class="fixed inset-0 bg-[#121212] z-50 flex flex-col p-4">
-        <div class="flex items-center justify-between pb-3 border-b border-[#282828]">
-            <div class="flex items-center gap-2">
-                <img id="modalSongCover" src="https://picsum.photos/100/100?random=1" class="w-8 h-8 rounded object-cover">
-                <div>
-                    <h3 id="modalSongTitle" class="text-white font-bold text-xs truncate">Canción</h3>
-                    <p id="modalSongArtist" class="text-slate-400 text-[10px] truncate">Artista</p>
+    <!-- MODAL PANTALLA COMPLETA A ANCHO COMPLETO -->
+    <div id="lyricsModal" style="display: none;" class="fixed inset-0 bg-[#243328] z-50 flex flex-col p-4 overflow-y-auto">
+        <div class="flex items-center justify-between pb-2 flex-shrink-0">
+            <button onclick="toggleLyricsModal()" class="text-white text-lg"><i class="fa-solid fa-chevron-down"></i></button>
+            <span id="modalTopTitle" class="text-xs font-bold text-white tracking-wider">Plan B Popular</span>
+            <div class="flex items-center gap-4 text-white text-base">
+                <i class="fa-brands fa-google cursor-pointer" onclick="buscarLetraGoogle()" title="Buscar letra en Google"></i>
+                <i class="fa-solid fa-microphone text-[#1ed760] cursor-pointer" onclick="toggleEditMode()" title="Editar o pegar letra"></i>
+                <i class="fa-solid fa-ellipsis-vertical cursor-pointer"></i>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto relative py-10 px-4 text-left select-none flex flex-col justify-start">
+            <div id="lyricsViewPanel" class="space-y-6 w-full max-w-2xl mx-auto">
+                <div id="karaokeContainer" class="space-y-6">
+                    <div class="text-slate-400 text-sm py-10">Reproduce una canción para ver la letra sincronizada aquí. O usa el botón de micrófono para pegarla.</div>
                 </div>
             </div>
-            <button onclick="toggleLyricsModal()" class="text-white text-lg px-2"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="flex gap-2 py-2">
-            <button onclick="buscarLetraGoogle()" class="flex-1 bg-purple-600 text-white py-1.5 rounded-lg text-xs font-bold"><i class="fa-brands fa-google"></i> Buscar Letra</button>
-            <button onclick="toggleEditMode()" class="flex-1 bg-[#282828] text-white py-1.5 rounded-lg text-xs font-bold"><span id="editTextLabel">Editar / Pegar</span></button>
-        </div>
-        <div id="lyricsViewPanel" class="flex-1 overflow-y-auto relative py-6 px-2 text-center select-none flex flex-col justify-start">
-            <div id="karaokeContainer" class="space-y-4 px-1">
-                <div class="text-slate-500 text-xs py-10">Reproduce una canción para ver la letra sincronizada aquí.</div>
+
+            <div id="lyricsEditorPanel" class="hidden w-full max-w-xl mx-auto flex flex-col space-y-3 pt-4">
+                <div class="text-xs font-bold text-white">Pegar letra para sincronizar:</div>
+                <textarea id="manualLyricsInput" class="w-full h-64 bg-black text-white p-3 rounded-xl border border-[#3e3e3e] text-xs resize-none" placeholder="Pega la letra aquí renglón por renglón..."></textarea>
+                <div class="flex gap-2">
+                    <button onclick="toggleEditMode()" class="bg-[#282828] text-white text-xs py-2 px-4 rounded-xl flex-1">Cancelar</button>
+                    <button onclick="guardarLetraManual()" class="bg-[#1ed760] text-black font-bold text-xs py-2 px-4 rounded-xl flex-1">Guardar</button>
+                </div>
             </div>
         </div>
-        <div id="lyricsEditorPanel" class="hidden flex-1 flex flex-col space-y-2 text-left pt-2">
-            <textarea id="manualLyricsInput" class="w-full flex-1 bg-black text-white p-3 rounded-xl border border-[#282828] text-xs resize-none" placeholder="Pega la letra aquí renglón por renglón..."></textarea>
-            <div class="flex gap-2">
-                <button onclick="toggleEditMode()" class="bg-[#282828] text-white text-xs py-2 px-4 rounded-xl flex-1">Cancelar</button>
-                <button onclick="guardarLetraManual()" class="bg-[#1ed760] text-black font-bold text-xs py-2 px-4 rounded-xl flex-1">Guardar</button>
+
+        <div class="flex-shrink-0 pt-2 border-t border-white/10 space-y-2">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <img id="modalSongCover" src="https://picsum.photos/100/100?random=1" class="w-10 h-10 rounded object-cover">
+                    <div>
+                        <h3 id="modalSongTitle" class="text-white font-bold text-xs">Canción</h3>
+                        <p id="modalSongArtist" class="text-slate-300 text-[10px]">Artista</p>
+                    </div>
+                </div>
+                <button onclick="toggleLikeCurrentSong()" id="modalLikeBtn" class="text-white text-base px-2"><i class="fa-solid fa-circle-plus"></i></button>
+            </div>
+
+            <div class="flex items-center gap-2 text-[10px] text-slate-300">
+                <span id="modalCurrentTime">0:00</span>
+                <input type="range" id="modalProgressBar" value="0" min="0" max="100" class="w-full h-1 cursor-pointer" oninput="seekAudio(this.value)">
+                <span id="modalTotalDuration">0:00</span>
+            </div>
+
+            <div class="flex items-center justify-around text-white text-sm py-1">
+                <button onclick="toggleShuffle()" id="modalShuffleBtn" class="text-slate-300"><i class="fa-solid fa-shuffle text-xs"></i></button>
+                <button onclick="prevSong()" class="hover:text-[#1ed760]"><i class="fa-solid fa-backward-step"></i></button>
+                <button onclick="togglePlay()" id="modalPlayPauseBtn" class="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center text-xs shadow"><i class="fa-solid fa-play"></i></button>
+                <button onclick="nextSong()" class="hover:text-[#1ed760]"><i class="fa-solid fa-forward-step"></i></button>
+                <button onclick="toggleRepeat()" id="modalRepeatBtn" class="text-slate-300"><i class="fa-solid fa-repeat text-xs"></i></button>
             </div>
         </div>
     </div>
 
-    <!-- BARRA DE NAVEGACIÓN INFERIOR Y REPRODUCTOR PROFESIONAL ESTILO SPOTIFY -->
+    <!-- BARRA DE NAVEGACIÓN INFERIOR Y REPRODUCTOR COMPACTO -->
     <footer class="fixed bottom-0 left-0 w-full bg-[#121212] border-t border-[#282828] z-40 flex flex-col">
         
-        <!-- Reproductor compacto idéntico a la referencia -->
-        <div class="px-3 pt-2.5 pb-2 bg-[#181818] mx-2 mt-2 rounded-xl shadow-lg space-y-2 border border-[#282828]">
-            <div class="flex items-center justify-between">
-                <!-- Portada, Título y Artista a la izquierda -->
-                <div class="flex items-center gap-2.5 overflow-hidden flex-1 cursor-pointer" onclick="toggleLyricsModal()">
-                    <img id="playerCover" src="https://picsum.photos/100/100?random=11" class="w-10 h-10 rounded object-cover flex-shrink-0">
-                    <div class="overflow-hidden">
-                        <div id="playerTitle" class="text-white font-bold text-xs truncate">Selecciona una canción</div>
-                        <div id="playerArtist" class="text-slate-400 text-[10px] truncate">AT Music</div>
-                    </div>
-                </div>
-
-                <!-- Botón de Me Gusta (+) -->
-                <button onclick="toggleLikeCurrentSong()" id="playerLikeBtn" class="text-slate-400 hover:text-white px-2" title="Guardar en Tus me gusta"><i class="fa-solid fa-circle-plus text-base"></i></button>
-
-                <!-- Controles centrales de reproducción -->
-                <div class="flex items-center gap-3 text-white text-sm px-1">
-                    <button onclick="toggleShuffle()" id="shuffleBtn" class="text-slate-400 hover:text-white" title="Aleatorio"><i class="fa-solid fa-shuffle text-xs"></i></button>
-                    <button onclick="prevSong()" class="hover:text-[#1ed760]"><i class="fa-solid fa-backward-step"></i></button>
-                    <button onclick="togglePlay()" id="playPauseBtn" class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center text-xs shadow"><i class="fa-solid fa-play"></i></button>
-                    <button onclick="nextSong()" class="hover:text-[#1ed760]"><i class="fa-solid fa-forward-step"></i></button>
-                    <button onclick="toggleRepeat()" id="repeatBtn" class="text-slate-400 hover:text-white" title="Repetir"><i class="fa-solid fa-repeat text-xs"></i></button>
+        <div class="px-2 pt-2 pb-1.5 bg-[#421414] mx-2 mt-1.5 rounded-xl shadow-lg flex items-center justify-between border border-[#5c1c1c] cursor-pointer" onclick="toggleLyricsModal()">
+            <div class="flex items-center gap-2.5 overflow-hidden flex-1">
+                <img id="playerCover" src="https://picsum.photos/100/100?random=11" class="w-10 h-10 rounded object-cover flex-shrink-0">
+                <div class="overflow-hidden">
+                    <div id="playerTitle" class="text-white font-bold text-xs truncate">Selecciona una canción</div>
+                    <div id="playerArtist" class="text-slate-300 text-[10px] truncate">AT Music</div>
                 </div>
             </div>
 
-            <!-- Línea de tiempo y minutos exactos -->
-            <div class="flex items-center gap-2 text-[10px] text-slate-400">
-                <span id="currentTime">0:00</span>
-                <input type="range" id="progressBar" value="0" min="0" max="100" class="w-full h-1 cursor-pointer" oninput="seekAudio(this.value)">
-                <span id="totalDuration">3:10</span>
+            <div class="flex items-center gap-3 text-white text-sm px-2">
+                <i class="fa-solid fa-laptop text-white text-xs" title="Dispositivos"></i>
+                <button onclick="event.stopPropagation(); toggleLikeCurrentSong();" id="playerLikeBtn" class="text-white hover:text-[#1ed760]" title="Guardar"><i class="fa-solid fa-circle-plus text-base"></i></button>
+                <button onclick="event.stopPropagation(); togglePlay();" id="playPauseBtn" class="text-white text-lg"><i class="fa-solid fa-play"></i></button>
             </div>
         </div>
 
-        <!-- Menú inferior de Spotify -->
         <div class="flex justify-around items-center h-14 px-1 text-slate-400">
             <button onclick="switchTab('home')" id="navHome" class="flex flex-col items-center gap-0.5 text-white">
                 <i class="fa-solid fa-house text-base"></i>
@@ -449,7 +458,7 @@
             console.log("Modo offline.");
         }
 
-        const database = [
+         const database = [
             // PAULO LONDRA (50 CANCIONES)
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
             { id: 2, title: "Adán y Eva", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=2", src: "canciones/adan-y-eva.mp3" },
@@ -638,6 +647,7 @@
             { id: 179, title: "Cumbia Con G", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=179", src: "canciones/cumbia-con-g.mp3" },
             { id: 180, title: "No Te Voy A Rogar", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=180", src: "canciones/no-te-voy-a-rogar.mp3" }
         ];
+
         let isPlaying = false;
         let currentTrackIndex = -1;
         let currentSongObject = null;
@@ -681,7 +691,7 @@
 
             if (tipo === 'playlists') {
                 container.innerHTML = `
-                    <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="mostrarLikedSongs()">
                         <div class="w-12 h-12 rounded bg-gradient-to-br from-indigo-600 to-purple-400 flex items-center justify-center text-white"><i class="fa-solid fa-heart"></i></div>
                         <div><div class="text-white font-bold text-xs">Tus me gusta</div><div class="text-[10px] text-slate-400">Playlist • Andreotabuadaa</div></div>
                     </div>
@@ -702,6 +712,41 @@
             }
         }
 
+        function obtenerLikedSongsIDs() {
+            return JSON.parse(localStorage.getItem('at_liked_songs') || '[]');
+        }
+
+        function toggleLikeCurrentSong() {
+            if (!currentSongObject) return;
+            let liked = obtenerLikedSongsIDs();
+            let index = liked.indexOf(currentSongObject.id);
+
+            if (index > -1) {
+                liked.splice(index, 1);
+            } else {
+                liked.push(currentSongObject.id);
+            }
+            localStorage.setItem('at_liked_songs', JSON.stringify(liked));
+            actualizarBotonMeGustaUI(currentSongObject.id);
+        }
+
+        function actualizarBotonMeGustaUI(songId) {
+            let liked = obtenerLikedSongsIDs();
+            const isLiked = liked.includes(songId);
+            const iconHtml = isLiked ? '<i class="fa-solid fa-circle-check text-[#1ed760] text-base"></i>' : '<i class="fa-solid fa-circle-plus text-base"></i>';
+            
+            document.getElementById('playerLikeBtn').innerHTML = iconHtml;
+            document.getElementById('modalLikeBtn').innerHTML = iconHtml;
+        }
+
+        function mostrarLikedSongs() {
+            switchTab('home');
+            document.getElementById('mainSectionTitle').innerText = "Tus me gusta";
+            let likedIDs = obtenerLikedSongsIDs();
+            currentSongsDisplayed = database.filter(s => likedIDs.includes(s.id));
+            renderSongsTable('allSongsTableBody', currentSongsDisplayed);
+        }
+
         function toggleLyricsModal() {
             const modal = document.getElementById('lyricsModal');
             if (modal.style.display === 'none' || !modal.style.display) {
@@ -709,7 +754,10 @@
                 if (currentSongObject) {
                     document.getElementById('modalSongTitle').innerText = currentSongObject.title;
                     document.getElementById('modalSongArtist').innerText = currentSongObject.artist;
+                    document.getElementById('modalTopTitle').innerText = currentSongObject.artist + " Popular";
                     document.getElementById('modalSongCover').src = currentSongObject.cover;
+                    actualizarBotonMeGustaUI(currentSongObject.id);
+                    renderKaraokeLines();
                 }
             } else {
                 modal.style.display = 'none';
@@ -718,6 +766,7 @@
 
         function filtrarCategoria(categoria, btnElement) {
             switchTab('home');
+            document.getElementById('mainSectionTitle').innerText = "Sigue reproduciendo";
             if (btnElement) {
                 document.querySelectorAll('#viewHome .spotify-chip').forEach(b => b.classList.remove('active'));
                 btnElement.classList.add('active');
@@ -732,6 +781,7 @@
 
         function openArtistFolder(artistName) {
             switchTab('home');
+            document.getElementById('mainSectionTitle').innerText = artistName;
             currentSongsDisplayed = database.filter(s => s.artist.toLowerCase().includes(artistName.toLowerCase()));
             renderSongsTable('allSongsTableBody', currentSongsDisplayed);
         }
@@ -756,13 +806,17 @@
             });
         }
 
-        // Renderizado de tabla con icono animado de reproducción y botón de menú de opciones
         function renderSongsTable(tableBodyId, songsList) {
             const tbody = document.getElementById(tableBodyId);
             if(!tbody) return;
             tbody.innerHTML = '';
+            if(songsList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" class="text-center text-slate-400 py-6 text-xs">No hay canciones en esta lista.</td></tr>`;
+                return;
+            }
             songsList.forEach((song) => {
                 const realIdx = database.findIndex(s => s.id === song.id);
+                // CORRECCIÓN: Compara estrictamente por el ID único de la canción en lugar de índices fijos
                 const isCurrent = (currentSongObject && currentSongObject.id === song.id && isPlaying);
 
                 let indicatorHTML = isCurrent ? `
@@ -791,7 +845,6 @@
             });
         }
 
-        // Lógica del Menú Flotante de Opciones (Primera Imagen)
         function abrirMenuOpciones(e, titulo) {
             const menu = document.getElementById('spotifyContextMenu');
             menu.style.display = 'block';
@@ -807,11 +860,6 @@
             alert(`Acción seleccionada: ${accion}`);
         }
 
-        function toggleLikeCurrentSong() {
-            const btn = document.getElementById('playerLikeBtn');
-            btn.innerHTML = btn.innerHTML.includes('fa-circle-plus') ? '<i class="fa-solid fa-circle-check text-[#1ed760] text-base"></i>' : '<i class="fa-solid fa-circle-plus text-base"></i>';
-        }
-
         function playSongIndex(idx) {
             currentTrackIndex = idx;
             currentSongObject = database[idx];
@@ -819,15 +867,21 @@
             audioEngine.play().then(() => {
                 isPlaying = true;
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+                document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+                
                 document.getElementById('playerTitle').innerText = currentSongObject.title;
                 document.getElementById('playerArtist').innerText = currentSongObject.artist;
                 document.getElementById('playerCover').src = currentSongObject.cover;
                 
                 document.getElementById('modalSongTitle').innerText = currentSongObject.title;
                 document.getElementById('modalSongArtist').innerText = currentSongObject.artist;
+                document.getElementById('modalTopTitle').innerText = currentSongObject.artist + " Popular";
                 document.getElementById('modalSongCover').src = currentSongObject.cover;
 
+                actualizarBotonMeGustaUI(currentSongObject.id);
                 renderKaraokeLines();
+                
+                // Actualiza dinámicamente la tabla activa para mover el indicador verde correctamente
                 renderSongsTable('allSongsTableBody', currentSongsDisplayed);
             }).catch(e => console.log("Error al reproducir audio:", e));
         }
@@ -838,10 +892,12 @@
                 audioEngine.pause();
                 isPlaying = false;
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
+                document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
             } else {
                 audioEngine.play();
                 isPlaying = true;
                 document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+                document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
             }
             renderSongsTable('allSongsTableBody', currentSongsDisplayed);
         }
@@ -857,13 +913,15 @@
         let isShuffle = false;
         function toggleShuffle() {
             isShuffle = !isShuffle;
-            document.getElementById('shuffleBtn').style.color = isShuffle ? '#1ed760' : '#94a3b8';
+            const color = isShuffle ? '#1ed760' : '#d1d5db';
+            document.getElementById('modalShuffleBtn').style.color = color;
         }
 
         let isRepeat = false;
         function toggleRepeat() {
             isRepeat = !isRepeat;
-            document.getElementById('repeatBtn').style.color = isRepeat ? '#1ed760' : '#94a3b8';
+            const color = isRepeat ? '#1ed760' : '#d1d5db';
+            document.getElementById('modalRepeatBtn').style.color = color;
         }
 
         audioEngine.addEventListener('ended', () => {
@@ -880,15 +938,17 @@
         audioEngine.addEventListener('timeupdate', () => {
             if (audioEngine.duration) {
                 let progress = (audioEngine.currentTime / audioEngine.duration) * 100;
-                document.getElementById('progressBar').value = progress;
+                document.getElementById('modalProgressBar').value = progress;
                 
                 let mins = Math.floor(audioEngine.currentTime / 60);
                 let secs = Math.floor(audioEngine.currentTime % 60);
-                document.getElementById('currentTime').innerText = `${mins}:${secs < 10 ? '0':''}${secs}`;
+                let timeStr = `${mins}:${secs < 10 ? '0':''}${secs}`;
+                document.getElementById('modalCurrentTime').innerText = timeStr;
 
                 let totMins = Math.floor(audioEngine.duration / 60);
                 let totSecs = Math.floor(audioEngine.duration % 60);
-                document.getElementById('totalDuration').innerText = `${totMins}:${totSecs < 10 ? '0':''}${totSecs}`;
+                let totStr = `${totMins}:${totSecs < 10 ? '0':''}${totSecs}`;
+                document.getElementById('modalTotalDuration').innerText = totStr;
 
                 if (currentSongObject && currentSongObject.computedLyrics) {
                     let ct = audioEngine.currentTime;
@@ -932,19 +992,16 @@
             if (!currentSongObject) return;
             const viewPanel = document.getElementById('lyricsViewPanel');
             const editorPanel = document.getElementById('lyricsEditorPanel');
-            const editLabel = document.getElementById('editTextLabel');
             const textarea = document.getElementById('manualLyricsInput');
 
             if (editorPanel.classList.contains('hidden')) {
                 editorPanel.classList.remove('hidden');
                 viewPanel.classList.add('hidden');
-                editLabel.innerText = "Cerrar";
                 let saved = obtenerLetraGuardada(currentSongObject.id);
                 textarea.value = saved ? saved.join('\n') : "";
             } else {
                 editorPanel.classList.add('hidden');
                 viewPanel.classList.remove('hidden');
-                editLabel.innerText = "Editar / Pegar";
                 renderKaraokeLines();
             }
         }
@@ -963,7 +1020,7 @@
             if (!currentSongObject) return;
             let customLines = obtenerLetraGuardada(currentSongObject.id);
             if (!customLines) {
-                container.innerHTML = `<div class="text-slate-400 text-xs py-8">Haz clic en "Buscar Letra" y pégala aquí usando el botón de editar.</div>`;
+                container.innerHTML = `<div class="text-slate-300 text-sm py-10 text-center">Haz clic arriba en el icono del micrófono 🎤 para pegar la letra de esta canción.</div>`;
                 return;
             }
             const duracion = audioEngine.duration || 180;
