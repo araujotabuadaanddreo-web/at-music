@@ -462,8 +462,7 @@
             console.log("Modo offline.");
         }
 
-      
-         const database = [
+      const database = [
             // PAULO LONDRA (50 CANCIONES)
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
             { id: 2, title: "Adán y Eva", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=2", src: "canciones/adan-y-eva.mp3" },
@@ -652,13 +651,27 @@
             { id: 179, title: "Cumbia Con G", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=179", src: "canciones/cumbia-con-g.mp3" },
             { id: 180, title: "No Te Voy A Rogar", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=180", src: "canciones/no-te-voy-a-rogar.mp3" }
         ];
-
         let isPlaying = false;
         let currentTrackIndex = -1;
         let currentSongObject = null;
         let currentSongsDisplayed = [...database];
         const audioEngine = document.getElementById('audioEngine');
         audioEngine.volume = 1.0;
+
+        // Sincronización de eventos nativos de audio para evitar pausas accidentales al volver a la app
+        audioEngine.onplay = () => {
+            isPlaying = true;
+            document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+            document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+            actualizarIndicadoresVisuales();
+        };
+
+        audioEngine.onpause = () => {
+            isPlaying = false;
+            document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
+            document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
+            actualizarIndicadoresVisuales();
+        };
 
         window.addEventListener('DOMContentLoaded', () => {
             renderSongsTable('allSongsTableBody', database);
@@ -848,12 +861,12 @@
                 ` : `<i class="fa-solid fa-play text-slate-400 text-xs"></i>`;
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-[#282828] cursor-pointer transition">
+                    <tr id="song-row-${realIdx}" class="hover:bg-[#282828] cursor-pointer transition">
                         <td class="py-2.5 px-2 flex items-center gap-3" onclick="playSongIndex(${realIdx})">
-                            <div class="w-5 flex justify-center">${indicatorHTML}</div>
+                            <div class="w-5 flex justify-center indicator-cell">${indicatorHTML}</div>
                             <img src="${song.cover}" class="w-10 h-10 rounded object-cover">
                             <div>
-                                <div class="${isCurrent ? 'text-[#1ed760]' : 'text-white'} font-bold text-xs truncate">${song.title}</div>
+                                <div class="title-cell ${isCurrent ? 'text-[#1ed760]' : 'text-white'} font-bold text-xs truncate">${song.title}</div>
                                 <div class="text-[10px] text-slate-400 truncate">${song.artist}</div>
                             </div>
                         </td>
@@ -862,6 +875,34 @@
                         </td>
                     </tr>
                 `;
+            });
+        }
+
+        function actualizarIndicadoresVisuales() {
+            database.forEach((song, idx) => {
+                const row = document.getElementById(`song-row-${idx}`);
+                if (!row) return;
+                const indCell = row.querySelector('.indicator-cell');
+                const titleCell = row.querySelector('.title-cell');
+                const isCurrent = (currentSongObject && currentSongObject.id === song.id && isPlaying);
+                
+                if (indCell) {
+                    indCell.innerHTML = isCurrent ? `
+                        <div class="playing-icon">
+                            <div class="playing-bar"></div>
+                            <div class="playing-bar"></div>
+                            <div class="playing-bar"></div>
+                        </div>
+                    ` : `<i class="fa-solid fa-play text-slate-400 text-xs"></i>`;
+                }
+
+                if (titleCell) {
+                    if (currentSongObject && currentSongObject.id === song.id) {
+                        titleCell.className = "title-cell text-[#1ed760] font-bold text-xs truncate";
+                    } else {
+                        titleCell.className = "title-cell text-white font-bold text-xs truncate";
+                    }
+                }
             });
         }
 
@@ -881,59 +922,49 @@
         }
 
         function playSongIndex(idx) {
+            if (idx < 0 || idx >= database.length) return;
             currentTrackIndex = idx;
             currentSongObject = database[idx];
+
+            document.getElementById('playerTitle').innerText = currentSongObject.title;
+            document.getElementById('playerArtist').innerText = currentSongObject.artist;
+            document.getElementById('playerCover').src = currentSongObject.cover;
+            
+            document.getElementById('modalSongTitle').innerText = currentSongObject.title;
+            document.getElementById('modalSongArtist').innerText = currentSongObject.artist;
+            document.getElementById('modalTopTitle').innerText = currentSongObject.artist + " Popular";
+            document.getElementById('modalSongCover').src = currentSongObject.cover;
+
             audioEngine.src = currentSongObject.src;
-            audioEngine.play().then(() => {
-                isPlaying = true;
-                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
-                document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
-                
-                document.getElementById('playerTitle').innerText = currentSongObject.title;
-                document.getElementById('playerArtist').innerText = currentSongObject.artist;
-                document.getElementById('playerCover').src = currentSongObject.cover;
-                
-                document.getElementById('modalSongTitle').innerText = currentSongObject.title;
-                document.getElementById('modalSongArtist').innerText = currentSongObject.artist;
-                document.getElementById('modalTopTitle').innerText = currentSongObject.artist + " Popular";
-                document.getElementById('modalSongCover').src = currentSongObject.cover;
+            audioEngine.play().catch(e => console.log("Error de reproducción:", e));
 
-                actualizarBotonMeGustaUI(currentSongObject.id);
-                renderKaraokeLines();
-                renderSongsTable('allSongsTableBody', currentSongsDisplayed);
+            actualizarBotonMeGustaUI(currentSongObject.id);
+            renderKaraokeLines();
+            actualizarIndicadoresVisuales();
 
-                // Configurar controles multimedia en la notificación de Android
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: currentSongObject.title,
-                        artist: currentSongObject.artist,
-                        album: "AT Music",
-                        artwork: [{ src: currentSongObject.cover, sizes: '300x300', type: 'image/jpeg' }]
-                    });
+            // Configurar controles multimedia en la notificación de Android
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: currentSongObject.title,
+                    artist: currentSongObject.artist,
+                    album: "AT Music",
+                    artwork: [{ src: currentSongObject.cover, sizes: '300x300', type: 'image/jpeg' }]
+                });
 
-                    navigator.mediaSession.setActionHandler('play', () => { audioEngine.play(); isPlaying = true; document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>'; document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>'; });
-                    navigator.mediaSession.setActionHandler('pause', () => { audioEngine.pause(); isPlaying = false; document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>'; document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>'; });
-                    navigator.mediaSession.setActionHandler('previoustrack', () => { prevSong(); });
-                    navigator.mediaSession.setActionHandler('nexttrack', () => { nextSong(); });
-                }
-
-            }).catch(e => console.log("Error al reproducir audio:", e));
+                navigator.mediaSession.setActionHandler('play', () => { audioEngine.play(); });
+                navigator.mediaSession.setActionHandler('pause', () => { audioEngine.pause(); });
+                navigator.mediaSession.setActionHandler('previoustrack', () => { prevSong(); });
+                navigator.mediaSession.setActionHandler('nexttrack', () => { nextSong(); });
+            }
         }
 
         function togglePlay() {
             if (!currentSongObject) { playSongIndex(0); return; }
             if (isPlaying) {
                 audioEngine.pause();
-                isPlaying = false;
-                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
-                document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>';
             } else {
                 audioEngine.play();
-                isPlaying = true;
-                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
-                document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
             }
-            renderSongsTable('allSongsTableBody', currentSongsDisplayed);
         }
 
         function nextSong() {
