@@ -438,7 +438,7 @@
             </button>
         </div>
     </footer>
-    <audio id="audioEngine"></audio>
+    <audio id="audioEngine" preload="auto"></audio>
 
     <!-- LIBRERÍAS DE FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -462,7 +462,8 @@
             console.log("Modo offline.");
         }
 
- const database = [
+      
+         const database = [
             // PAULO LONDRA (50 CANCIONES)
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
             { id: 2, title: "Adán y Eva", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=2", src: "canciones/adan-y-eva.mp3" },
@@ -910,8 +911,8 @@
                         artwork: [{ src: currentSongObject.cover, sizes: '300x300', type: 'image/jpeg' }]
                     });
 
-                    navigator.mediaSession.setActionHandler('play', () => { togglePlay(); });
-                    navigator.mediaSession.setActionHandler('pause', () => { togglePlay(); });
+                    navigator.mediaSession.setActionHandler('play', () => { audioEngine.play(); isPlaying = true; document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>'; document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>'; });
+                    navigator.mediaSession.setActionHandler('pause', () => { audioEngine.pause(); isPlaying = false; document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>'; document.getElementById('modalPlayPauseBtn').innerHTML = '<i class="fa-solid fa-play"></i>'; });
                     navigator.mediaSession.setActionHandler('previoustrack', () => { prevSong(); });
                     navigator.mediaSession.setActionHandler('nexttrack', () => { nextSong(); });
                 }
