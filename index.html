@@ -651,6 +651,7 @@
             { id: 179, title: "Cumbia Con G", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=179", src: "canciones/cumbia-con-g.mp3" },
             { id: 180, title: "No Te Voy A Rogar", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=180", src: "canciones/no-te-voy-a-rogar.mp3" }
         ];
+
         let isPlaying = false;
         let currentTrackIndex = -1;
         let currentSongObject = null;
@@ -658,7 +659,15 @@
         const audioEngine = document.getElementById('audioEngine');
         audioEngine.volume = 1.0;
 
-        // Sincronización de eventos nativos de audio para evitar pausas accidentales al volver a la app
+        // Control estricto de visibilidad para evitar pausas al reingresar
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible" && currentSongObject && isPlaying) {
+                if (audioEngine.paused) {
+                    audioEngine.play().catch(e => console.log("Reanudación automática:", e));
+                }
+            }
+        });
+
         audioEngine.onplay = () => {
             isPlaying = true;
             document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-pause"></i>';
@@ -942,7 +951,6 @@
             renderKaraokeLines();
             actualizarIndicadoresVisuales();
 
-            // Configurar controles multimedia en la notificación de Android
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: currentSongObject.title,
@@ -1000,20 +1008,24 @@
             }
         });
 
+        // Optimizador de bucle de tiempo para evitar lag en dispositivos móviles
+        let lastUpdate = 0;
         audioEngine.addEventListener('timeupdate', () => {
+            let now = Date.now();
+            if (now - lastUpdate < 250) return; // Limita las actualizaciones a 4 veces por segundo para evitar el lag
+            lastUpdate = now;
+
             if (audioEngine.duration) {
                 let progress = (audioEngine.currentTime / audioEngine.duration) * 100;
                 document.getElementById('modalProgressBar').value = progress;
                 
                 let mins = Math.floor(audioEngine.currentTime / 60);
                 let secs = Math.floor(audioEngine.currentTime % 60);
-                let timeStr = `${mins}:${secs < 10 ? '0':''}${secs}`;
-                document.getElementById('modalCurrentTime').innerText = timeStr;
+                document.getElementById('modalCurrentTime').innerText = `${mins}:${secs < 10 ? '0':''}${secs}`;
 
                 let totMins = Math.floor(audioEngine.duration / 60);
                 let totSecs = Math.floor(audioEngine.duration % 60);
-                let totStr = `${totMins}:${totSecs < 10 ? '0':''}${totSecs}`;
-                document.getElementById('modalTotalDuration').innerText = totStr;
+                document.getElementById('modalTotalDuration').innerText = `${totMins}:${totSecs < 10 ? '0':''}${totSecs}`;
 
                 if (currentSongObject && currentSongObject.computedLyrics) {
                     let ct = audioEngine.currentTime;
@@ -1023,7 +1035,7 @@
                         const el = document.getElementById(`lyric-line-${idx}`);
                         if (el) {
                             el.classList.remove('active', 'passed');
-                            if (idx === activeIdx) { el.classList.add('active'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                            if (idx === activeIdx) { el.classList.add('active'); }
                             else if (idx < activeIdx) { el.classList.add('passed'); }
                         }
                     });
