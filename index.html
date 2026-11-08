@@ -259,7 +259,6 @@
                 <input type="text" id="searchInput" oninput="handleSearchInput(this.value)" placeholder="¿Qué quieres escuchar?" class="w-full bg-white text-black pl-9 pr-3 py-2.5 rounded-lg text-xs font-semibold focus:outline-none">
             </div>
             
-            <!-- Contenedor donde se muestran los resultados de búsqueda en tiempo real -->
             <div id="searchResultsContainer" class="space-y-1.5 pt-1"></div>
 
             <div id="searchExploreSection">
@@ -463,7 +462,7 @@
             console.log("Modo offline.");
         }
 
-         const database = [
+      const database = [
             // PAULO LONDRA (50 CANCIONES)
             { id: 1, title: "Tal Vez", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=1", src: "canciones/tal-vez.mp3" },
             { id: 2, title: "Adán y Eva", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=2", src: "canciones/adan-y-eva.mp3" },
@@ -493,17 +492,17 @@
             { id: 26, title: "Princesa", artist: "Khea ft. Paulo Londra", cover: "https://picsum.photos/300/300?random=26", src: "canciones/princesa.mp3" },
             { id: 27, title: "Julieta", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=27", src: "canciones/julieta.mp3" },
             { id: 28, title: "Noche de Novela", artist: "Paulo Londra ft. Ed Sheeran", cover: "https://picsum.photos/300/300?random=28", src: "canciones/noche-de-novela.mp3" },
-            { id: 29, title: "Neceser", artist: "Paulo Londra ft. Ryan Castro", cover: "https://picsum.photos/300/300?random=29", src: "canciones/neceser.mp3" },
+            { id: 29, title: "A Veces", artist: "Paulo Londra ft. Feid", cover: "https://picsum.photos/300/300?random=29", src: "canciones/a-veces.mp3" },
             { id: 30, title: "Posdata", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=30", src: "canciones/posdata.mp3" },
             { id: 31, title: "Me Tiene Mal", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=31", src: "canciones/me-tiene-mal.mp3" },
-            { id: 32, title: "Demasiado Solo", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=32", src: "canciones/demasiado-solo.mp3" },
+            { id: 32, title: "Demasiado Loco", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=32", src: "canciones/demasiado-loco.mp3" },
             { id: 33, title: "Sin Cadenas", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=33", src: "canciones/sin-cadenas.mp3" },
             { id: 34, title: "Soledad", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=34", src: "canciones/soledad.mp3" },
             { id: 35, title: "Cámara Lenta", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=35", src: "canciones/camara-lenta.mp3" },
-            { id: 36, title: "Fuera de Lista", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=36", src: "canciones/fuera-de-lista.mp3" },
-            { id: 37, title: "Rumbos", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=37", src: "canciones/rumbos.mp3" },
-            { id: 38, title: "Pensando en Ti", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=38", src: "canciones/pensando-en-ti.mp3" },
-            { id: 39, title: "Sigo Aquí", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=39", src: "canciones/sigo-aqui.mp3" },
+            { id: 36, title: "Por Eso Vine", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=36", src: "canciones/por-eso-vine.mp3" },
+            { id: 37, title: "Noche complicada", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=37", src: "canciones/noche_complicada.mp3" },
+            { id: 38, title: "a mi me asfixia la ciundad", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=38", src: "canciones/La_ciudad.mp3" },
+            { id: 39, title: "Por Eso Vine", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=39", src: "canciones/por-eso-vine.mp3" },
             { id: 40, title: "Sola", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=40", src: "canciones/sola.mp3" },
             { id: 41, title: "A Ciegas", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=41", src: "canciones/a-ciegas.mp3" },
             { id: 42, title: "Vuelvo", artist: "Paulo Londra", cover: "https://picsum.photos/300/300?random=42", src: "canciones/vuelvo.mp3" },
@@ -652,6 +651,7 @@
             { id: 179, title: "Cumbia Con G", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=179", src: "canciones/cumbia-con-g.mp3" },
             { id: 180, title: "No Te Voy A Rogar", artist: "Grupo Frontera", cover: "https://picsum.photos/300/300?random=180", src: "canciones/no-te-voy-a-rogar.mp3" }
         ];
+
         let isPlaying = false;
         let currentTrackIndex = -1;
         let currentSongObject = null;
@@ -900,6 +900,22 @@
                 actualizarBotonMeGustaUI(currentSongObject.id);
                 renderKaraokeLines();
                 renderSongsTable('allSongsTableBody', currentSongsDisplayed);
+
+                // Configurar controles multimedia en la notificación de Android
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: currentSongObject.title,
+                        artist: currentSongObject.artist,
+                        album: "AT Music",
+                        artwork: [{ src: currentSongObject.cover, sizes: '300x300', type: 'image/jpeg' }]
+                    });
+
+                    navigator.mediaSession.setActionHandler('play', () => { togglePlay(); });
+                    navigator.mediaSession.setActionHandler('pause', () => { togglePlay(); });
+                    navigator.mediaSession.setActionHandler('previoustrack', () => { prevSong(); });
+                    navigator.mediaSession.setActionHandler('nexttrack', () => { nextSong(); });
+                }
+
             }).catch(e => console.log("Error al reproducir audio:", e));
         }
 
